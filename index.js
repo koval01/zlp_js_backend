@@ -24,7 +24,7 @@ app.get('/', function(req, resp) {
     },
     function (error, response, body) {
       if (!error && response.statusCode == 200) {
-        resp.send({"success": true, "body": body})
+        resp.send({"success": true, "body": body.replace("\\", "")})
       }
       else {
         resp.send({"success": false, "message": "Input function error", "exception": error})
