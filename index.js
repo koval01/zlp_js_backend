@@ -26,7 +26,8 @@ app.get('/', function(request, response) {
       console.log(`statusCode: ${res.statusCode}`)
 
       res.on('data', data => {
-        response.send({"success": true, "body": data})
+        response.send({"success": true, "body": data});
+        return
       })
     })
 
