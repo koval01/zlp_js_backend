@@ -14,12 +14,12 @@ app.get('/', function(request, response) {
       port: 443,
       path: `/s/zalupa_history?before=${request.query.before}`,
       method: 'POST',
-      headers: {
-        'Origin': 'https://t.me',
-        'Referer': 'https://t.me/s/zalupa_history',
-        'Host': 't.me',
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.2 Safari/605.1.15'
-      }
+//       headers: {
+//         'Origin': 'https://t.me',
+//         'Referer': 'https://t.me/s/zalupa_history',
+//         'Host': 't.me',
+//         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.2 Safari/605.1.15'
+//       }
     }
 
     const req = https.request(options, res => {
