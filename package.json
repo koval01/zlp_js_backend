@@ -1,0 +1,30 @@
+{
+  "name": "zlpnews_proxy",
+  "version": "1.0.0",
+  "description": "Proxy app",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "compression": "^1.7.4",
+  },
+  "engines": {
+    "node": "16.13.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/koval/zlpnews_proxy"
+  },
+  "keywords": [
+    "node",
+    "heroku",
+    "express"
+  ],
+  "author": "Yaroslav Koval",
+  "contributors": [
+    "Yaroslav Koval <yaroslav@koval.page> (https://yaroslav.koval.page"
+  ],
+  "license": "MIT"
+}
