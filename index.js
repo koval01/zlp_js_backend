@@ -1,4 +1,4 @@
-const https = require('https')
+const request = require('request')
 const compression = require('compression')
 const express = require('express')
 var app = express()
@@ -9,33 +9,24 @@ app.use(compression())
 
 app.get('/', function(request, response) {
   try {
-    const options = {
-      hostname: 't.me',
-      port: 443,
-      path: `/s/zalupa_history?before=${request.query.before}`,
-      method: 'POST',
-//       headers: {
-//         'Origin': 'https://t.me',
-//         'Referer': 'https://t.me/s/zalupa_history',
-//         'Host': 't.me',
-//         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.2 Safari/605.1.15'
-//       }
+    request.post(`https://t.me/s/zalupa_history?before=${request.query.before}`,
+    {
+      headers: {
+        'Origin': 'https://t.me',
+        'Referer': 'https://t.me/s/zalupa_history',
+        'Host': 't.me',
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.2 Safari/605.1.15'
+      } 
+    },
+    function (error, response, body) {
+      if (!error && response.statusCode == 200) {
+        response.send({"success": true, "body": body})
+      }
+      else {
+        response.send({"success": false, "message": "Input function error", "exception": error})
+      }    
     }
-
-    const req = https.request(options, res => {
-      console.log(`statusCode: ${res.statusCode}`)
-
-      res.on('data', data => {
-        response.send({"success": true, "body": data});
-        return
-      })
-    })
-
-    req.on('error', error => {
-      response.send({"success": false, "message": "Input function error", "exception": error})
-    })
-
-    req.end()
+)
   } catch (error) {
     response.send({"success": false, "error_body": {
       "message": "Global function error", "exception": error
