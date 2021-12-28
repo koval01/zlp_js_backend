@@ -7,9 +7,9 @@ app.set('port', (process.env.PORT || 5000))
 app.use(express.json())
 app.use(compression())
 
-app.get('/', function(request, response) {
+app.get('/', function(req, response) {
 //   try {
-    request.post(`https://t.me/s/zalupa_history?before=${request.query.before}`,
+    request.post(`https://t.me/s/zalupa_history?before=${req.query.before}`,
     {
       headers: {
         'Origin': 'https://t.me',
