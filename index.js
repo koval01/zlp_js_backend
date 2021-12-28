@@ -7,8 +7,8 @@ app.set('port', (process.env.PORT || 5000))
 app.use(express.json())
 app.use(compression())
 
-app.get('/', function(req, response) {
-//   try {
+app.get('/', function(req, resp) {
+  try {
     request.post(`https://t.me/s/zalupa_history?before=${req.query.before}`,
     {
       headers: {
@@ -20,17 +20,17 @@ app.get('/', function(req, response) {
     },
     function (error, response, body) {
       if (!error && response.statusCode == 200) {
-        response.send({"success": true, "body": body})
+        resp.send({"success": true, "body": body})
       }
       else {
-        response.send({"success": false, "message": "Input function error", "exception": error})
+        resp.send({"success": false, "message": "Input function error", "exception": error})
       }    
     })
-//   } catch (error) {
-//     response.send({"success": false, "error_body": {
-//       "message": "Global function error", "exception": error
-//     }})
-//   }
+  } catch (error) {
+    response.send({"success": false, "error_body": {
+      "message": "Global function error", "exception": error
+    }})
+  }
 })
 
 app.listen(app.get('port'), function() {
