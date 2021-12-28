@@ -12,7 +12,7 @@ app.get('/', function(request, response) {
     const options = {
       hostname: 't.me',
       port: 443,
-      path: '/s/zalupa_history',
+      path: `/s/zalupa_history?before=${request.query.before}`,
       method: 'POST',
       headers: {
         'Origin': 'https://t.me',
