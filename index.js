@@ -9,8 +9,10 @@ app.use(compression())
 
 app.get('/', function(req, resp) {
   try {
-    request.post(`https://t.me/s/zalupa_history?before=${req.query.before}`,
+    request(
     {
+      uri: `https://t.me/s/zalupa_history?before=${req.query.before}`,
+      method: 'POST',
       headers: {
         'Origin': 'https://t.me',
         'Referer': 'https://t.me/s/zalupa_history',
