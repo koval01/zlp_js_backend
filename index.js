@@ -26,7 +26,6 @@ app.get('/', function(request, response) {
         response.send({"success": false, "message": "Input function error", "exception": error})
       }    
     }
-)
   } catch (error) {
     response.send({"success": false, "error_body": {
       "message": "Global function error", "exception": error
