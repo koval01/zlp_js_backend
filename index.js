@@ -44,6 +44,10 @@ app.get('/channel', function(req, resp) {
 
 app.get('/server', function(req, resp) {
   try {
+    const options = {
+        timeout: 1000 * 3,
+        enableSRV: true
+    }
     mcstatus.status('zalupa.online', 25565, options)
         .then((result) => resp.send({"success": true, "body": result})
         .catch((error) => resp.send({"success": false, "error_body": {
