@@ -2,7 +2,7 @@ const request = require('request')
 const compression = require('compression')
 const cors = require('cors')
 const express = require('express')
-const mcstatus = require('minecraft-server-api')
+const mcstatus = require('minecraft-server-util')
 
 var app = express()
 
