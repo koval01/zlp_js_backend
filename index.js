@@ -36,7 +36,7 @@ app.get('/channel', function(req, resp) {
       }    
     })
   } catch (error) {
-    response.send({"success": false, "error_body": {
+    resp.send({"success": false, "error_body": {
       "message": "Global function error", "exception": error
     }})
   }
@@ -44,11 +44,13 @@ app.get('/channel', function(req, resp) {
 
 app.get('/server', function(req, resp) {
   try {
-    mcstatus('zalupa.online', 25565, callback => {
-      resp.send({"success": true, "body": callback})
-    })
+    mcstatus.status('zalupa.online', 25565, options)
+        .then((result) => resp.send({"success": true, "body": result})
+        .catch((error) => resp.send({"success": false, "error_body": {
+          "message": "Server data get error", "exception": error
+        }})
   } catch (error) {
-    response.send({"success": false, "error_body": {
+    resp.send({"success": false, "error_body": {
       "message": "Global function error", "exception": error
     }})
   }
