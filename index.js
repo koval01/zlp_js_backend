@@ -48,8 +48,7 @@ app.get('/channel', (req, resp) => {
 app.get('/server', (req, resp) => {
   try {
     const options = {
-      timeout: 1000 * 3,
-      enableSRV: true,
+      timeout: 1000 * 3
     };
     mcstatus.status('zalupa.online', 25565, options)
       .then((result) => resp.send({ success: true, body: result }))
