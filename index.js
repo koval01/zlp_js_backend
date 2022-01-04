@@ -51,10 +51,10 @@ app.get('/server', (req, resp) => {
       timeout: 1000 * 3
     }
     function result_(data) {
-      delete data.favicon, 
+      delete data.favicon
         
-      delete data.motd.raw, 
-      delete data.motd.clean,
+      delete data.motd.raw
+      delete data.motd.clean
         
       return data
     }
