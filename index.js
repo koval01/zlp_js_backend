@@ -51,7 +51,7 @@ app.get('/server', (req, resp) => {
       timeout: 1000 * 3
     }
     function result_(data) {
-      delete data.favicon
+      delete data.favicon, data.motd.raw, data.motd.clean,
       return data
     }
     mcstatus.status('zalupa.online', 25565, options)
