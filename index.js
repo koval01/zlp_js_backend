@@ -50,9 +50,13 @@ app.get('/server', (req, resp) => {
     const options = {
       timeout: 1000 * 3
     }
+    function result_(data) {
+      delete data.favicon
+      return data
+    }
     mcstatus.status('zalupa.online', 25565, options)
       .then((result) => resp.send({ 
-        success: true, body: result 
+        success: true, body: result_(result) 
       }))
       .catch((error) => resp.send({
         success: false,
