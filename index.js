@@ -1,15 +1,15 @@
-const request = require('request');
-const compression = require('compression');
-const cors = require('cors');
-const express = require('express');
-const mcstatus = require('minecraft-server-util');
+const request = require('request')
+const compression = require('compression')
+const cors = require('cors')
+const express = require('express')
+const mcstatus = require('minecraft-server-util')
 
-const app = express();
+const app = express()
 
-app.set('port', (process.env.PORT || 5000));
-app.use(express.json());
-app.use(compression());
-app.use(cors());
+app.set('port', (process.env.PORT || 5000))
+app.use(express.json())
+app.use(compression())
+app.use(cors())
 
 app.get('/channel', (req, resp) => {
   try {
