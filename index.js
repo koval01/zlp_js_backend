@@ -51,9 +51,7 @@ app.get('/server', (req, resp) => {
       timeout: 1000 * 3
     }
     mcstatus.status('zalupa.online', 25565, options)
-      .then((result) => 
-      delete result.favicon,
-      resp.send({ 
+      .then((result) => resp.send({ 
         success: true, body: result 
       }))
       .catch((error) => resp.send({
