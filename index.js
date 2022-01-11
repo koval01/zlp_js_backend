@@ -95,12 +95,13 @@ app.get('/neuro', (req, resp) => {
         },
         json: {
           "prompt": "Залупа подарит незабываемые ощущения. Гляди и наслаждайся, пока есть возможность. У тебя есть уникальная возможность",
-          "length": 60
+          "num_samples": 1,
+          "length": 30
         }
       },
       (error, response, body) => {
         if (!error && response.statusCode == 200) {
-          resp.send({ success: true, body: body })
+          resp.send({ success: true, body: body.replies[0] })
         } else {
           resp.send({ success: false, message: 'Input function error', exception: error })
         }
