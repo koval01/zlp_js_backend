@@ -101,7 +101,7 @@ app.get('/neuro', (req, resp) => {
       },
       (error, response, body) => {
         if (!error && response.statusCode == 200) {
-          resp.send({ success: true, body: body.replies[0].trim() })
+          resp.send({ success: true, body: body.replies[0] })
         } else {
           resp.send({ success: false, message: 'Input function error', exception: error })
         }
