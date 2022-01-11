@@ -29,7 +29,7 @@ app.get('/channel', (req, resp) => {
       },
       (error, response, body) => {
         if (!error && response.statusCode == 200) {
-          resp.send({ success: true, body: body.replace('"', '').replace('\\', '') })
+          resp.send({ success: true, body: body })
         } else {
           resp.send({ success: false, message: 'Input function error', exception: error })
         }
@@ -71,6 +71,43 @@ app.get('/server', (req, resp) => {
           message: 'Server data get error', exception: error
         }
       }))
+  } catch (error) {
+    resp.send({
+      success: false,
+      error_body: {
+        message: 'Global function error', exception: error
+      }
+    })
+  }
+})
+
+app.get('/neuro', (req, resp) => {
+  try {
+    request(
+      {
+        uri: `https://pelevin.gpt.dobro.ai/generate/`,
+        method: 'POST',
+        headers: {
+          Origin: 'https://porfirevich.ru',
+          Referer: 'https://porfirevich.ru',
+          Host: 'porfirevich.ru',
+          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.2 Safari/605.1.15',
+          Connection: 'keep-alive',
+          'Content-Type': 'text/plain;charset=UTF-8'
+        },
+        json: {
+          "prompt": "Залупа подарит незабываемые ощущения.",
+          "length": 60
+        }
+      },
+      (error, response, body) => {
+        if (!error && response.statusCode == 200) {
+          resp.send({ success: true, body: body })
+        } else {
+          resp.send({ success: false, message: 'Input function error', exception: error })
+        }
+      }
+    )
   } catch (error) {
     resp.send({
       success: false,
