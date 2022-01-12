@@ -11,10 +11,11 @@
     "compression": "^1.7.4",
     "request": "^2.88.2",
     "cors": "^2.8.5",
-    "minecraft-server-util": "^5.2.8"
+    "minecraft-server-util": "^5.2.8",
+    "minecraft-protocol": "^1.30.0"
   },
   "engines": {
-    "node": "16.13.0"
+    "node": "16.13.1"
   },
   "repository": {
     "type": "git",
