@@ -9,25 +9,29 @@ const app = express()
 
 var chat_array = []
 
-const client = mc_client.createClient({
-  host: "51.178.76.233",
-  port: 41669,
-  username: "lur.sami@laposte.net",
-  password: "Sami2015",
-  auth: 'mojang'
-})
-client.on('chat', function(packet) {
-  var jsonMsg = JSON.parse(packet.message);
-  if(jsonMsg.translate == 'chat.type.announcement' || jsonMsg.translate == 'chat.type.text') {
-    var username = jsonMsg.with[0].text;
-    var msg = jsonMsg.with[1];
-    // if(username === client.username) return;
-    
-    chat_array.push({
-      "player": jsonMsg.with[0].text, "message": jsonMsg.with[1], "raw_msg": jsonMsg
-    })
-  }
-})
+try {
+  const client = mc_client.createClient({
+    host: "51.178.76.233",
+    port: 41669,
+    username: "lur.sami@laposte.net",
+    password: "Sami2015",
+    auth: 'mojang'
+  })
+  client.on('chat', function(packet) {
+    var jsonMsg = JSON.parse(packet.message);
+    if(jsonMsg.translate == 'chat.type.announcement' || jsonMsg.translate == 'chat.type.text') {
+      var username = jsonMsg.with[0].text;
+      var msg = jsonMsg.with[1];
+      // if(username === client.username) return;
+
+      chat_array.push({
+        "player": jsonMsg.with[0].text, "message": jsonMsg.with[1], "raw_msg": jsonMsg
+      })
+    }
+  })
+} catch (e) {
+  console.log(e)
+}
 
 app.set('port', (process.env.PORT || 5000))
 app.use(express.json())
