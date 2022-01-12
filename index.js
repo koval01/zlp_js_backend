@@ -12,7 +12,7 @@ var chat_array = []
 
 const mc_client = require('minecraft-protocol')
 const client = mc_client.createClient({
-  host: "zalupa.online",
+  host: "jRb7zj.serv.gs",
   port: 25565,
   username: "yaytherescake1@gmail.com",
   password: "marcelo0707",
