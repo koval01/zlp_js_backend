@@ -26,7 +26,7 @@ try {
     })
   })
 } catch (e) {
-  console.log(e)
+  console.log(`Error minecraft client: ${e}`)
 }
 
 app.set('port', (process.env.PORT || 5000))
