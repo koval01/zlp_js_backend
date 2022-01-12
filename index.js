@@ -19,16 +19,11 @@ try {
   })
   client.on('chat', function(packet) {
     var jsonMsg = JSON.parse(packet.message);
-    console.log(jsonMsg)
-    if(jsonMsg.translate == 'chat.type.announcement' || jsonMsg.translate == 'chat.type.text') {
-      var username = jsonMsg.with[0].text;
-      var msg = jsonMsg.with[1];
-      // if(username === client.username) return;
-
-      chat_array.push({
-        player: username, message: msg, raw_msg: jsonMsg
-      })
-    }
+    var username = jsonMsg.with[0].text;
+    var msg = jsonMsg.with[1];
+    chat_array.push({
+      player: username, message: msg, raw_msg: jsonMsg
+    })
   })
 } catch (e) {
   console.log(e)
