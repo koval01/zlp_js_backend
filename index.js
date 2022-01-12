@@ -3,13 +3,13 @@ const compression = require('compression')
 const cors = require('cors')
 const express = require('express')
 const mcstatus = require('minecraft-server-util')
-const mc_client = require('minecraft-protocol')
 
 const app = express()
 
 var chat_array = []
 
 try {
+  const mc_client = require('minecraft-protocol')
   const client = mc_client.createClient({
     host: "zalupa.online",
     port: 25565,
@@ -18,9 +18,9 @@ try {
     auth: 'mojang'
   })
   client.on('chat', function(packet) {
-    var jsonMsg = JSON.parse(packet.message);
-    var username = jsonMsg.with[0].text;
-    var msg = jsonMsg.with[1];
+    const jsonMsg = JSON.parse(packet.message);
+    const username = jsonMsg.with[0].text;
+    const msg = jsonMsg.with[1];
     chat_array.push({
       player: username, message: msg, raw_msg: jsonMsg
     })
