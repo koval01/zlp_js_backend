@@ -13,8 +13,8 @@ try {
   const client = mc_client.createClient({
     host: "zalupa.online",
     port: 25565,
-    username: "uzvb@yandex.com",
-    password: "rokasstol1",
+    username: "isakov-martiyy@rambler.ru",
+    password: "BJ9FQ0x9PHm8qk3",
     auth: 'mojang'
   })
   client.on('chat', function(packet) {
