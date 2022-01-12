@@ -21,6 +21,8 @@ try {
     client.on('chat', function(packet) {
       const message_json = JSON.parse(packet.message)
       const time_order = new Date().getTime()
+      console.log(message_json)
+      
       var result_text = ""
       try {
         const msg_in = message_json.extra
