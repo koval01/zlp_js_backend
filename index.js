@@ -18,9 +18,15 @@ const client = mc_client.createClient({
 })
 client.on('chat', function(packet) {
   var jsonMsg = JSON.parse(packet.message);
-  chat_array.push({
-    "player": jsonMsg.with[0].text, "message": jsonMsg.with[1], "raw_msg": jsonMsg
-  })
+  if(jsonMsg.translate == 'chat.type.announcement' || jsonMsg.translate == 'chat.type.text') {
+    var username = jsonMsg.with[0].text;
+    var msg = jsonMsg.with[1];
+    // if(username === client.username) return;
+    
+    chat_array.push({
+      "player": jsonMsg.with[0].text, "message": jsonMsg.with[1], "raw_msg": jsonMsg
+    })
+  }
 })
 
 app.set('port', (process.env.PORT || 5000))
