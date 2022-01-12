@@ -109,7 +109,7 @@ app.get('/neuro', (req, resp) => {
               break
             }
           }
-          resp.send({ success: result.length != 0, body: result })
+          resp.send({ success: result.length != 0, body: result, length_result: result.length })
         } else {
           resp.send({ success: false, message: 'Input function error', exception: error })
         }
