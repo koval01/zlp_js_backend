@@ -19,14 +19,14 @@ const client = mc_client.createClient({
 client.on('chat', function(packet) {
   const message_json = JSON.parse(packet.message)
   const time_order = new Date().getTime()
-  chat_array.push(message_json)
   
-//   var result_text = ""
-//   const msg_in = message_json.extra
-//   for (let i = 0; i < msg_in; i++) {
-//     result_text = result_text + msg_in[i];
-//   }
-//   chat_array.push({message: result_text, time: time_order})
+  var result_text = ""
+  const msg_in = message_json.extra
+  
+  for (let i = 0; i < msg_in; i++) {
+    result_text = result_text + msg_in[i];
+  }
+  chat_array.push({message: result_text, time: time_order})
 })
 
 app.set('port', (process.env.PORT || 5000))
