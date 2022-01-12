@@ -104,7 +104,7 @@ app.get('/neuro', (req, resp) => {
           body = body.replies
           let result = ""
           for (let i = 0; i < body.length; i++) {
-            if (body[i].length > 5 < 100) {
+            if (body[i].length > 5) {
               result = body[i]
               break
             }
