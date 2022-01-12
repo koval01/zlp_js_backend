@@ -11,8 +11,8 @@ var chat_array = []
 
 try {
   const client = mc_client.createClient({
-    host: "51.178.76.233",
-    port: 41669,
+    host: "zalupa.online",
+    port: 25565,
     username: "uzvb@yandex.com",
     password: "rokasstol1",
     auth: 'mojang'
