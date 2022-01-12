@@ -8,32 +8,25 @@ const app = express()
 
 var chat_array = []
 
-try {
-  const mc_client = require('minecraft-protocol')
-  const client = mc_client.createClient({
-    host: "zalupa.online",
-    port: 25565,
-    username: "jesse@valkenaar.net",
-    password: "deadpool2J!",
-    auth: 'mojang'
-  })
-  try {
-    client.on('chat', function(packet) {
-      const message_json = JSON.parse(packet.message)
-      const time_order = new Date().getTime()
-      console.log(message_json)
-      
-      var result_text = ""
-      try {
-        const msg_in = message_json.extra
-        for (let i = 0; i < msg_in; i++) {
-          result_text = result_text + msg_in[i];
-        }
-      } catch (e) { console.log(`Error in for (mc client) - ${e}`) }
-      chat_array.push({message: result_text, time: time_order})
-    })
-  } catch (e) { console.log(`Internal error minecraft client: ${e}`) }
-} catch (e) { console.log(`Error minecraft client: ${e}`) }
+const mc_client = require('minecraft-protocol')
+const client = mc_client.createClient({
+  host: "zalupa.online",
+  port: 25565,
+  username: "jesse@valkenaar.net",
+  password: "deadpool2J!",
+  auth: 'mojang'
+})
+client.on('chat', function(packet) {
+  const message_json = JSON.parse(packet.message)
+  const time_order = new Date().getTime()
+
+  var result_text = ""
+  const msg_in = message_json.extra
+  for (let i = 0; i < msg_in; i++) {
+    result_text = result_text + msg_in[i];
+  }
+  chat_array.push({message: result_text, time: time_order})
+})
 
 app.set('port', (process.env.PORT || 5000))
 app.use(express.json())
