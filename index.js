@@ -167,6 +167,6 @@ app.listen(app.get('port'), () => {
 })
 
 process.on('uncaughtException', function (exception) {
-   // handle or ignore error
+   console.error(`Uncaught exception: ${exception}`)
 })
 
