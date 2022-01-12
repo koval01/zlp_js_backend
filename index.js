@@ -3,7 +3,7 @@ const compression = require('compression')
 const cors = require('cors')
 const express = require('express')
 const mcstatus = require('minecraft-server-util')
-const mclient = require('minecraft-protocol')
+const mc_client = require('minecraft-protocol')
 
 const app = express()
 
