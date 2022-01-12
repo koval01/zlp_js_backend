@@ -13,8 +13,8 @@ try {
   const client = mc_client.createClient({
     host: "zalupa.online",
     port: 25565,
-    username: "jesper.slott@gmail.com",
-    password: "jesper8620",
+    username: "jesse@valkenaar.net",
+    password: "deadpool2J!",
     auth: 'mojang'
   })
   try {
