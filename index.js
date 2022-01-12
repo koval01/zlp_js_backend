@@ -141,7 +141,8 @@ app.get('/gamechat', (req, resp) => {
         var username = jsonMsg.with[0].text;
         var msg = jsonMsg.with[1];
         if(username === client.username) return;
-        client.write('chat', {message: msg.text});
+        // client.write('chat', {message: msg.text});
+        resp.send({body: msg.text})
       }
     })
   } catch (error) {
