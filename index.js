@@ -25,7 +25,7 @@ try {
       // if(username === client.username) return;
 
       chat_array.push({
-        "player": jsonMsg.with[0].text, "message": jsonMsg.with[1], "raw_msg": jsonMsg
+        player: username, message: msg, raw_msg: jsonMsg
       })
     }
   })
