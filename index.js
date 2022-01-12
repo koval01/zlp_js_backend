@@ -126,6 +126,34 @@ app.get('/neuro', (req, resp) => {
   }
 })
 
+app.get('/gamechat', (req, resp) => {
+  try {
+    const client = mc_client.createClient({
+      host: "51.178.76.233",
+      port: 41669,
+      username: "lur.sami@laposte.net",
+      password: "Sami2015",
+      auth: 'mojang'
+    })
+    client.on('chat', function(packet) {
+      var jsonMsg = JSON.parse(packet.message);
+      if(jsonMsg.translate == 'chat.type.announcement' || jsonMsg.translate == 'chat.type.text') {
+        var username = jsonMsg.with[0].text;
+        var msg = jsonMsg.with[1];
+        if(username === client.username) return;
+        client.write('chat', {message: msg.text});
+      }
+    })
+  } catch (error) {
+    resp.send({
+      success: false,
+      error_body: {
+        message: 'Global function error', exception: error
+      }
+    })
+  }
+})
+
 app.listen(app.get('port'), () => {
   console.log(`Node app is running at localhost:${app.get('port')}`)
 })
