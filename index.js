@@ -20,7 +20,7 @@ const client = mc_client.createClient({
 })
 client.on('chat', function(packet) {
   if (chat_array.length > max_len_chat_array) { chat_array.slice(-Math.abs(max_len_chat_array)) }
-  chat_array.push({raw_msg: JSON.parse(packet.message), time_order: Math.floor(new Date() / 1000)})
+  chat_array.push({"raw_msg": JSON.parse(packet.message), "time_order": Math.floor(new Date() / 1000)})
 })
 
 app.set('port', (process.env.PORT || 5000))
