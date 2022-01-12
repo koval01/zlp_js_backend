@@ -13,8 +13,8 @@ try {
   const client = mc_client.createClient({
     host: "51.178.76.233",
     port: 41669,
-    username: "lur.sami@laposte.net",
-    password: "Sami2015",
+    username: "uzvb@yandex.com",
+    password: "rokasstol1",
     auth: 'mojang'
   })
   client.on('chat', function(packet) {
