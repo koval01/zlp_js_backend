@@ -17,17 +17,7 @@ const client = mc_client.createClient({
   auth: 'mojang'
 })
 client.on('chat', function(packet) {
-  // const message_json = JSON.parse(packet.message)
-  const message_json = JSON.parse("{'extra': [{'color': 'gray', 'text': '['}, {'color': '#FF9E00', 'text': 'G'}, {'color': 'gray', 'text': '] '}, {'color': 'gray', 'clickEvent': {'action': 'suggest_command', 'value': '/msg Getfixx '}, 'hoverEvent': {'action': 'show_text', 'contents': {'extra': [{'color': 'dark_aqua', 'text': 'zalupa.online'}, {'color': 'white', 'text': '\n'}, {'color': 'white', 'text': '\n'}, {'color': 'white', 'text': ' '}, {'color': 'white', 'text': 'Игрок: '}, {'color': 'dark_aqua', 'text': 'Getfixx'}, {'color': 'white', 'text': '\n'}, {'color': 'white', 'text': ' '}, {'color': 'white', 'text': 'Наиграно: '}, {'color': 'green', 'text': '0 '}, {'color': 'white', 'text': 'д. '}, {'color': 'green', 'text': '1 '}, {'color': 'white', 'text': 'ч. '}, {'color': 'green', 'text': '101 '}, {'color': 'white', 'text': 'м.'}, {'color': 'white', 'text': '\n'}, {'color': 'white', 'text': '\n'}, {'color': 'white', 'text': ' '}, {'color': 'white', 'text': 'Статистика:'}, {'color': 'white', 'text': '\n'}, {'color': 'white', 'text': ' '}, {'color': 'dark_gray', 'text': '○ '}, {'color': 'white', 'text': 'Убито игроков: '}, {'color': 'red', 'text': '2'}, {'color': 'white', 'text': '\n'}, {'color': 'white', 'text': ' '}, {'color': 'dark_gray', 'text': '○ '}, {'color': 'white', 'text': 'Убито мобов: '}, {'color': 'light_purple', 'text': '17'}, {'color': 'white', 'text': '\n'}, {'color': 'white', 'text': ' '}, {'color': 'dark_gray', 'text': '○ '}, {'color': 'white', 'text': 'Смертей: '}, {'color': 'dark_aqua', 'text': '28'}, {'color': 'white', 'text': '\n'}, {'color': 'white', 'text': '\n'}, {'color': 'white', 'text': 'Наша пещера залупяндии: '}, {'color': 'gold', 'text': 't.me/zalupaonline'}], 'text': ''}}, 'text': 'Getfixx'}, {'color': 'white', 'text': ' → '}, {'color': 'white', 'text': 'rsimson сколько еще ждать'}], 'text': ''}")
-  const time_order = new Date().getTime()
-  
-  var result_text = ""
-  const msg_in = message_json.extra
-  
-  for (let i = 0; i < msg_in; i++) {
-    result_text = result_text + msg_in[i];
-  }
-  chat_array.push({message: result_text, time: time_order})
+  chat_array.push(JSON.parse(packet.message))
 })
 
 app.set('port', (process.env.PORT || 5000))
