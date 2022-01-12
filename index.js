@@ -17,17 +17,12 @@ try {
     password: "BJ9FQ0x9PHm8qk3",
     auth: 'mojang'
   })
-  client.on('chat', function(packet) {
-    const jsonMsg = JSON.parse(packet.message);
-    const username = jsonMsg.with[0].text;
-    const msg = jsonMsg.with[1];
-    chat_array.push({
-      player: username, message: msg, raw_msg: jsonMsg
+  try {
+    client.on('chat', function(packet) {
+      chat_array.push(JSON.parse(packet.message))
     })
-  })
-} catch (e) {
-  console.log(`Error minecraft client: ${e}`)
-}
+  } catch (e) { console.log(`Internal error minecraft client: ${e}`) }
+} catch (e) { console.log(`Error minecraft client: ${e}`) }
 
 app.set('port', (process.env.PORT || 5000))
 app.use(express.json())
