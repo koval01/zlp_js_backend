@@ -14,8 +14,8 @@ const mc_client = require('minecraft-protocol')
 const client = mc_client.createClient({
   host: "zalupa.online",
   port: 25565,
-  username: "Xtillius@hotmail.com",
-  password: "felix1",
+  username: "marciodailsonmr@gmail.com",
+  password: "M@rc1o20",
   auth: 'mojang'
 })
 client.on('chat', function(packet) {
