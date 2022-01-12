@@ -19,7 +19,16 @@ try {
   })
   try {
     client.on('chat', function(packet) {
-      chat_array.push(JSON.parse(packet.message))
+      const message_json = JSON.parse(packet.message)
+      const time_order = new Date().getTime()
+      var result_text = ""
+      try {
+        const msg_in = message_json.extra
+        for (let i = 0; i < msg_in; i++) {
+          result_text = result_text + msg_in[i];
+        }
+      } catch (e) { console.log(`Error in for (mc client) - ${e}`) }
+      chat_array.push({message: result_text, time: time_order})
     })
   } catch (e) { console.log(`Internal error minecraft client: ${e}`) }
 } catch (e) { console.log(`Error minecraft client: ${e}`) }
