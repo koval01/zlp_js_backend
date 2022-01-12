@@ -7,6 +7,25 @@ const mc_client = require('minecraft-protocol')
 
 const app = express()
 
+var chat_array = []
+
+const client = mc_client.createClient({
+  host: "51.178.76.233",
+  port: 41669,
+  username: "lur.sami@laposte.net",
+  password: "Sami2015",
+  auth: 'mojang'
+})
+client.on('chat', function(packet) {
+  var jsonMsg = JSON.parse(packet.message);
+  if(jsonMsg.translate == 'chat.type.announcement' || jsonMsg.translate == 'chat.type.text') {
+    var username = jsonMsg.with[0].text;
+    var msg = jsonMsg.with[1];
+    chat_array.push(jsonMsg)
+    if(username === client.username) return;
+  }
+})
+
 app.set('port', (process.env.PORT || 5000))
 app.use(express.json())
 app.use(compression())
@@ -128,22 +147,8 @@ app.get('/neuro', (req, resp) => {
 
 app.get('/gamechat', (req, resp) => {
   try {
-    const client = mc_client.createClient({
-      host: "51.178.76.233",
-      port: 41669,
-      username: "lur.sami@laposte.net",
-      password: "Sami2015",
-      auth: 'mojang'
-    })
-    client.on('chat', function(packet) {
-      var jsonMsg = JSON.parse(packet.message);
-      if(jsonMsg.translate == 'chat.type.announcement' || jsonMsg.translate == 'chat.type.text') {
-        var username = jsonMsg.with[0].text;
-        var msg = jsonMsg.with[1];
-        if(username === client.username) return;
-        // client.write('chat', {message: msg.text});
-        resp.send({body: msg.text})
-      }
+    resp.send({
+      success: chat_array.length != 0, body: chat_array
     })
   } catch (error) {
     resp.send({
