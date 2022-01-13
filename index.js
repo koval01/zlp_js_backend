@@ -36,9 +36,20 @@ function mc_client_init() {
     }, 5000)
   }
   
+  function rebuild_message_(msg) {
+    const msg_dict = msg.extra
+    
+    for (let i = 0; i < msg_dict.length; i++) {
+      var msg_ = msg_dict[i]
+      delete msg_.clickEvent
+      delete msg_.hoverEvent
+    }
+    return msg_dict
+  }
+  
   client.on('success', (succ) => {
     clearTimeout(reconnect_interval)
-    console.log(`MClient connected! Data: ${succ}`);
+    console.log(`MClient connected! Data: ${JSON.stringify(succ)}`);
   })
   
   client.on('chat', function(packet) {
@@ -46,18 +57,18 @@ function mc_client_init() {
       chat_array.slice(-Math.abs(max_len_chat_array))
     }
     chat_array.push({
-      "raw_msg": JSON.parse(packet.message), 
+      "raw_msg": rebuild_message_(JSON.parse(packet.message)), 
       "time_order": Math.floor(new Date() / 1000)
     })
-  })
-  
-  client.on('login', (ldata) => {
-    console.log(`Login data: ${ldata}`)
   })
   
   client.on('error', (err) => {
     init_reconn()
     console.log(`MClient error: ${err}`)
+  })
+  
+  client.on('login', (ldata) => {
+    console.log(`Login data: ${JSON.stringify(ldata)}`)
   })
   
   client.on('position', (position) => {
