@@ -16,15 +16,15 @@ function mc_client_init() {
   const host = "zalupa.online"
   const port = 25565
   
-  const username = "vitorfranciscosilva10@gmail.com"
-  const password = "121961cv"
+  const username = "hamoodi04@icloud.com"
+  const password = "Mohmd2004"
   
   const client = mc_client.createClient({
     host: host,
     port: port,
     username: username,
     password: password,
-    auth: 'microsoft'
+    auth: 'mojang'
   })
   
   client.on('chat', function(packet) {
