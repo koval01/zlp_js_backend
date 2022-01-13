@@ -51,9 +51,9 @@ function mc_client_init() {
     })
   })
   
-  client.on('login', function(packet) {
-    console.log(`Message packet: ${packet.message}`)
-    console.log(`Packet: ${packet}`)
+  client.on('login', (ldata) => {
+    console.log(`Packet: ${ldata}`)
+    console.log(`Message packet: ${ldata.message}`)
   })
   
   client.on('error', (err) => {
