@@ -16,8 +16,8 @@ function mc_client_init() {
   const host = "zalupa.online"
   const port = 25565
   
-  const username = "jan.mach64@gmail.com"
-  const password = "luxlar12"
+  const username = "isakov-martiyy@rambler.ru"
+  const password = "BJ9FQ0x9PHm8qk3"
   
   const client = mc_client.createClient({
     host: host,
