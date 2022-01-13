@@ -52,8 +52,7 @@ function mc_client_init() {
   })
   
   client.on('login', (ldata) => {
-    console.log(`Packet: ${ldata}`)
-    console.log(`Message packet: ${ldata.message}`)
+    console.log(`Login data: ${ldata}`)
   })
   
   client.on('error', (err) => {
@@ -62,7 +61,7 @@ function mc_client_init() {
   })
   
   client.on('position', (position) => {
-    console.log(`Player position: ${position}`)
+    console.log(`Player position: ${JSON.stringify(position)}`)
   })
   
   console.log(`Client username: ${client.username}`)
