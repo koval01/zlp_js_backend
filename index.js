@@ -34,7 +34,7 @@ function mc_client_init() {
   
   client.on(null, function(packet) {
     console.log(JSON.parse(packet.message))
-  }
+  })
   
   console.log(`Client username: ${client.username}`)
 }
