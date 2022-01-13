@@ -24,7 +24,7 @@ function mc_client_init() {
     if (chat_array.length > max_len_chat_array) { chat_array.slice(-Math.abs(max_len_chat_array)) }
     chat_array.push({"raw_msg": JSON.parse(packet.message), "time_order": Math.floor(new Date() / 1000)})
   })
-  console.log(`Client username: ${client.username}`)
+  console.log(`Client username: ${client.username()}`)
 }
 
 app.set('port', (process.env.PORT || 5000))
