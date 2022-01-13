@@ -24,7 +24,7 @@ function mc_client_init() {
     port: port,
     username: username,
     password: password,
-    auth: 'mojang'
+    auth: 'microsoft'
   })
   
   client.on('chat', function(packet) {
