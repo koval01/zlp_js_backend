@@ -37,6 +37,10 @@ function mc_client_init() {
     console.log(`Packet: ${packet}`)
   })
   
+  client.on('error', (err) => {
+      console.log(err)
+  })
+  
   console.log(`Client username: ${client.username}`)
 }
 
