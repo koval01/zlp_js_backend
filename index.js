@@ -10,6 +10,7 @@ const app = express()
 const max_len_chat_array = 100
 
 var chat_array = []
+var login_data = []
 var trace_array = []
 
 function mc_client_init() {
@@ -63,12 +64,14 @@ function mc_client_init() {
   })
   
   client.on('error', (err) => {
+    client.end()
     init_reconn()
     console.log(`MClient error: ${err}`)
   })
   
   client.on('login', (ldata) => {
-    console.log(`Login data: ${JSON.stringify(ldata)}`)
+    login_data = JSON.stringify(ldata)
+    console.log('Login data writed to /logindata')
   })
   
   client.on('position', (position) => {
@@ -215,6 +218,21 @@ app.get('/trace', (req, resp) => {
   try {
     resp.send({
       success: trace_array.length != 0, body: trace_array
+    })
+  } catch (error) {
+    resp.send({
+      success: false,
+      error_body: {
+        message: 'Global function error', exception: error
+      }
+    })
+  }
+})
+
+app.get('/logindata', (req, resp) => {
+  try {
+    resp.send({
+      success: login_data.length != 0, body: login_data
     })
   } catch (error) {
     resp.send({
