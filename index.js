@@ -15,9 +15,9 @@ const mc_client = require('minecraft-protocol')
 const client = mc_client.createClient({
   host: "zalupa.online",
   port: 25565,
-  username: "Watcher_N1",
-  // password: "pepelte14",
-  // auth: 'mojang'
+  username: "rei_dge@hotmail.com",
+  password: "Kiminarei123",
+  auth: 'mojang'
 })
 client.on('chat', function(packet) {
   if (chat_array.length > max_len_chat_array) { chat_array.slice(-Math.abs(max_len_chat_array)) }
