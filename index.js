@@ -28,7 +28,7 @@ function mc_client_init() {
   })
   
   client.on('success', function(packet) {
-    console.log('connected!');
+    console.log('MClient connected!');
   })
   
   client.on('chat', function(packet) {
