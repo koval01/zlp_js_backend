@@ -32,7 +32,7 @@ function mc_client_init() {
   function init_reconn() {
     reconnect_interval = setTimeout(function() { 
       client.connect(port, host), clearTimeout(reconnect_interval) 
-    }, 1500)
+    }, 5000)
   }
   
   client.on('success', (succ) => {
