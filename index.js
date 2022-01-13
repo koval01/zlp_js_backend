@@ -15,9 +15,9 @@ const mc_client = require('minecraft-protocol')
 const client = mc_client.createClient({
   host: "zalupa.online",
   port: 25565,
-  username: "w.van.steenis3@gmail.com",
-  password: "pepelte14",
-  auth: 'mojang'
+  username: "Watcher_N1",
+  // password: "pepelte14",
+  // auth: 'mojang'
 })
 client.on('chat', function(packet) {
   if (chat_array.length > max_len_chat_array) { chat_array.slice(-Math.abs(max_len_chat_array)) }
@@ -113,7 +113,6 @@ app.get('/neuro', (req, resp) => {
         },
         json: {
           "prompt": "Залупа подарит незабываемые ощущения. Гляди и наслаждайся, пока есть возможность. У тебя есть уникальная возможность",
-          // "num_samples": 5,
           "length": 30
         }
       },
