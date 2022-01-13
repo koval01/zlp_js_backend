@@ -12,6 +12,14 @@ const max_len_chat_array = 100
 var chat_array = []
 var trace_array = []
 
+function sleep(milliseconds) {
+  const date = Date.now();
+  let currentDate = null;
+  do {
+    currentDate = Date.now();
+  } while (currentDate - date < milliseconds);
+}
+
 function mc_client_init() {
   const host = "zalupa.online"
   const port = 25565
@@ -33,6 +41,7 @@ function mc_client_init() {
   })
   
   while (!client.username) {
+    sleep(2000)
     client.connect(port, host)
   }
   
