@@ -3,6 +3,7 @@ const compression = require('compression')
 const cors = require('cors')
 const express = require('express')
 const mcstatus = require('minecraft-server-util')
+const mc_client = require('minecraft-protocol')
 
 const app = express()
 
@@ -11,18 +12,20 @@ const max_len_chat_array = 100
 var chat_array = []
 var trace_array = []
 
-const mc_client = require('minecraft-protocol')
-const client = mc_client.createClient({
-  host: "zalupa.online",
-  port: 25565,
-  username: "rei_dge@hotmail.com",
-  password: "Kiminarei123",
-  auth: 'mojang'
-})
-client.on('chat', function(packet) {
-  if (chat_array.length > max_len_chat_array) { chat_array.slice(-Math.abs(max_len_chat_array)) }
-  chat_array.push({"raw_msg": JSON.parse(packet.message), "time_order": Math.floor(new Date() / 1000)})
-})
+function mc_client_init() {
+  const client = mc_client.createClient({
+    host: "zalupa.online",
+    port: 25565,
+    username: "rei_dge@hotmail.com",
+    password: "Kiminarei123",
+    auth: 'mojang'
+  })
+  client.on('chat', function(packet) {
+    if (chat_array.length > max_len_chat_array) { chat_array.slice(-Math.abs(max_len_chat_array)) }
+    chat_array.push({"raw_msg": JSON.parse(packet.message), "time_order": Math.floor(new Date() / 1000)})
+  })
+  console.log(`Client username: ${client.username}`)
+}
 
 app.set('port', (process.env.PORT || 5000))
 app.use(express.json())
@@ -171,6 +174,8 @@ app.get('/trace', (req, resp) => {
     })
   }
 })
+
+mc_client_init()
 
 app.listen(app.get('port'), () => {
   console.log(`Node app is running at localhost:${app.get('port')}`)
