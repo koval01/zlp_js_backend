@@ -70,7 +70,7 @@ function mc_client_init() {
   })
   
   client.on('login', (ldata) => {
-    login_data = JSON.stringify(ldata)
+    login_data = JSON.parse(JSON.stringify(ldata))
     console.log('Login data writed to /logindata')
   })
   
