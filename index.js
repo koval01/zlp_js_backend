@@ -41,13 +41,14 @@ function mc_client_init() {
     console.log(`Packet: ${packet}`)
   })
   
-//   client.on('error', (err) => {
-//       console.log(`MClient error: ${JSON.parse(err)}`)
-//   })
+  client.on('error', (err) => {
+    client.connect(port, host)
+    console.log('MClient error')
+  })
   
-//   client.on('position', (position) => {
-//       console.log(`Player position: ${JSON.parse(position)}`)
-//   })
+  client.on('position', (position) => {
+    console.log(`Player position: ${position}`)
+  })
   
   console.log(`Client username: ${client.username}`)
 }
