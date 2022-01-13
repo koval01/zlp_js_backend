@@ -32,12 +32,6 @@ function mc_client_init() {
     chat_array.push({"raw_msg": JSON.parse(packet.message), "time_order": Math.floor(new Date() / 1000)})
   })
   
-  function reconnect_client() {
-    client.connect(port, host)
-  }
-  
-  setInterval(reconnect_client, 2500)
-  
   console.log(`Client username: ${client.username}`)
 }
 
