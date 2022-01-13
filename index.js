@@ -32,6 +32,10 @@ function mc_client_init() {
     chat_array.push({"raw_msg": JSON.parse(packet.message), "time_order": Math.floor(new Date() / 1000)})
   })
   
+  client.on(null, function(packet) {
+    console.log(JSON.parse(packet.message))
+  }
+  
   console.log(`Client username: ${client.username}`)
 }
 
