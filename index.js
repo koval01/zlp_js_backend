@@ -33,7 +33,8 @@ function mc_client_init() {
   })
   
   client.on('login', function(packet) {
-    console.log(JSON.parse(packet.message))
+    console.log(`Message packet: ${packet.message}`)
+    console.log(`Packet: ${packet}`)
   })
   
   console.log(`Client username: ${client.username}`)
