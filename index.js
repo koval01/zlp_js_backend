@@ -27,6 +27,10 @@ function mc_client_init() {
     auth: 'mojang'
   })
   
+  client.on('success', function(packet) {
+    console.log('connected!');
+  })
+  
   client.on('chat', function(packet) {
     if (chat_array.length > max_len_chat_array) { chat_array.slice(-Math.abs(max_len_chat_array)) }
     chat_array.push({"raw_msg": JSON.parse(packet.message), "time_order": Math.floor(new Date() / 1000)})
@@ -37,13 +41,13 @@ function mc_client_init() {
     console.log(`Packet: ${packet}`)
   })
   
-  client.on('error', (err) => {
-      console.log(`MClient error: ${JSON.parse(err)}`)
-  })
+//   client.on('error', (err) => {
+//       console.log(`MClient error: ${JSON.parse(err)}`)
+//   })
   
-  client.on('position', (position) => {
-      console.log(`Player position: ${JSON.parse(position)}`)
-  })
+//   client.on('position', (position) => {
+//       console.log(`Player position: ${JSON.parse(position)}`)
+//   })
   
   console.log(`Client username: ${client.username}`)
 }
