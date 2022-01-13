@@ -27,7 +27,15 @@ function mc_client_init() {
     auth: 'mojang'
   })
   
+  var reconnect_interval
+  
+  function init_reconn() {
+    reconnect_interval = setTimeout(function() { 
+      client.connect(port, host) }, 1000)
+  }
+  
   client.on('success', function(packet) {
+    clearTimeout(reconnect_interval)
     console.log('MClient connected!');
   })
   
@@ -42,8 +50,8 @@ function mc_client_init() {
   })
   
   client.on('error', (err) => {
-    client.connect(port, host)
-    console.log('MClient error')
+    init_reconn()
+    console.log(`MClient error: ${err}`)
   })
   
   client.on('position', (position) => {
