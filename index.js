@@ -12,14 +12,6 @@ const max_len_chat_array = 100
 var chat_array = []
 var trace_array = []
 
-function sleep(milliseconds) {
-  const date = Date.now();
-  let currentDate = null;
-  do {
-    currentDate = Date.now();
-  } while (currentDate - date < milliseconds);
-}
-
 function mc_client_init() {
   const host = "zalupa.online"
   const port = 25565
@@ -40,10 +32,11 @@ function mc_client_init() {
     chat_array.push({"raw_msg": JSON.parse(packet.message), "time_order": Math.floor(new Date() / 1000)})
   })
   
-  while (!client.username) {
-    sleep(2000)
+  function reconnect_client() {
     client.connect(port, host)
   }
+  
+  setInterval(reconnect_client, 2500)
   
   console.log(`Client username: ${client.username}`)
 }
