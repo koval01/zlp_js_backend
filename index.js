@@ -9,6 +9,7 @@ const app = express()
 const max_len_chat_array = 100
 
 var chat_array = []
+var trace_array = []
 
 const mc_client = require('minecraft-protocol')
 const client = mc_client.createClient({
@@ -157,11 +158,28 @@ app.get('/gamechat', (req, resp) => {
   }
 })
 
+app.get('/trace', (req, resp) => {
+  try {
+    resp.send({
+      success: trace_array.length != 0, body: trace_array
+    })
+  } catch (error) {
+    resp.send({
+      success: false,
+      error_body: {
+        message: 'Global function error', exception: error
+      }
+    })
+  }
+})
+
 app.listen(app.get('port'), () => {
   console.log(`Node app is running at localhost:${app.get('port')}`)
 })
 
 process.on('uncaughtException', function (exception) {
-   console.error(`Uncaught exception: ${exception}`)
+  const msg = `Uncaught exception: ${exception}`
+  console.error(msg)
+  trace_array.push({"msg": msg, "time_order": Math.floor(new Date() / 1000)})
 })
 
