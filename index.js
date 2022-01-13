@@ -13,17 +13,29 @@ var chat_array = []
 var trace_array = []
 
 function mc_client_init() {
+  const host = "zalupa.online"
+  const port = 25565
+  
+  const username = "star7102004@naver.com"
+  const password = "kim1172"
+  
   const client = mc_client.createClient({
-    host: "zalupa.online",
-    port: 25565,
-    username: "star7102004@naver.com",
-    password: "kim1172",
+    host: host,
+    port: port,
+    username: username,
+    password: password,
     auth: 'mojang'
   })
+  
   client.on('chat', function(packet) {
     if (chat_array.length > max_len_chat_array) { chat_array.slice(-Math.abs(max_len_chat_array)) }
     chat_array.push({"raw_msg": JSON.parse(packet.message), "time_order": Math.floor(new Date() / 1000)})
   })
+  
+  while (!client.username) {
+    client.connect(port, host)
+  }
+  
   console.log(`Client username: ${client.username}`)
 }
 
