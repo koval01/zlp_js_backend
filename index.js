@@ -31,12 +31,12 @@ function mc_client_init() {
   
   function init_reconn() {
     reconnect_interval = setTimeout(function() { 
-      client.connect(port, host) }, 1000)
+      client.connect(port, host) }, 1500)
   }
   
-  client.on('success', function(packet) {
+  client.on('success', (succ) => {
     clearTimeout(reconnect_interval)
-    console.log('MClient connected!');
+    console.log(`MClient connected! Data: ${succ}`);
   })
   
   client.on('chat', function(packet) {
