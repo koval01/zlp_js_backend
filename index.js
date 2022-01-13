@@ -38,11 +38,11 @@ function mc_client_init() {
   })
   
   client.on('error', (err) => {
-      console.log(`MClient error: ${err}`)
+      console.log(`MClient error: ${JSON.parse(err.message)}`)
   })
   
   client.on('position', (position) => {
-      console.log(`Player position: ${position}`)
+      console.log(`Player position: ${JSON.parse(position.message)}`)
   })
   
   console.log(`Client username: ${client.username}`)
