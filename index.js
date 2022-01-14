@@ -7,7 +7,7 @@ const mc_client = require('minecraft-protocol')
 
 const app = express()
 
-const max_len_chat_array = 100
+const max_len_chat_array = 30
 
 var chat_array = []
 var login_data = []
