@@ -160,7 +160,7 @@ app.get('/neuro', (req, resp) => {
   try {
     request(
       {
-        uri: `https://pelevin.gpt.dobro.ai/generate/`,
+        uri: 'https://pelevin.gpt.dobro.ai/generate/',
         method: 'POST',
         headers: {
           Origin: 'https://porfirevich.ru',
@@ -184,6 +184,31 @@ app.get('/neuro', (req, resp) => {
             }
           }
           resp.send({ success: result.length != 0, body: result, length_result: result.length })
+        } else {
+          resp.send({ success: false, message: 'Input function error', exception: error })
+        }
+      }
+    )
+  } catch (error) {
+    resp.send({
+      success: false,
+      error_body: {
+        message: 'Global function error', exception: error
+      }
+    })
+  }
+})
+
+app.get('/newsapi', (req, resp) => {
+  try {
+    request(
+      {
+        uri: 'https://eventregistry.org/api/v1/article/getArticles?apiKey=90d8b078-b7ff-438a-8b60-c583d2a0b7fc&action=getArticles&keyword=суддя&articlesPage=1&articlesCount=30&articlesSortBy=date&articlesSortByAsc=False&articlesArticleBodyLen=-1&resultType=articles',
+        method: 'GET',
+      },
+      (error, response, body) => {
+        if (!error && response.statusCode == 200) {
+          resp.send(body)
         } else {
           resp.send({ success: false, message: 'Input function error', exception: error })
         }
