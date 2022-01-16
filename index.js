@@ -203,7 +203,7 @@ app.get('/newsapi', (req, resp) => {
   try {
     request(
       {
-        uri: 'https://eventregistry.org/api/v1/article/getArticles?apiKey=90d8b078-b7ff-438a-8b60-c583d2a0b7fc&action=getArticles&keyword=суддя&articlesPage=1&articlesCount=30&articlesSortBy=date&articlesSortByAsc=False&articlesArticleBodyLen=-1&resultType=articles',
+        uri: encodeURI('https://eventregistry.org/api/v1/article/getArticles?apiKey=90d8b078-b7ff-438a-8b60-c583d2a0b7fc&action=getArticles&keyword=суддя&articlesPage=1&articlesCount=30&articlesSortBy=date&articlesSortByAsc=False&articlesArticleBodyLen=-1&resultType=articles'),
         method: 'GET',
       },
       (error, response, body) => {
