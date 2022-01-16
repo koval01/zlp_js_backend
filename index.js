@@ -208,7 +208,7 @@ app.get('/newsapi', (req, resp) => {
       },
       (error, response, body) => {
         if (!error && response.statusCode == 200) {
-          resp.send(body)
+          resp.send(JSON.parse(JSON.stringify(body)))
         } else {
           resp.send({ success: false, message: 'Input function error', exception: error })
         }
