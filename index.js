@@ -3,83 +3,10 @@ const compression = require('compression')
 const cors = require('cors')
 const express = require('express')
 const mcstatus = require('minecraft-server-util')
-const mc_client = require('minecraft-protocol')
 
 const app = express()
 
-const max_len_chat_array = 30
-
-var chat_array = []
-var login_data = []
 var trace_array = []
-
-function mc_client_init() {
-  const host = "zalupa.online"
-  const port = 25565
-  
-  const username = "krischdianxyz6@gmail.com"
-  const password = "OtTo1324!_"
-  
-  const client = mc_client.createClient({
-    host: host,
-    port: port,
-    username: username,
-    password: password,
-    auth: 'mojang'
-  })
-  
-  var reconnect_interval
-  
-  function init_reconn() {
-    reconnect_interval = setTimeout(function() { 
-      client.connect(port, host)
-      clearTimeout(reconnect_interval) 
-    }, 5000)
-  }
-  
-  function rebuild_message_(msg) {
-    const msg_dict = msg.extra
-    
-    for (let i = 0; i < msg_dict.length; i++) {
-      var msg_ = msg_dict[i]
-      delete msg_.clickEvent
-      delete msg_.hoverEvent
-    }
-    return msg_dict
-  }
-  
-  client.on('success', (succ) => {
-    clearTimeout(reconnect_interval)
-    console.log(`MClient connected! Data: ${JSON.stringify(succ)}`);
-  })
-  
-  client.on('chat', function(packet) {
-    if (chat_array.length > max_len_chat_array) { 
-      chat_array.slice(-Math.abs(max_len_chat_array))
-    }
-    chat_array.push({
-      "raw_msg": rebuild_message_(JSON.parse(packet.message)), 
-      "time_order": Math.floor(new Date() / 1000)
-    })
-  })
-  
-  client.on('error', (err) => {
-    client.end()
-    init_reconn()
-    console.log(`MClient error: ${err}`)
-  })
-  
-  client.on('login', (ldata) => {
-    login_data = JSON.parse(JSON.stringify(ldata))
-    console.log('Login data writed to /logindata')
-  })
-  
-  client.on('position', (position) => {
-    console.log(`Player position: ${JSON.stringify(position)}`)
-  })
-  
-  console.log(`Client username: ${client.username}`)
-}
 
 app.set('port', (process.env.PORT || 5000))
 app.use(express.json())
@@ -199,46 +126,6 @@ app.get('/neuro', (req, resp) => {
   }
 })
 
-app.get('/newsapi', (req, resp) => {
-  try {
-    request(
-      {
-        uri: encodeURI('https://eventregistry.org/api/v1/article/getArticles?apiKey=90d8b078-b7ff-438a-8b60-c583d2a0b7fc&action=getArticles&keyword=america&articlesPage=1&articlesCount=5&articlesSortBy=date&articlesSortByAsc=False&articlesArticleBodyLen=-1&resultType=articles'),
-        method: 'GET',
-      },
-      (error, response, body) => {
-        if (!error && response.statusCode == 200) {
-          resp.send(JSON.parse(JSON.stringify(body)))
-        } else {
-          resp.send({ success: false, message: 'Input function error', exception: error })
-        }
-      }
-    )
-  } catch (error) {
-    resp.send({
-      success: false,
-      error_body: {
-        message: 'Global function error', exception: error
-      }
-    })
-  }
-})
-
-app.get('/gamechat', (req, resp) => {
-  try {
-    resp.send({
-      success: chat_array.length != 0, body: chat_array
-    })
-  } catch (error) {
-    resp.send({
-      success: false,
-      error_body: {
-        message: 'Global function error', exception: error
-      }
-    })
-  }
-})
-
 app.get('/trace', (req, resp) => {
   try {
     resp.send({
@@ -253,23 +140,6 @@ app.get('/trace', (req, resp) => {
     })
   }
 })
-
-app.get('/logindata', (req, resp) => {
-  try {
-    resp.send({
-      success: login_data.length != 0, body: login_data
-    })
-  } catch (error) {
-    resp.send({
-      success: false,
-      error_body: {
-        message: 'Global function error', exception: error
-      }
-    })
-  }
-})
-
-mc_client_init()
 
 app.listen(app.get('port'), () => {
   console.log(`Node app is running at localhost:${app.get('port')}`)
