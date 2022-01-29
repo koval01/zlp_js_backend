@@ -6,8 +6,6 @@ const mcstatus = require('minecraft-server-util')
 
 const app = express()
 
-var trace_array = []
-
 app.set('port', (process.env.PORT || 5000))
 app.use(express.json())
 app.use(compression())
@@ -83,71 +81,11 @@ app.get('/server', (req, resp) => {
   }
 })
 
-app.get('/neuro', (req, resp) => {
-  try {
-    request(
-      {
-        uri: 'https://pelevin.gpt.dobro.ai/generate/',
-        method: 'POST',
-        headers: {
-          Origin: 'https://porfirevich.ru',
-          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.2 Safari/605.1.15',
-          Connection: 'keep-alive',
-          'Content-Type': 'text/plain;charset=UTF-8'
-        },
-        json: {
-          "prompt": "Залупа подарит незабываемые ощущения. Гляди и наслаждайся, пока есть возможность. У тебя есть уникальная возможность",
-          "length": 30
-        }
-      },
-      (error, response, body) => {
-        if (!error && response.statusCode == 200) {
-          body = body.replies
-          let result = ""
-          for (let i = 0; i < body.length; i++) {
-            if (body[i].length > 5) {
-              result = body[i]
-              break
-            }
-          }
-          resp.send({ success: result.length != 0, body: result, length_result: result.length })
-        } else {
-          resp.send({ success: false, message: 'Input function error', exception: error })
-        }
-      }
-    )
-  } catch (error) {
-    resp.send({
-      success: false,
-      error_body: {
-        message: 'Global function error', exception: error
-      }
-    })
-  }
-})
-
-app.get('/trace', (req, resp) => {
-  try {
-    resp.send({
-      success: trace_array.length != 0, body: trace_array
-    })
-  } catch (error) {
-    resp.send({
-      success: false,
-      error_body: {
-        message: 'Global function error', exception: error
-      }
-    })
-  }
-})
-
 app.listen(app.get('port'), () => {
   console.log(`Node app is running at localhost:${app.get('port')}`)
 })
 
 process.on('uncaughtException', function (exception) {
-  const msg = `Uncaught exception: ${exception}`
-  console.error(msg)
-  trace_array.push({"msg": msg, "time_order": Math.floor(new Date() / 1000)})
+  console.error(`Uncaught exception: ${exception}`)
 })
 
