@@ -29,7 +29,9 @@ app.get('/channel', (req, resp) => {
       },
       (error, response, body) => {
         if (!error && response.statusCode == 200) {
-          resp.send({ success: true, body: body })
+          const regex = /data-post="[A-z\d_-]*\/[\d]*"/gm;
+          const matched = body.match(regex)
+          resp.send({ success: true, last_post: matched[matched.length - 1] })
         } else {
           resp.send({ success: false, message: 'Input function error', exception: error })
         }
