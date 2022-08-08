@@ -79,9 +79,9 @@ app.get('/server', (req, resp) => {
       delete data.version
       delete data.srvRecord
         
-      delete data.motd.raw
-      delete data.motd.clean
+      delete data.motd
       delete data.players.sample
+      delete data.players.max
         
       return data
     }
