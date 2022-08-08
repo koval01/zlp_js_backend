@@ -25,8 +25,10 @@ app.set('port', (process.env.PORT || 5000))
 app.use(express.json())
 app.use(compression())
 app.use(cors())
+app.use(limiter)
+app.use('/server', limiterServerAPI)
 
-app.get('/channel', limiter, (req, resp) => {
+app.get('/channel', (req, resp) => {
   try {
     const choice_ = ['zalupa_history', 'zalupaonline']
     request(
@@ -66,7 +68,7 @@ app.get('/channel', limiter, (req, resp) => {
   }
 })
 
-app.get('/server', limiterServerAPI, (req, resp) => {
+app.get('/server', (req, resp) => {
   try {
     const options = {
       timeout: 1000 * 3
