@@ -30,7 +30,7 @@ app.get('/channel', (req, resp) => {
       (error, response, body) => {
         if (!error && response.statusCode == 200) {
           const regex = /data-post="[A-z\d_-]*\/[\d]*"/gm;
-          const matched = body.toString().match(regex)
+          const matched = body.toString().replace("\\", "").match(regex)
 //           resp.send({ success: true, last_post: matched[matched.length - 1] })
           resp.send({ success: true, last_post: body, m: matched })
         } else {
