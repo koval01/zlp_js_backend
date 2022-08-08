@@ -34,7 +34,7 @@ app.get('/channel', (req, resp) => {
           const matched = body.match(regex)
           resp.send({ 
             success: true, 
-            last_post: matched[matched.length - 1].match(/data-post="[A-z\d_-]*\/([\d]*)"/g)
+            last_post: parseInt(matched[matched.length - 1].match(/data-post="[A-z\d_-]*\/([\d]*)"/))
           })
         } else {
           resp.send({ success: false, message: 'Input function error', exception: error })
