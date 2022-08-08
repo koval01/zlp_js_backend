@@ -1,21 +1,21 @@
 {
   "name": "zlpnews_proxy",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Proxy app",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
-    "express": "^4.17.1",
+    "express": "^4.18.1",
     "compression": "^1.7.4",
     "request": "^2.88.2",
     "cors": "^2.8.5",
-    "minecraft-server-util": "^5.2.8",
-    "minecraft-protocol": "^1.30.0"
+    "minecraft-server-util": "^5.3.0",
+    "minecraft-protocol": "^1.35.1"
   },
   "engines": {
-    "node": "16.13.1"
+    "node": "16.16.0"
   },
   "repository": {
     "type": "git",
