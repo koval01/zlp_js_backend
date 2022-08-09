@@ -76,6 +76,7 @@ app.get('/server', (req, resp) => {
     }
     function result_(data) {
       delete data.favicon
+      delete data.version
       delete data.srvRecord
         
       delete data.motd
