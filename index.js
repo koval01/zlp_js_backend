@@ -79,7 +79,13 @@ app.get('/donate/services', (req, resp) => {
           var result = []
           const object_ = html_parser.parse(matched).childNodes
           for (let i = 0; i < object_.length; i++) {
-            result.push({"name": object_[i].text, "service": object_[i].attributes.value})
+            var text_ = object_[i].text
+            var price = text_.match(/\[([\s\S]+)\]/)[0]
+            result.push({
+              "name": text_.replace(/\[[\s\S]+\]/, ""), 
+              "service": object_[i].attributes.value, 
+              "price": price
+            })
           }
           resp.send({ 
             success: true, 
