@@ -73,7 +73,7 @@ app.get('/donate/services', (req, resp) => {
       (error, response, body) => {
         if (!error && response.statusCode == 200) {
           body = body.toString().replace(/\\/gm, "")
-          const regex = /\$\("#good"\).html\('([\s\S]*)'\);/gm
+          const regex = /\$\("#good"\).html\('([\s\S]*)'\);/
           const matched = body.match(regex)
           resp.send({ 
             success: true, 
