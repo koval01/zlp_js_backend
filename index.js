@@ -7,14 +7,7 @@ const mcstatus = require('minecraft-server-util')
 
 const app = express()
 
-const limiterChannelAPI = rateLimit({
-	windowMs: 60 * 1000, // 1 minute
-	max: 10, // Max 10 requests per 1 minute
-	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-})
-
-const limiterServerAPI = rateLimit({
+const limiter = rateLimit({
 	windowMs: 60 * 1000, // 1 minute
 	max: 180, // Max 180 requests per 1 minute
 	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
@@ -25,9 +18,7 @@ app.set('port', (process.env.PORT || 5000))
 app.use(express.json())
 app.use(compression())
 app.use(cors())
-
-app.use('/channel', limiterChannelAPI)
-app.use('/server', limiterServerAPI)
+app.use(limiter)
 
 app.get('/channel', (req, resp) => {
   try {
