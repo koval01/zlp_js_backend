@@ -78,8 +78,8 @@ app.get('/donate/services', (req, resp) => {
           const matched = body.match(regex)[1]
           var result = []
           const object_ = html_parser.parse(matched)
-          console.log(object_)
-          console.log(object_.querySelector('option').value, object_.querySelector('option').text)
+          console.log(object_.childNodes[1].text)
+          console.log(object_.querySelector('option').attributes.value, object_.querySelector('option').text)
           for (let i = 0; i < object_.length; i++) {
             result.push({"name": object_[i].text, "service": object_[i].value})
           }
