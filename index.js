@@ -82,7 +82,7 @@ app.get('/donate/services', (req, resp) => {
             var text_ = object_[i].text
             var price = text_.match(/\[([\s\S]+)\]/)[1]
             result.push({
-              "name": text_.replace(/\[[\s\S]+\]/, ""), 
+              "name": text_.replace(/\[[\s\S]+\]/, "").trim(), 
               "service": object_[i].attributes.value, 
               "price": price
             })
