@@ -74,10 +74,16 @@ app.get('/donate/services', (req, resp) => {
         if (!error && response.statusCode == 200) {
           body = body.toString().replace(/\\/gm, "")
           const regex = /\$\("#good"\).html\('([\s\S]*)'\);/
-          const matched = body.match(regex)
+          const matched = body.match(regex)[1]
+          var result = []
+          var html_el = document.createElement('html')
+          html_el.innerHTML = matched
+          for (let i = 0; i < html_el.length; i++) {
+            result.push({"name": html_el[i].text, "service": html_el[i].value})
+          }
           resp.send({ 
             success: true, 
-            services: matched[1]
+            services: result
           })
         } else {
           resp.send({ success: false, message: 'Input function error', exception: error })
