@@ -60,6 +60,40 @@ app.get('/channel', (req, resp) => {
   }
 })
 
+app.get('/donate/services', (req, resp) => {
+  try {
+    request(
+      {
+        uri: `https://gamesdonate.com/assets/widget-php.php?token=${req.query.token}`,
+        method: 'GET',
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.2 Safari/605.1.15'
+        }
+      },
+      (error, response, body) => {
+        if (!error && response.statusCode == 200) {
+          body = body.toString().replace(/\\/gm, "")
+          const regex = /\$\("#good"\).html\('([\s\S]*)'\);/gm
+          const matched = body.match(regex)
+          resp.send({ 
+            success: true, 
+            services: matched.matched[0]
+          })
+        } else {
+          resp.send({ success: false, message: 'Input function error', exception: error })
+        }
+      }
+    )
+  } catch (error) {
+    resp.send({
+      success: false,
+      error_body: {
+        message: 'Global function error', exception: error
+      }
+    })
+  }
+})
+
 app.get('/server', (req, resp) => {
   try {
     const options = {
