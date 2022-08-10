@@ -1,6 +1,7 @@
 const request = require('request')
 const compression = require('compression')
 const cors = require('cors')
+const html_parser = require('node-html-parser')
 const express = require('express')
 const rateLimit = require('express-rate-limit')
 const mcstatus = require('minecraft-server-util')
@@ -76,10 +77,9 @@ app.get('/donate/services', (req, resp) => {
           const regex = /\$\("#good"\).html\('([\s\S]*)'\);/
           const matched = body.match(regex)[1]
           var result = []
-          var html_el = document.createElement('html')
-          html_el.innerHTML = matched
+          const object_ = parse(matched)
           for (let i = 0; i < html_el.length; i++) {
-            result.push({"name": html_el[i].text, "service": html_el[i].value})
+            result.push({"name": object_[i].text, "service": object_[i].value})
           }
           resp.send({ 
             success: true, 
