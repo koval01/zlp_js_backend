@@ -78,13 +78,13 @@ app.get('/donate/services', (req, resp) => {
           const matched = body.match(regex)[1]
           var result = []
           const object_ = html_parser.parse(matched).querySelector('option')
+          console.log(object_)
           for (let i = 0; i < object_.length; i++) {
             result.push({"name": object_[i].text, "service": object_[i].value})
           }
           resp.send({ 
             success: true, 
-            services: result,
-            object: object_
+            services: result
           })
         } else {
           resp.send({ success: false, message: 'Input function error', exception: error })
