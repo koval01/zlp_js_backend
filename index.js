@@ -77,7 +77,7 @@ app.get('/donate/services', (req, resp) => {
           const matched = body.match(regex)
           resp.send({ 
             success: true, 
-            services: matched.matched[0]
+            services: matched[0]
           })
         } else {
           resp.send({ success: false, message: 'Input function error', exception: error })
