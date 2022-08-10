@@ -79,7 +79,7 @@ app.get('/donate/services', (req, resp) => {
           var result = []
           const object_ = html_parser.parse(matched)
           for (let i = 0; i < object_.length; i++) {
-            result.push({"name": object_[i].text, "service": object_[i].value})
+            result.push({"object": object_, "name": object_[i].text, "service": object_[i].value})
           }
           resp.send({ 
             success: true, 
