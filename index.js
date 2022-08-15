@@ -153,7 +153,10 @@ app.get('/donate/payment/create', (req, resp) => {
                     if (body.success) {
                         resp.send({
                             success: true,
-                            payment_url: body.response.url
+                            payment: {
+                                "url": body.response.url,
+                                "bill_id": body.response.payment.id
+                            } 
                         })
                     }
                     resp.send({
