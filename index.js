@@ -73,10 +73,17 @@ app.get('/donate/services', (req, resp) => {
       },
       (error, response, body) => {
         if (!error && response.statusCode == 200) {
-          // ...
+          body = JSON.parse(body)
+					if (body.success) {
+						resp.send({ 
+							success: true, 
+							services: body
+						})
+					}
           resp.send({ 
-            success: true, 
-            services: body
+            success: false, 
+            message: "Error check response EasyDonate API",
+						exception: "var success is not true"
           })
         } else {
           resp.send({ success: false, message: 'Input function error', exception: error })
