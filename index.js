@@ -63,6 +63,24 @@ app.get('/channel', (req, resp) => {
 
 app.get('/donate/services', (req, resp) => {
     try {
+        function response_(data) {
+            let result = []
+            for (let i = 0; i < data.length; i++) {
+                if (!data[i].is_hidden) {
+                    result.push({
+                        "id": data[i].id,
+                        "name": data[i].name,
+                        "description": data[i].description,
+                        "image": data[i].image,
+                        "price": data[i].price,
+                        "old_price": data[i].old_price,
+                        "type": data[i].type,
+                        "number": data[i].number
+                    })
+                }
+            }
+            return result
+        }
         request(
             {
                 uri: `https://easydonate.ru/api/v3/shop/products`,
@@ -77,7 +95,7 @@ app.get('/donate/services', (req, resp) => {
                     if (body.success) {
                         resp.send({
                             success: true,
-                            services: body
+                            services: response_(body.response)
                         })
                     }
                     resp.send({
