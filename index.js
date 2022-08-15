@@ -65,31 +65,18 @@ app.get('/donate/services', (req, resp) => {
   try {
     request(
       {
-        uri: `https://gamesdonate.com/assets/widget-php.php?token=${req.query.token}`,
+        uri: `https://easydonate.ru/api/v3/shop/products`,
         method: 'GET',
         headers: {
-          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.2 Safari/605.1.15'
+          'Shop-Key': process.env.DONATE_API_KEY
         }
       },
       (error, response, body) => {
         if (!error && response.statusCode == 200) {
-          body = body.toString().replace(/\\/gm, "")
-          const regex = /\$\("#good"\).html\('([\s\S]*)'\);/
-          const matched = body.match(regex)[1]
-          var result = []
-          const object_ = html_parser.parse(matched).childNodes
-          for (let i = 0; i < object_.length; i++) {
-            var text_ = object_[i].text
-            var price = text_.match(/\[([\s\S]+)\]/)[1]
-            result.push({
-              "name": text_.replace(/\[[\s\S]+\]/, "").trim(), 
-              "service": object_[i].attributes.value, 
-              "price": price
-            })
-          }
+          // ...
           resp.send({ 
             success: true, 
-            services: result
+            services: body
           })
         } else {
           resp.send({ success: false, message: 'Input function error', exception: error })
@@ -112,15 +99,10 @@ app.get('/server', (req, resp) => {
       timeout: 1000 * 3
     }
     function result_(data) {
-      delete data.favicon
-      delete data.version
-      delete data.srvRecord
-        
-      delete data.motd
-      delete data.players.sample
-      delete data.players.max
-        
-      return data
+      return {
+	"online": data.players.online,
+	"latency": data.roundTripLatency
+      }
     }
     mcstatus.status('zalupa.online', 25565, options)
       .then((result) => resp.send({ 
