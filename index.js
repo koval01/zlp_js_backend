@@ -22,7 +22,7 @@ app.use(cors())
 app.use(limiter)
 
 function url_builder_(base_url, submit_data_) {
-    let url = URL(base_url)
+    let url = new URL(base_url)
     for (let i = 0; i < submit_data_.length; i++) {
         url.searchParams.set(submit_data_[i].name, submit_data_[i].value)
     }
