@@ -148,6 +148,9 @@ app.post('/donate/payment/create', (req, resp) => {
                 }
             },
             (error, response, body) => {
+                console.log(body)
+                console.log(json_body)
+                console.log(url)
                 if (!error && response.statusCode == 200) {
                     body = JSON.parse(body)
                     if (body.success) {
