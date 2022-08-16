@@ -126,7 +126,7 @@ app.get('/donate/services', (req, resp) => {
     }
 })
 
-app.get('/donate/payment/create', (req, resp) => {
+app.post('/donate/payment/create', (req, resp) => {
     try {
         let json_body = req.body
         let url = url_builder_(
