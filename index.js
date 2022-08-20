@@ -79,10 +79,10 @@ app.get('/channel_parse', (req, resp) => {
             (error, response, body) => {
                 if (!error && response.statusCode == 200) {
                     body = body.toString().replace(/\\/gm, "")
-                    const messages = html_parser.parse(body).querySelectorAll(".tgme_channel_history")
+                    const messages = html_parser.parse(body).querySelector(".tgme_channel_history")
                     resp.send({
                         success: true,
-                        last_post: messages
+                        body: messages
                     })
                 } else {
                     resp.send({ success: false, message: 'Input function error', exception: error })
