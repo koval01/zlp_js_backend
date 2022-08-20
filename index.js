@@ -82,7 +82,7 @@ app.get('/channel_parse', (req, resp) => {
                     const messages = html_parser.parse(body).querySelectorAll(".tgme_channel_history")
                     resp.send({
                         success: true,
-                        last_post: messages[messages.length - 1]
+                        last_post: messages
                     })
                 } else {
                     resp.send({ success: false, message: 'Input function error', exception: error })
