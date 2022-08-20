@@ -60,6 +60,45 @@ app.get('/channel', (req, resp) => {
     }
 })
 
+app.get('/channel_parse', (req, resp) => {
+    try {
+        const choice_ = ['zalupa_history', 'zalupaonline']
+        request(
+            {
+                uri: `https://t.me/s/${choice_[req.query.choice]}?before=${req.query.before}`,
+                method: 'POST',
+                headers: {
+                    Origin: 'https://t.me',
+                    Referer: `https://t.me/s/${choice_[req.query.choice]}`,
+                    Host: 't.me',
+                    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.2 Safari/605.1.15',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    Connection: 'keep-alive'
+                }
+            },
+            (error, response, body) => {
+                if (!error && response.statusCode == 200) {
+                    body = body.toString().replace(/\\/gm, "")
+                    const messages = parse(body).querySelectorAll(".tgme_channel_history")
+                    resp.send({
+                        success: true,
+                        last_post: messages[messages.length - 1]
+                    })
+                } else {
+                    resp.send({ success: false, message: 'Input function error', exception: error })
+                }
+            }
+        )
+    } catch (error) {
+        resp.send({
+            success: false,
+            error_body: {
+                message: 'Global function error', exception: error
+            }
+        })
+    }
+})
+
 app.get('/donate/services', (req, resp) => {
     try {
         function response_(data) {
