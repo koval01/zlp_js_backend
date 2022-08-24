@@ -179,7 +179,7 @@ app.post('/donate/coupons', (req, resp) => {
         }
         function select_(data, name) {
             for (let i = 0; i < data.length; i++) {
-                if (data[i].code === name) {
+                if (data[i].code == name) {
                     return data[i]
                 }
             }
@@ -199,7 +199,7 @@ app.post('/donate/coupons', (req, resp) => {
                     if (body.success) {
                         resp.send({
                             success: true,
-                            services: select_(body.response, json_body["code"])
+                            services: select_(body.response, json_body.code)
                         })
                     }
                     resp.send({
