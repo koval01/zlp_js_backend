@@ -179,11 +179,7 @@ app.post('/donate/coupons', (req, resp) => {
         }
         function select_coupon(data, name) {
             for (let i = 0; i < data.length; i++) {
-                console.log(data[i].code)
-                console.log(name)
-                console.log(data[i].code == name)
-                console.log(data[i].code === name)
-                if (data[i].code == name) {
+                if (data[i].code === name) {
                     return data[i]
                 }
             }
