@@ -261,56 +261,56 @@ app.post('/donate/coupon', (req, resp) => {
 })
 
 app.post('/donate/payment/create', (req, resp) => {
-    try {
-        let json_body = req.body
+    let json_body = req.body
         if (reccheck(json_body.token)) {
-            let url = url_builder_(
-                'https://easydonate.ru/api/v3/shop/payment/create',
-                [
-                    { "name": "customer", "value": json_body["customer"] },
-                    { "name": "server_id", "value": process.env.SERVER_ID },
-                    { "name": "products", "value": JSON.stringify(json_body["products"]) },
-                    { "name": "email", "value": json_body["email"] },
-                    { "name": "coupon", "value": json_body["coupon"] }
-                ]
-            )
-            request(
-                {
-                    uri: url,
-                    method: 'GET',
-                    headers: {
-                        'Shop-Key': process.env.DONATE_API_KEY
-                    }
-                },
-                (error, response, body) => {
-                    if (!error && response.statusCode == 200) {
-                        body = JSON.parse(body)
-                        if (body.success) {
-                            resp.send({
-                                success: true,
-                                payment: {
-                                    "url": body.response.url,
-                                    "bill_id": body.response.payment.id
-                                } 
-                            })
+            try {
+                let url = url_builder_(
+                    'https://easydonate.ru/api/v3/shop/payment/create',
+                    [
+                        { "name": "customer", "value": json_body["customer"] },
+                        { "name": "server_id", "value": process.env.SERVER_ID },
+                        { "name": "products", "value": JSON.stringify(json_body["products"]) },
+                        { "name": "email", "value": json_body["email"] },
+                        { "name": "coupon", "value": json_body["coupon"] }
+                    ]
+                )
+                request(
+                    {
+                        uri: url,
+                        method: 'GET',
+                        headers: {
+                            'Shop-Key': process.env.DONATE_API_KEY
                         }
-                        resp.send({
-                            success: false,
-                            message: "Error check response EasyDonate API",
-                            exception: "var success is not true"
-                        })
-                    } else {
-                        resp.send({ success: false, message: 'Input function error', exception: error })
+                    },
+                    (error, response, body) => {
+                        if (!error && response.statusCode == 200) {
+                            body = JSON.parse(body)
+                            if (body.success) {
+                                resp.send({
+                                    success: true,
+                                    payment: {
+                                        "url": body.response.url,
+                                        "bill_id": body.response.payment.id
+                                    } 
+                                })
+                            }
+                            resp.send({
+                                success: false,
+                                message: "Error check response EasyDonate API",
+                                exception: "var success is not true"
+                            })
+                        } else {
+                            resp.send({ success: false, message: 'Input function error', exception: error })
+                        }
                     }
-                }
-            )
-        } catch (error) {
-            resp.send({
-                success: false,
-                message: 'Main function error', 
-                exception: error
-            })
-        }
+                )
+            } catch (error) {
+                resp.send({
+                    success: false,
+                    message: 'Main function error', 
+                    exception: error
+                })
+            }
     } else {
         resp.send({
             success: false,
