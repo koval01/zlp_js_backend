@@ -12,9 +12,9 @@ app.use(express.json())
 app.use(compression())
 app.use(cors())
 
-app.use(function (err, req, res, next) {
+app.use(function (err, req, resp, next) {
     console.error(err.stack)
-    res.status(500).json({
+    resp.status(500).json({
         success: false,
         message: "Internal server error",
         exception: "server error"
@@ -76,12 +76,12 @@ app.get('/channel', (req, resp) => {
                         last_post: matched[matched.length - 1].match(/data-post="([A-z\d_-]*\/[\d]*)"/)[1]
                     })
                 } else {
-                    resp.send({ success: false, message: 'Input function error', exception: error })
+                    resp.status(400).json({ success: false, message: 'Input function error', exception: error })
                 }
             }
         )
     } catch (error) {
-        resp.send({
+        resp.status(503).json({
             success: false,
             message: 'Main function error', 
             exception: error
@@ -164,18 +164,18 @@ app.get('/donate/services', (req, resp) => {
                             services: response_(body.response)
                         })
                     }
-                    resp.send({
+                    resp.status(503).json({
                         success: false,
                         message: "Error check response EasyDonate API",
                         exception: "var success is not true"
                     })
                 } else {
-                    resp.send({ success: false, message: 'Input function error', exception: error })
+                    resp.status(400).json({ success: false, message: 'Input function error', exception: error })
                 }
             }
         )
     } catch (error) {
-        resp.send({
+        resp.status(503).json({
             success: false,
             message: 'Main function error', 
             exception: error
@@ -235,25 +235,25 @@ app.post('/donate/coupon', (req, resp) => {
                                     coupon: response_(select_coupon(body.response, json_body.code))
                                 })
                             }
-                            resp.send({
+                            resp.status(503).json({
                                 success: false,
                                 message: "Error check response EasyDonate API",
                                 exception: "var success is not true"
                             })
                         } else {
-                            resp.send({ success: false, message: 'Input function error', exception: error })
+                            resp.status(400).json({ success: false, message: 'Input function error', exception: error })
                         }
                     }
                 )
             } catch (error) {
-                resp.send({
+                resp.status(503).json({
                     success: false,
                     message: 'Main function error', 
                     exception: error
                 })
             }
         } else {
-            resp.send({
+            resp.status(403).json({
                 success: false,
                 message: 'Security error', 
                 exception: 'error verify recaptcha token'
@@ -297,25 +297,25 @@ app.post('/donate/payment/create', (req, resp) => {
                                     } 
                                 })
                             }
-                            resp.send({
+                            resp.status(503).json({
                                 success: false,
                                 message: "Error check response EasyDonate API",
                                 exception: "var success is not true"
                             })
                         } else {
-                            resp.send({ success: false, message: 'Input function error', exception: error })
+                            resp.status(400).json({ success: false, message: 'Input function error', exception: error })
                         }
                     }
                 )
             } catch (error) {
-                resp.send({
+                resp.status(503).json({
                     success: false,
                     message: 'Main function error', 
                     exception: error
                 })
             }
         } else {
-            resp.send({
+            resp.status(403).json({
                 success: false,
                 message: 'Security error', 
                 exception: 'error verify recaptcha token'
@@ -339,14 +339,13 @@ app.get('/server', (req, resp) => {
             .then((result) => resp.send({
                 success: true, body: result_(result)
             }))
-            .catch((error) => resp.send({
+            .catch((error) => resp.status(503).json({
                 success: false,
-                error_body: {
-                    message: 'Server data get error', exception: error
-                }
+                message: 'Server data get error', 
+                exception: error
             }))
     } catch (error) {
-        resp.send({
+        resp.status(503).json({
             success: false,
             message: 'Main function error', 
             exception: error
@@ -354,8 +353,8 @@ app.get('/server', (req, resp) => {
     }
 })
 
-app.get('*', function(req, res){
-    res.status(404).json({
+app.get('*', function(req, resp){
+    resp.status(404).json({
         success: false,
         message: "This route cannot be found",
         exception: "error route"
