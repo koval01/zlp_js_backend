@@ -32,7 +32,7 @@ function url_builder_(base_url, submit_data_) {
 function reccheck(token) {
     request(
         {
-            uri: "https://www.google.com/recaptcha/api/",
+            uri: "https://www.google.com/recaptcha/api/siteverify",
             method: 'POST',
             form: {
                 'secret': process.env.RE_TOKEN,
@@ -44,7 +44,6 @@ function reccheck(token) {
                 body = JSON.parse(body)
                 return body.success
             } else {
-                console.log(error)
                 console.log(response)
                 return false
             }
