@@ -360,14 +360,6 @@ app.get('*', function(req, res){
     })
 })
 
-app.post('*', function(req, res){
-    res.status(404).json({
-        success: false,
-        message: "This route cannot be found",
-        exception: "error route"
-    })
-})
-
 app.listen(app.get('port'), () => {
     console.log(`Node app is running at localhost:${app.get('port')}`)
 })
