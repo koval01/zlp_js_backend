@@ -158,7 +158,7 @@ app.get('/donate/services', (req, resp) => {
 
 app.post('/donate/coupons', (req, resp) => {
     try {
-        const json_body = JSON.stringify(req.body)
+        const json_body = JSON.parse(req.body)
         function response_(data) {
             let result = []
             for (let i = 0; i < data.length; i++) {
@@ -180,7 +180,6 @@ app.post('/donate/coupons', (req, resp) => {
         function select_coupon(data, name) {
             for (let i = 0; i < data.length; i++) {
                 console.log(data[i].code)
-                console.log(json_body)
                 console.log(name)
                 console.log(data[i].code == name)
                 console.log(data[i].code === name)
@@ -204,7 +203,7 @@ app.post('/donate/coupons', (req, resp) => {
                     if (body.success) {
                         resp.send({
                             success: true,
-                            coupon: select_coupon(body.response, json_body["code"])
+                            coupon: select_coupon(body.response, json_body.code)
                         })
                     }
                     resp.send({
