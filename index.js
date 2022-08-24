@@ -173,8 +173,8 @@ app.post('/donate/coupons', (req, resp) => {
             let products_list = []
             for (let i = 0; i < products.length; i++) {
                 products_list.push({
-                    "id": products.id,
-                    "name": products.name
+                    "id": products[i].id,
+                    "name": products[i].name
                 })
             }
             return {
