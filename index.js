@@ -156,7 +156,7 @@ app.get('/donate/services', (req, resp) => {
     }
 })
 
-app.get('/donate/coupons', (req, resp) => {
+app.post('/donate/coupons', (req, resp) => {
     try {
         const json_body = JSON.stringify(req.body)
         function response_(data) {
