@@ -156,6 +156,72 @@ app.get('/donate/services', (req, resp) => {
     }
 })
 
+app.get('/donate/coupons', (req, resp) => {
+    try {
+        const json_body = JSON.stringify(req.body)
+        function response_(data) {
+            let result = []
+            for (let i = 0; i < data.length; i++) {
+                if (!data[i].is_hidden) {
+                    result.push({
+                        "id": data[i].id,
+                        "name": data[i].name,
+                        "description": data[i].description,
+                        "image": data[i].image,
+                        "price": data[i].price,
+                        "old_price": data[i].old_price,
+                        "type": data[i].type,
+                        "number": data[i].number
+                    })
+                }
+            }
+            return result
+        }
+        function select_(data, name) {
+            for (let i = 0; i < data.length; i++) {
+                if (data[i].code === name) {
+                    return data[i]
+                }
+            }
+            return null
+        }
+        request(
+            {
+                uri: `https://easydonate.ru/api/v3/shop/coupons?where_active=true`,
+                method: 'GET',
+                headers: {
+                    'Shop-Key': process.env.DONATE_API_KEY
+                }
+            },
+            (error, response, body) => {
+                if (!error && response.statusCode == 200) {
+                    body = JSON.parse(body)
+                    if (body.success) {
+                        resp.send({
+                            success: true,
+                            services: select_(body.response, json_body["code"])
+                        })
+                    }
+                    resp.send({
+                        success: false,
+                        message: "Error check response EasyDonate API",
+                        exception: "var success is not true"
+                    })
+                } else {
+                    resp.send({ success: false, message: 'Input function error', exception: error })
+                }
+            }
+        )
+    } catch (error) {
+        resp.send({
+            success: false,
+            error_body: {
+                message: 'Global function error', exception: error
+            }
+        })
+    }
+})
+
 app.post('/donate/payment/create', (req, resp) => {
     try {
         let json_body = req.body
