@@ -12,6 +12,15 @@ app.use(express.json())
 app.use(compression())
 app.use(cors())
 
+app.use(function (err, req, res, next) {
+    console.error(err.stack)
+    res.status(500).json({
+        success: false,
+        message: "Internal server error",
+        exception: "server error"
+    })
+})
+
 function url_builder_(base_url, submit_data_) {
     let url = new URL(base_url)
     for (let i = 0; i < submit_data_.length; i++) {
@@ -302,6 +311,22 @@ app.get('/server', (req, resp) => {
             }
         })
     }
+})
+
+app.get('*', function(req, res){
+    res.status(404).json({
+        success: false,
+        message: "This route cannot be found",
+        exception: "error route"
+    })
+})
+
+app.post('*', function(req, res){
+    res.status(404).json({
+        success: false,
+        message: "This route cannot be found",
+        exception: "error route"
+    })
 })
 
 app.listen(app.get('port'), () => {
