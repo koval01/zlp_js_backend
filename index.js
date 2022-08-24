@@ -160,22 +160,20 @@ app.post('/donate/coupons', (req, resp) => {
     try {
         const json_body = req.body
         function response_(data) {
-            let result = []
-            for (let i = 0; i < data.length; i++) {
-                if (!data[i].is_hidden) {
-                    result.push({
-                        "id": data[i].id,
-                        "name": data[i].name,
-                        "description": data[i].description,
-                        "image": data[i].image,
-                        "price": data[i].price,
-                        "old_price": data[i].old_price,
-                        "type": data[i].type,
-                        "number": data[i].number
-                    })
-                }
+            let products = data.products
+            let products_list = []
+            for (let i = 0; i < products.length; i++) {
+                products_list.push({
+                    "id": products.id,
+                    "name": products.name
+                })
             }
-            return result
+            return {
+                "code": data.code,
+                "discount": data.sale,
+                "products": products_list
+
+            }
         }
         function select_coupon(data, name) {
             for (let i = 0; i < data.length; i++) {
@@ -199,7 +197,7 @@ app.post('/donate/coupons', (req, resp) => {
                     if (body.success) {
                         resp.send({
                             success: true,
-                            coupon: select_coupon(body.response, json_body.code)
+                            coupon: response_(select_coupon(body.response, json_body.code))
                         })
                     }
                     resp.send({
