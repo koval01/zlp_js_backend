@@ -42,7 +42,6 @@ function reccheck(token) {
         (error, response, body) => {
             if (!error && response.statusCode == 200) {
                 body = JSON.parse(body)
-                console.log(body)
                 return body.success
             } else {
                 return false
@@ -263,6 +262,7 @@ app.post('/donate/coupon', (req, resp) => {
 
 app.post('/donate/payment/create', (req, resp) => {
     let json_body = req.body
+    console.log(reccheck(json_body.token))
     if (reccheck(json_body.token)) {
         try {
             let url = url_builder_(
