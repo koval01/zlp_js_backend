@@ -44,6 +44,8 @@ function reccheck(token) {
                 body = JSON.parse(body)
                 return body.success
             } else {
+                console.log(error)
+                console.log(response)
                 return false
             }
         }
