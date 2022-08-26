@@ -127,60 +127,71 @@ app.get('/channel', (req, resp) => {
 //     }
 // })
 
-app.get('/donate/services', (req, resp) => {
-    try {
-        function response_(data) {
-            let result = []
-            for (let i = 0; i < data.length; i++) {
-                if (!data[i].is_hidden) {
-                    result.push({
-                        "id": data[i].id,
-                        "name": data[i].name,
-                        "description": data[i].description,
-                        "image": data[i].image,
-                        "price": data[i].price,
-                        "old_price": data[i].old_price,
-                        "type": data[i].type,
-                        "number": data[i].number
-                    })
-                }
-            }
-            return result
-        }
-        request(
-            {
-                uri: `https://easydonate.ru/api/v3/shop/products`,
-                method: 'GET',
-                headers: {
-                    'Shop-Key': process.env.DONATE_API_KEY
-                }
-            },
-            (error, response, body) => {
-                if (!error && response.statusCode == 200) {
-                    body = JSON.parse(body)
-                    if (body.success) {
-                        resp.send({
-                            success: true,
-                            services: response_(body.response)
-                        })
+app.post('/donate/services', (req, resp) => {
+    const json_body = req.body
+    reccheck(function(result) {
+        if (result) {
+            try {
+                function response_(data) {
+                    let result = []
+                    for (let i = 0; i < data.length; i++) {
+                        if (!data[i].is_hidden) {
+                            result.push({
+                                "id": data[i].id,
+                                "name": data[i].name,
+                                "description": data[i].description,
+                                "image": data[i].image,
+                                "price": data[i].price,
+                                "old_price": data[i].old_price,
+                                "type": data[i].type,
+                                "number": data[i].number
+                            })
+                        }
                     }
-                    resp.status(503).json({
-                        success: false,
-                        message: "Error check response EasyDonate API",
-                        exception: "var success is not true"
-                    })
-                } else {
-                    resp.status(400).json({ success: false, message: 'Input function error', exception: error })
+                    return result
                 }
+                request(
+                    {
+                        uri: `https://easydonate.ru/api/v3/shop/products`,
+                        method: 'GET',
+                        headers: {
+                            'Shop-Key': process.env.DONATE_API_KEY
+                        }
+                    },
+                    (error, response, body) => {
+                        if (!error && response.statusCode == 200) {
+                            body = JSON.parse(body)
+                            if (body.success) {
+                                resp.send({
+                                    success: true,
+                                    services: response_(body.response)
+                                })
+                            }
+                            resp.status(503).json({
+                                success: false,
+                                message: "Error check response EasyDonate API",
+                                exception: "var success is not true"
+                            })
+                        } else {
+                            resp.status(400).json({ success: false, message: 'Input function error', exception: error })
+                        }
+                    }
+                )
+            } catch (error) {
+                resp.status(503).json({
+                    success: false,
+                    message: 'Main function error', 
+                    exception: error
+                })
             }
-        )
-    } catch (error) {
-        resp.status(503).json({
-            success: false,
-            message: 'Main function error', 
-            exception: error
-        })
-    }
+        } else {
+            resp.status(403).json({
+                success: false,
+                message: 'Security error', 
+                exception: 'error verify recaptcha token'
+            })
+        }
+    }, json_body.token)
 })
 
 app.post('/donate/coupon', (req, resp) => {
