@@ -22,7 +22,7 @@ app.use(function (err, req, resp, next) {
 })
 
 function censorWord(str) {
-    return str[0] + "*".repeat(str.length - 2) + str.slice(-1);
+    return str[0] + "*".repeat(3) + str.slice(-1);
 }
  
 function censorEmail(email){
