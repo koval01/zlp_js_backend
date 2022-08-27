@@ -315,7 +315,7 @@ app.post('/donate/payment_get', (req, resp) => {
                             if (body.success) {
                                 resp.send({
                                     success: true,
-                                    coupon: response_(body.response)
+                                    payment: response_(body.response)
                                 })
                             }
                             resp.status(503).json({
