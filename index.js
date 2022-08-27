@@ -27,7 +27,7 @@ function censorWord(str) {
  
 function censorEmail(email){
     var arr = email.split("@");
-    return censorWord(arr[0]) + "@" + censorWord(arr[1]);
+    return censorWord(arr[0]) + "@" + arr[1];
 }
 
 function url_builder_(base_url, submit_data_) {
