@@ -324,7 +324,9 @@ app.post('/donate/payment_get', (req, resp) => {
                                 exception: "var success is not true"
                             })
                         } else {
-                            return resp.status(400).json({ success: false, message: 'Input function error', exception: error })
+                            return resp.status(400).json({ 
+                                success: false, message: `Input function error. Origin code : ${response.statusCode}`, exception: error 
+                            })
                         }
                     }
                 )
@@ -353,11 +355,11 @@ app.post('/donate/payment/create', (req, resp) => {
                 let url = url_builder_(
                     'https://easydonate.ru/api/v3/shop/payment/create',
                     [
-                        { "name": "customer", "value": json_body["customer"] },
+                        { "name": "customer", "value": json_body.customer },
                         { "name": "server_id", "value": process.env.SERVER_ID },
-                        { "name": "products", "value": JSON.stringify(json_body["products"]) },
-                        { "name": "email", "value": json_body["email"] },
-                        { "name": "coupon", "value": json_body["coupon"] }
+                        { "name": "products", "value": JSON.stringify(json_body.products) },
+                        { "name": "email", "value": json_body.email },
+                        { "name": "coupon", "value": json_body.coupon }
                     ]
                 )
                 request(
