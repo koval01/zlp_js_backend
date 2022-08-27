@@ -294,7 +294,7 @@ app.post('/donate/payment_get', (req, resp) => {
                             "customer": data.customer,
                             "email": censorEmail(data.email),
                             "enrolled": data.enrolled,
-                            "created_at": created_at
+                            "created_at": data.created_at
 
                         }
                     } else {
