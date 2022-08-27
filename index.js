@@ -21,6 +21,15 @@ app.use(function (err, req, resp, next) {
     })
 })
 
+function censorWord(str) {
+    return str[0] + "*".repeat(str.length - 2) + str.slice(-1);
+}
+ 
+function censorEmail(email){
+    var arr = email.split("@");
+    return censorWord(arr[0]) + "@" + censorWord(arr[1]);
+}
+
 function url_builder_(base_url, submit_data_) {
     let url = new URL(base_url)
     for (let i = 0; i < submit_data_.length; i++) {
@@ -244,6 +253,69 @@ app.post('/donate/coupon', (req, resp) => {
                                 resp.send({
                                     success: true,
                                     coupon: response_(select_coupon(body.response, json_body.code))
+                                })
+                            }
+                            resp.status(503).json({
+                                success: false,
+                                message: "Error check response EasyDonate API",
+                                exception: "var success is not true"
+                            })
+                        } else {
+                            resp.status(400).json({ success: false, message: 'Input function error', exception: error })
+                        }
+                    }
+                )
+            } catch (error) {
+                resp.status(503).json({
+                    success: false,
+                    message: 'Main function error', 
+                    exception: error
+                })
+            }
+        } else {
+            resp.status(403).json({
+                success: false,
+                message: 'Security error', 
+                exception: 'error verify recaptcha token'
+            })
+        }
+    }, json_body.token)
+})
+
+app.post('/donate/payment_get', (req, resp) => {
+    const json_body = req.body
+    reccheck(function(result) {
+        if (result) {
+            try {
+                function response_(data) {
+                    if (data) {
+                        return {
+                            "id": data.id,
+                            "customer": data.customer,
+                            "email": censorEmail(data.email),
+                            "enrolled": data.enrolled,
+                            "created_at": created_at
+
+                        }
+                    } else {
+                        return null
+                    }
+                }
+                request(
+                    {
+                        uri: `https://easydonate.ru/api/v3/shop/payment/${json_body.payment_id}`,
+                        method: 'GET',
+                        headers: {
+                            'Shop-Key': process.env.DONATE_API_KEY
+                        }
+                    },
+                    (error, response, body) => {
+                        if (!error && response.statusCode == 200) {
+                            body = JSON.parse(body)
+                            if (body.success) {
+                                resp.send({
+                                    success: true,
+                                    coupon: response_(body.response)
                                 })
                             }
                             resp.status(503).json({
