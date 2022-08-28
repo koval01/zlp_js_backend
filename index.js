@@ -359,7 +359,8 @@ app.post('/donate/payment/create', (req, resp) => {
                         { "name": "server_id", "value": process.env.SERVER_ID },
                         { "name": "products", "value": JSON.stringify(json_body.products) },
                         { "name": "email", "value": json_body.email },
-                        { "name": "coupon", "value": json_body.coupon }
+                        { "name": "coupon", "value": json_body.coupon },
+                        { "name": "success_url", "value": json_body.success_url },
                     ]
                 )
                 request(
