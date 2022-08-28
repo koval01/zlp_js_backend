@@ -182,7 +182,7 @@ app.post('/donate/services', (req, resp) => {
                                 exception: "var success is not true"
                             })
                         } else {
-                            return resp.status(400).json({ success: false, message: 'Input function error', exception: error })
+                            return resp.status(400).json({ success: false, message: `Input function error. Origin code : ${response.statusCode}`, exception: error })
                         }
                     }
                 )
@@ -261,7 +261,7 @@ app.post('/donate/coupon', (req, resp) => {
                                 exception: "var success is not true"
                             })
                         } else {
-                            return resp.status(400).json({ success: false, message: 'Input function error', exception: error })
+                            return resp.status(400).json({ success: false, message: `Input function error. Origin code : ${response.statusCode}`, exception: error })
                         }
                     }
                 )
