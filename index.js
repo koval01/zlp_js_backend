@@ -291,13 +291,16 @@ app.post('/donate/payment_get', (req, resp) => {
             try {
                 function response_(data) {
                     if (data) {
+                        data.status = (data.status === 2) ? true : false
                         return {
                             "id": data.id,
                             "customer": data.customer,
                             "email": censorEmail(data.email),
                             "enrolled": data.enrolled,
-                            "created_at": data.created_at
-
+                            "created_at": data.created_at,
+                            "payment_system": data.payment_system,
+                            "status": data.status,
+                            "error": data.error
                         }
                     } else {
                         return null
