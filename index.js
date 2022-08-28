@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 const request = require('request')
 const compression = require('compression')
 const cors = require('cors')
@@ -360,7 +362,7 @@ app.post('/donate/payment/create', (req, resp) => {
                         { "name": "products", "value": JSON.stringify(json_body.products) },
                         { "name": "email", "value": json_body.email },
                         { "name": "coupon", "value": json_body.coupon },
-                        { "name": "success_url", "value": encodeURIComponent(json_body.success_url) },
+                        { "name": "success_url", "value": json_body.success_url },
                     ]
                 )
                 request(
