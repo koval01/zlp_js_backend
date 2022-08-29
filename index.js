@@ -450,11 +450,9 @@ app.get('*', function(req, resp){
 
 app.listen(app.get('port'), () => {
     logger.info(`Node app is running at localhost:${app.get('port')}`)
-    next()
 })
 
 process.on('uncaughtException', function (exception) {
     logger.error(`Uncaught exception: ${exception}`)
-    next()
 })
 
