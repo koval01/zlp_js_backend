@@ -37,7 +37,7 @@ function logError(err, req, res, next) {
 app.use(logError)
 
 app.use(function (err, req, resp, next) {
-    console.error(err.stack)
+    logger.error(err.stack)
     return resp.status(500).json({
         success: false,
         message: "Internal server error",
@@ -450,10 +450,10 @@ app.get('*', function(req, resp){
 })
 
 app.listen(app.get('port'), () => {
-    console.log(`Node app is running at localhost:${app.get('port')}`)
+    logger.info(`Node app is running at localhost:${app.get('port')}`)
 })
 
 process.on('uncaughtException', function (exception) {
-    console.error(`Uncaught exception: ${exception}`)
+    logger.error(`Uncaught exception: ${exception}`)
 })
 
