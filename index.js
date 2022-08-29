@@ -6,8 +6,10 @@ const cors = require('cors')
 const html_parser = require('node-html-parser')
 const express = require('express')
 const mcstatus = require('minecraft-server-util')
+const cacheService = require("express-api-cache")
 
 const app = express()
+const cache = cacheService.cache
 
 app.set('port', (process.env.PORT || 5000))
 app.use(express.json())
@@ -61,7 +63,7 @@ function reccheck(callback, token) {
     )
 }
 
-app.get('/channel', (req, resp) => {
+app.get('/channel', cache("10 minutes"), (req, resp) => {
     try {
         const choice_ = ['zalupa_history', 'zalupaonline']
         request(
@@ -100,7 +102,7 @@ app.get('/channel', (req, resp) => {
     }
 })
 
-// app.get('/channel_parse', (req, resp) => {
+// app.get('/channel_parse', cache("10 minutes"), (req, resp) => {
 //     try {
 //         const choice_ = ['zalupa_history', 'zalupaonline']
 //         request(
@@ -138,7 +140,7 @@ app.get('/channel', (req, resp) => {
 //     }
 // })
 
-app.post('/donate/services', (req, resp) => {
+app.post('/donate/services', cache("10 minutes"), (req, resp) => {
     const json_body = req.body
     reccheck(function(result) {
         if (result) {
@@ -205,7 +207,7 @@ app.post('/donate/services', (req, resp) => {
     }, json_body.token)
 })
 
-app.post('/donate/coupon', (req, resp) => {
+app.post('/donate/coupon', cache("10 minutes"), (req, resp) => {
     const json_body = req.body
     reccheck(function(result) {
         if (result) {
@@ -284,7 +286,7 @@ app.post('/donate/coupon', (req, resp) => {
     }, json_body.token)
 })
 
-app.post('/donate/payment_get', (req, resp) => {
+app.post('/donate/payment_get', cache("3 minutes"), (req, resp) => {
     const json_body = req.body
     reccheck(function(result) {
         if (result) {
