@@ -6,15 +6,35 @@ const cors = require('cors')
 const html_parser = require('node-html-parser')
 const express = require('express')
 const mcstatus = require('minecraft-server-util')
+const winston = require('winston')
 const cacheService = require("express-api-cache")
+
 
 const app = express()
 const cache = cacheService.cache
+
+const consoleTransport = new winston.transports.Console()
+const myWinstonOptions = {
+    transports: [consoleTransport]
+}
+const logger = new winston.createLogger(myWinstonOptions)
 
 app.set('port', (process.env.PORT || 5000))
 app.use(express.json())
 app.use(compression())
 app.use(cors())
+
+function logRequest(req, res, next) {
+    logger.info(req.url)
+    next()
+}
+app.use(logRequest)
+
+function logError(err, req, res, next) {
+    logger.error(err)
+    next()
+}
+app.use(logError)
 
 app.use(function (err, req, resp, next) {
     console.error(err.stack)
@@ -30,6 +50,20 @@ function main_e(resp) {
         success: false,
         message: 'Main function error', 
         exception: error
+    })
+}
+
+function input_e(resp, code, error) {
+    return resp.status(code).json({ 
+        success: false, message: "Input function error", exception: error 
+    })
+}
+
+function re_error(resp) {
+    return resp.status(403).json({
+        success: false,
+        message: 'Security error', 
+        exception: 'error verify recaptcha token'
     })
 }
 
@@ -97,7 +131,7 @@ app.get('/channel', cache("10 minutes"), (req, resp) => {
                         last_post: matched[matched.length - 1].match(/data-post="([A-z\d_-]*\/[\d]*)"/)[1]
                     })
                 } else {
-                    return resp.status(response.statusCode).json({ success: false, message: "Input function error", exception: error })
+                    return input_e(resp, response.statusCode, error)
                 }
             }
         )
@@ -131,7 +165,7 @@ app.get('/channel', cache("10 minutes"), (req, resp) => {
 //                         body: messages[matched.length - 1]
 //                     })
 //                 } else {
-//                     return resp.status(response.statusCode).json({ success: false, message: "Input function error", exception: error })
+//                     return input_e(resp, response.statusCode, error)
 //                 }
 //             }
 //         )
@@ -186,7 +220,7 @@ app.post('/donate/services', cache("10 minutes"), (req, resp) => {
                                 exception: "var success is not true"
                             })
                         } else {
-                            return resp.status(response.statusCode).json({ success: false, message: "Input function error", exception: error })
+                            return input_e(resp, response.statusCode, error)
                         }
                     }
                 )
@@ -194,11 +228,7 @@ app.post('/donate/services', cache("10 minutes"), (req, resp) => {
                 return main_e(resp)
             }
         } else {
-            return resp.status(403).json({
-                success: false,
-                message: 'Security error', 
-                exception: 'error verify recaptcha token'
-            })
+            return re_error(resp)
         }
     }, json_body.token)
 })
@@ -261,7 +291,7 @@ app.post('/donate/coupon', cache("10 minutes"), (req, resp) => {
                                 exception: "var success is not true"
                             })
                         } else {
-                            return resp.status(response.statusCode).json({ success: false, message: "Input function error", exception: error })
+                            return input_e(resp, response.statusCode, error)
                         }
                     }
                 )
@@ -269,11 +299,7 @@ app.post('/donate/coupon', cache("10 minutes"), (req, resp) => {
                 return main_e(resp)
             }
         } else {
-            return resp.status(403).json({
-                success: false,
-                message: 'Security error', 
-                exception: 'error verify recaptcha token'
-            })
+            return re_error(resp)
         }
     }, json_body.token)
 })
@@ -323,7 +349,7 @@ app.post('/donate/payment_get', cache("3 minutes"), (req, resp) => {
                                 exception: "var success is not true"
                             })
                         } else {
-                            return resp.status(response.statusCode).json({ success: false, message: "Input function error", exception: error })
+                            return input_e(resp, response.statusCode, error)
                         }
                     }
                 )
@@ -331,11 +357,7 @@ app.post('/donate/payment_get', cache("3 minutes"), (req, resp) => {
                 return main_e(resp)
             }
         } else {
-            return resp.status(403).json({
-                success: false,
-                message: 'Security error', 
-                exception: 'error verify recaptcha token'
-            })
+            return re_error(resp)
         }
     }, json_body.token)
 })
@@ -382,7 +404,7 @@ app.post('/donate/payment/create', (req, resp) => {
                                 exception: "var success is not true"
                             })
                         } else {
-                            return resp.status(response.statusCode).json({ success: false, message: "Input function error", exception: error })
+                            return input_e(resp, response.statusCode, error)
                         }
                     }
                 )
@@ -390,11 +412,7 @@ app.post('/donate/payment/create', (req, resp) => {
                 return main_e(resp)
             }
         } else {
-            return resp.status(403).json({
-                success: false,
-                message: 'Security error', 
-                exception: 'error verify recaptcha token'
-            })
+            return re_error(resp)
         }
     }, json_body.token)
 })
@@ -406,8 +424,7 @@ app.get('/server', (req, resp) => {
         }
         function result_(data) {
             return {
-                "online": data.players.online,
-                "latency": data.roundTripLatency
+                "online": data.players.online
             }
         }
         mcstatus.status('zalupa.online', 25565, options)
