@@ -87,7 +87,7 @@ app.get('/channel', (req, resp) => {
                         last_post: matched[matched.length - 1].match(/data-post="([A-z\d_-]*\/[\d]*)"/)[1]
                     })
                 } else {
-                    return resp.status(400).json({ success: false, message: 'Input function error', exception: error })
+                    return resp.status(response.statusCode).json({ success: false, message: "Input function error", exception: error })
                 }
             }
         )
@@ -125,7 +125,7 @@ app.get('/channel', (req, resp) => {
 //                         body: messages[matched.length - 1]
 //                     })
 //                 } else {
-//                     return resp.send({ success: false, message: 'Input function error', exception: error })
+//                     return resp.status(response.statusCode).json({ success: false, message: "Input function error", exception: error })
 //                 }
 //             }
 //         )
@@ -184,7 +184,7 @@ app.post('/donate/services', (req, resp) => {
                                 exception: "var success is not true"
                             })
                         } else {
-                            return resp.status(400).json({ success: false, message: `Input function error. Origin code : ${response.statusCode}`, exception: error })
+                            return resp.status(response.statusCode).json({ success: false, message: "Input function error", exception: error })
                         }
                     }
                 )
@@ -263,7 +263,7 @@ app.post('/donate/coupon', (req, resp) => {
                                 exception: "var success is not true"
                             })
                         } else {
-                            return resp.status(400).json({ success: false, message: `Input function error. Origin code : ${response.statusCode}`, exception: error })
+                            return resp.status(response.statusCode).json({ success: false, message: "Input function error", exception: error })
                         }
                     }
                 )
@@ -329,9 +329,7 @@ app.post('/donate/payment_get', (req, resp) => {
                                 exception: "var success is not true"
                             })
                         } else {
-                            return resp.status(400).json({ 
-                                success: false, message: `Input function error. Origin code : ${response.statusCode}`, exception: error 
-                            })
+                            return resp.status(response.statusCode).json({ success: false, message: "Input function error", exception: error })
                         }
                     }
                 )
@@ -394,7 +392,7 @@ app.post('/donate/payment/create', (req, resp) => {
                                 exception: "var success is not true"
                             })
                         } else {
-                            return resp.status(400).json({ success: false, message: 'Input function error', exception: error })
+                            return resp.status(response.statusCode).json({ success: false, message: "Input function error", exception: error })
                         }
                     }
                 )
