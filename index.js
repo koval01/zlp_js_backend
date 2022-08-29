@@ -7,11 +7,9 @@ const html_parser = require('node-html-parser')
 const express = require('express')
 const mcstatus = require('minecraft-server-util')
 const winston = require('winston')
-const cacheService = require("express-api-cache")
 
 
 const app = express()
-const cache = cacheService.cache
 
 const consoleTransport = new winston.transports.Console()
 const myWinstonOptions = {
@@ -106,7 +104,7 @@ function reccheck(callback, token) {
     )
 }
 
-app.get('/channel', cache("10 minutes"), (req, resp) => {
+app.get('/channel', (req, resp) => {
     try {
         const choice_ = ['zalupa_history', 'zalupaonline']
         request(
@@ -141,7 +139,7 @@ app.get('/channel', cache("10 minutes"), (req, resp) => {
     }
 })
 
-// app.get('/channel_parse', cache("10 minutes"), (req, resp) => {
+// app.get('/channel_parse', (req, resp) => {
 //     try {
 //         const choice_ = ['zalupa_history', 'zalupaonline']
 //         request(
@@ -175,7 +173,7 @@ app.get('/channel', cache("10 minutes"), (req, resp) => {
 //     }
 // })
 
-app.post('/donate/services', cache("10 minutes"), (req, resp) => {
+app.post('/donate/services', (req, resp) => {
     const json_body = req.body
     reccheck(function(result) {
         if (result) {
@@ -234,7 +232,7 @@ app.post('/donate/services', cache("10 minutes"), (req, resp) => {
     }, json_body.token)
 })
 
-app.post('/donate/coupon', cache("10 minutes"), (req, resp) => {
+app.post('/donate/coupon', (req, resp) => {
     const json_body = req.body
     reccheck(function(result) {
         if (result) {
@@ -305,7 +303,7 @@ app.post('/donate/coupon', cache("10 minutes"), (req, resp) => {
     }, json_body.token)
 })
 
-app.post('/donate/payment_get', cache("3 minutes"), (req, resp) => {
+app.post('/donate/payment_get', (req, resp) => {
     const json_body = req.body
     reccheck(function(result) {
         if (result) {
