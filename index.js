@@ -25,6 +25,14 @@ app.use(function (err, req, resp, next) {
     })
 })
 
+function main_e(resp) {
+    return resp.status(503).json({
+        success: false,
+        message: 'Main function error', 
+        exception: error
+    })
+}
+
 function censorWord(str) {
     return str[0] + "*".repeat(3) + str.slice(-1);
 }
@@ -93,12 +101,8 @@ app.get('/channel', cache("10 minutes"), (req, resp) => {
                 }
             }
         )
-    } catch (error) {
-        return resp.status(503).json({
-            success: false,
-            message: 'Main function error', 
-            exception: error
-        })
+    } catch (_) {
+        return main_e(resp)
     }
 })
 
@@ -131,12 +135,8 @@ app.get('/channel', cache("10 minutes"), (req, resp) => {
 //                 }
 //             }
 //         )
-//     } catch (error) {
-//         return resp.send({
-//             success: false,
-//             message: 'Main function error', 
-//             exception: error
-//         })
+//     } catch (_) {
+//         return main_e(resp)
 //     }
 // })
 
@@ -190,12 +190,8 @@ app.post('/donate/services', cache("10 minutes"), (req, resp) => {
                         }
                     }
                 )
-            } catch (error) {
-                return resp.status(503).json({
-                    success: false,
-                    message: 'Main function error', 
-                    exception: error
-                })
+            } catch (_) {
+                return main_e(resp)
             }
         } else {
             return resp.status(403).json({
@@ -269,12 +265,8 @@ app.post('/donate/coupon', cache("10 minutes"), (req, resp) => {
                         }
                     }
                 )
-            } catch (error) {
-                return resp.status(503).json({
-                    success: false,
-                    message: 'Main function error', 
-                    exception: error
-                })
+            } catch (_) {
+                return main_e(resp)
             }
         } else {
             return resp.status(403).json({
@@ -335,12 +327,8 @@ app.post('/donate/payment_get', cache("3 minutes"), (req, resp) => {
                         }
                     }
                 )
-            } catch (error) {
-                return resp.status(503).json({
-                    success: false,
-                    message: 'Main function error', 
-                    exception: error
-                })
+            } catch (_) {
+                return main_e(resp)
             }
         } else {
             return resp.status(403).json({
@@ -398,12 +386,8 @@ app.post('/donate/payment/create', (req, resp) => {
                         }
                     }
                 )
-            } catch (error) {
-                return resp.status(503).json({
-                    success: false,
-                    message: 'Main function error', 
-                    exception: error
-                })
+            } catch (_) {
+                return main_e(resp)
             }
         } else {
             return resp.status(403).json({
@@ -435,12 +419,8 @@ app.get('/server', (req, resp) => {
                 message: 'Server data get error', 
                 exception: error
             }))
-    } catch (error) {
-        return resp.status(503).json({
-            success: false,
-            message: 'Main function error', 
-            exception: error
-        })
+    } catch (_) {
+        return main_e(resp)
     }
 })
 
