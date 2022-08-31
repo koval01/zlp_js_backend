@@ -310,6 +310,7 @@ app.post('/donate/payment_get', (req, resp) => {
             try {
                 function response_(data) {
                     if (data) {
+                        data.status = 0 // for test
                         data.status = (data.status === 2) ? true : false
                         return {
                             "id": data.id,
