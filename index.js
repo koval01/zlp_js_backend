@@ -318,8 +318,7 @@ app.post('/donate/payment_get', (req, resp) => {
                             "enrolled": parseFloat(data.enrolled).toFixed(2),
                             "created_at": data.created_at,
                             "payment_system": data.payment_system,
-                            "status": data.status,
-                            "error": data.error
+                            "status": data.status
                         }
                     } else {
                         return null
