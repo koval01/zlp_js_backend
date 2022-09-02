@@ -142,6 +142,9 @@ app.get('/channel', (req, resp) => {
 app.get('/channel_parse', (req, resp) => {
     try {
         const choice_ = ['zalupa_history', 'zalupaonline']
+        if (!req.query.offset) {
+            req.query.offset = 0
+        }
         request(
             {
                 uri: `https://t.me/s/${choice_[req.query.choice]}?before=${req.query.before}`,
@@ -159,17 +162,19 @@ app.get('/channel_parse', (req, resp) => {
                 if (!error && response.statusCode == 200) {
                     body = body.toString().replace(/\\/gm, "")
                     const messages = html_parser.parse(body).querySelectorAll(".tgme_widget_message")
-                    const container = messages[messages.length - 1]
+                    const container = messages[messages.length - 1 - parseInt(req.query.offset)]
                     let author = null
+                    let cover = null
                     try { author = container.querySelector(".tgme_widget_message_from_author").text } catch (_) {}
+                    try { cover = container.querySelector(".tgme_widget_message_photo_wrap").style.backgroundImage } catch (_) {}
                     return resp.send({
                         success: true,
                         message: {
                             text: container.querySelector(".tgme_widget_message_text").innerHTML,
                             name: container.querySelector(".tgme_widget_message_owner_name > span").text,
                             author: author,
-                            datetime_utc: container.querySelector(".tgme_widget_message_date > time").getAttribute("datetime"),
-                            cover: container.querySelector(".tgme_widget_message_photo_wrap").style.backgroundImage
+                            cover: cover,
+                            datetime_utc: container.querySelector(".tgme_widget_message_date > time").getAttribute("datetime")
                         }
                     })
                 } else {
