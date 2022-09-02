@@ -164,7 +164,8 @@ app.get('/channel_parse', (req, resp) => {
                         success: true,
                         text: container.querySelector(".tgme_widget_message_text").innerHTML,
                         name: container.querySelector(".tgme_widget_message_owner_name > span").text,
-                        author: container.querySelector(".tgme_widget_message_from_author").text
+                        author: container.querySelector(".tgme_widget_message_from_author").text,
+                        datetime_utc: container.querySelector(".tgme_widget_message_date > time").getAttribute("datetime")
                     })
                 } else {
                     return input_e(resp, response.statusCode, error)
