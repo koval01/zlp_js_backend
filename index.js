@@ -168,7 +168,7 @@ app.get('/channel_parse', (req, resp) => {
                     }
                     messages = messages.reverse().slice(parseInt(req.query.limit))
                     let result = []
-                    for (let i = 0; i < messages; i++) {
+                    for (let i = 0; i < messages.length; i++) {
                         let container = messages[i]
                         let text = ""
                         let author = ""
@@ -181,10 +181,6 @@ app.get('/channel_parse', (req, resp) => {
                         if (cover) {
                             try { cover = cover.match(cover_regex)[1] } catch (_) { }
                         }
-                        console.log(text)
-                        console.log(author)
-                        console.log(cover)
-                        console.log(container.querySelector(".tgme_widget_message_owner_name > span").text)
                         if (text.length) {
                             result.push({
                                 text: text,
