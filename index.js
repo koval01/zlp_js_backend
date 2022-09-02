@@ -159,9 +159,12 @@ app.get('/channel_parse', (req, resp) => {
                 if (!error && response.statusCode == 200) {
                     body = body.toString().replace(/\\/gm, "")
                     const messages = html_parser.parse(body).querySelectorAll(".tgme_widget_message")
+                    const container = messages[messages.length - 1]
                     return resp.send({
                         success: true,
-                        body: (messages[messages.length - 1]).toString()
+                        text: container.querySelector(".tgme_widget_message_text").innerHTML,
+                        name: container.querySelector(".tgme_widget_message_owner_name > span").text,
+                        author: container.querySelector(".tgme_widget_message_from_author").text
                     })
                 } else {
                     return input_e(resp, response.statusCode, error)
