@@ -139,39 +139,39 @@ app.get('/channel', (req, resp) => {
     }
 })
 
-// app.get('/channel_parse', (req, resp) => {
-//     try {
-//         const choice_ = ['zalupa_history', 'zalupaonline']
-//         request(
-//             {
-//                 uri: `https://t.me/s/${choice_[req.query.choice]}?before=${req.query.before}`,
-//                 method: 'POST',
-//                 headers: {
-//                     Origin: 'https://t.me',
-//                     Referer: `https://t.me/s/${choice_[req.query.choice]}`,
-//                     Host: 't.me',
-//                     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.2 Safari/605.1.15',
-//                     'X-Requested-With': 'XMLHttpRequest',
-//                     Connection: 'keep-alive'
-//                 }
-//             },
-//             (error, response, body) => {
-//                 if (!error && response.statusCode == 200) {
-//                     body = body.toString().replace(/\\/gm, "")
-//                     const messages = html_parser.parse(body).querySelectorAll(".tgme_widget_message_wrap")
-//                     return resp.send({
-//                         success: true,
-//                         body: messages[matched.length - 1]
-//                     })
-//                 } else {
-//                     return input_e(resp, response.statusCode, error)
-//                 }
-//             }
-//         )
-//     } catch (_) {
-//         return main_e(resp)
-//     }
-// })
+app.get('/channel_parse', (req, resp) => {
+    try {
+        const choice_ = ['zalupa_history', 'zalupaonline']
+        request(
+            {
+                uri: `https://t.me/s/${choice_[req.query.choice]}?before=${req.query.before}`,
+                method: 'POST',
+                headers: {
+                    Origin: 'https://t.me',
+                    Referer: `https://t.me/s/${choice_[req.query.choice]}`,
+                    Host: 't.me',
+                    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.2 Safari/605.1.15',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    Connection: 'keep-alive'
+                }
+            },
+            (error, response, body) => {
+                if (!error && response.statusCode == 200) {
+                    body = body.toString().replace(/\\/gm, "")
+                    const messages = html_parser.parse(body).querySelectorAll(".tgme_widget_message_wrap")
+                    return resp.send({
+                        success: true,
+                        body: messages[matched.length - 1]
+                    })
+                } else {
+                    return input_e(resp, response.statusCode, error)
+                }
+            }
+        )
+    } catch (_) {
+        return main_e(resp)
+    }
+})
 
 app.post('/donate/services', (req, resp) => {
     const json_body = req.body
