@@ -161,7 +161,7 @@ app.get('/channel_parse', (req, resp) => {
                     const messages = html_parser.parse(body).querySelectorAll(".tgme_widget_message")
                     return resp.send({
                         success: true,
-                        body: messages[matched.length - 1]
+                        body: messages[messages.length - 1]
                     })
                 } else {
                     return input_e(resp, response.statusCode, error)
