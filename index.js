@@ -163,10 +163,16 @@ app.get('/channel_parse', (req, resp) => {
                     body = body.toString().replace(/\\/gm, "")
                     const messages = html_parser.parse(body).querySelectorAll(".tgme_widget_message")
                     const container = messages[messages.length - 1 - parseInt(req.query.offset)]
+                    const cover_regex = /background-image:url\('(.*?)'\)/
                     let author = null
                     let cover = null
                     try { author = container.querySelector(".tgme_widget_message_from_author").text } catch (_) {}
-                    try { cover = container.querySelector(".tgme_widget_message_photo_wrap").style.backgroundImage } catch (_) {}
+                    try { cover = container.querySelector(".tgme_widget_message_photo_wrap").getAttribute("style") } catch (_) {
+                        try { cover = container.querySelector(".tgme_widget_message_video_thumb").getAttribute("style") } catch (_) {}
+                    }
+                    if (cover) {
+                        try { cover = cover.match(cover_regex)[1] } catch (e) { console.log(e) }
+                    }
                     return resp.send({
                         success: true,
                         message: {
