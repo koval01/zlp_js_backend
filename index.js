@@ -160,12 +160,16 @@ app.get('/channel_parse', (req, resp) => {
                     body = body.toString().replace(/\\/gm, "")
                     const messages = html_parser.parse(body).querySelectorAll(".tgme_widget_message")
                     const container = messages[messages.length - 1]
+                    let author = null
+                    try { author = container.querySelector(".tgme_widget_message_from_author").text } catch (_) {}
                     return resp.send({
                         success: true,
-                        text: container.querySelector(".tgme_widget_message_text").innerHTML,
-                        name: container.querySelector(".tgme_widget_message_owner_name > span").text,
-                        author: container.querySelector(".tgme_widget_message_from_author").text,
-                        datetime_utc: container.querySelector(".tgme_widget_message_date > time").getAttribute("datetime")
+                        message: {
+                            text: container.querySelector(".tgme_widget_message_text").innerHTML,
+                            name: container.querySelector(".tgme_widget_message_owner_name > span").text,
+                            author: author,
+                            datetime_utc: container.querySelector(".tgme_widget_message_date > time").getAttribute("datetime")
+                        }
                     })
                 } else {
                     return input_e(resp, response.statusCode, error)
