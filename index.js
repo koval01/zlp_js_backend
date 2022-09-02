@@ -166,7 +166,7 @@ app.get('/channel_parse', (req, resp) => {
                     if (!req.query.offset) {
                         req.query.offset = 5
                     }
-                    messages = messages.reverse().slice(req.query.limit)
+                    messages = messages.reverse().slice(parseInt(req.query.limit))
                     let result = []
                     for (let i = 0; i < messages; i++) {
                         let container = messages[i]
