@@ -169,14 +169,11 @@ app.get('/channel_parse', (req, resp) => {
                     let cover = null
                     try { text = container.querySelector(".tgme_widget_message_text").innerHTML } catch (_) {}
                     try { author = container.querySelector(".tgme_widget_message_from_author").text } catch (_) {}
-                    try { cover = container.querySelector(".tgme_widget_message_photo_wrap").getAttribute("style") } catch (e) {
-                        console.log(`fs: ${e}`)
-                        try { cover = container.querySelector(".tgme_widget_message_video_thumb").getAttribute("style") } catch (e) {
-                            console.log(`ss: ${e}`)
-                        }
+                    try { cover = container.querySelector(".tgme_widget_message_photo_wrap").getAttribute("style") } catch (_) {
+                        try { cover = container.querySelector(".tgme_widget_message_video_thumb").getAttribute("style") } catch (_) {}
                     }
                     if (cover) {
-                        try { cover = cover.match(cover_regex)[1] } catch (e) { console.log(`ts: ${e}`) }
+                        try { cover = cover.match(cover_regex)[1] } catch (_) { }
                     }
                     return resp.send({
                         success: true,
