@@ -160,34 +160,44 @@ app.get('/channel_parse', (req, resp) => {
             },
             (error, response, body) => {
                 if (!error && response.statusCode == 200) {
-                    body = body.toString().replace(/\\/gm, "")
-                    const messages = html_parser.parse(body).querySelectorAll(".tgme_widget_message")
-                    const container = messages[messages.length - 1 - parseInt(req.query.offset)]
                     const cover_regex = /background-image:url\('(.*?)'\)/
-                    let text = ""
-                    let author = ""
-                    let cover = ""
-                    try { text = container.querySelector(".tgme_widget_message_text").innerHTML } catch (_) {}
-                    try { author = container.querySelector(".tgme_widget_message_from_author").text } catch (_) {}
-                    try { cover = container.querySelector(".tgme_widget_message_photo_wrap").getAttribute("style") } catch (_) {
-                        try { cover = container.querySelector(".tgme_widget_message_video_thumb").getAttribute("style") } catch (_) {}
+                    body = body.toString().replace(/\\/gm, "")
+                    let messages = html_parser.parse(body).querySelectorAll(".tgme_widget_message")
+                    if (!req.query.offset) {
+                        req.query.offset = 5
                     }
-                    if (cover) {
-                        try { cover = cover.match(cover_regex)[1] } catch (_) { }
-                    }
-                    if (text.length) {
-                        return resp.send({
-                            success: true,
-                            message: {
+                    messages = messages.reverse().slice(req.query.limit)
+                    let result = []
+                    for (let i = 0; i < messages; i++) {
+                        let container = messages[i]
+                        let text = ""
+                        let author = ""
+                        let cover = ""
+                        try { text = container.querySelector(".tgme_widget_message_text").innerHTML } catch (_) {}
+                        try { author = container.querySelector(".tgme_widget_message_from_author").text } catch (_) {}
+                        try { cover = container.querySelector(".tgme_widget_message_photo_wrap").getAttribute("style") } catch (_) {
+                            try { cover = container.querySelector(".tgme_widget_message_video_thumb").getAttribute("style") } catch (_) {}
+                        }
+                        if (cover) {
+                            try { cover = cover.match(cover_regex)[1] } catch (_) { }
+                        }
+                        if (text.length) {
+                            result.push({
                                 text: text,
                                 name: container.querySelector(".tgme_widget_message_owner_name > span").text,
                                 author: author,
                                 cover: cover,
                                 datetime_utc: container.querySelector(".tgme_widget_message_date > time").getAttribute("datetime")
-                            }
+                            })
+                        }
+                    }
+                    if (result) {
+                        return resp.send({
+                            success: true,
+                            messages: result
                         })
                     } else {
-                        return input_e(resp, 503, "no text post")
+                        return input_e(resp, 503, "result array is void")
                     }
                 } else {
                     return input_e(resp, response.statusCode, error)
