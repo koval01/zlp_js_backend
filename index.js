@@ -164,19 +164,24 @@ app.get('/channel_parse', (req, resp) => {
                     const messages = html_parser.parse(body).querySelectorAll(".tgme_widget_message")
                     const container = messages[messages.length - 1 - parseInt(req.query.offset)]
                     const cover_regex = /background-image:url\('(.*?)'\)/
+                    let text = null
                     let author = null
                     let cover = null
+                    try { text = container.querySelector(".tgme_widget_message_text").innerHTML } catch (_) {}
                     try { author = container.querySelector(".tgme_widget_message_from_author").text } catch (_) {}
-                    try { cover = container.querySelector(".tgme_widget_message_photo_wrap").getAttribute("style") } catch (_) {
-                        try { cover = container.querySelector(".tgme_widget_message_video_thumb").getAttribute("style") } catch (_) {}
+                    try { cover = container.querySelector(".tgme_widget_message_photo_wrap").getAttribute("style") } catch (e) {
+                        console.log(`fs: ${e}`)
+                        try { cover = container.querySelector(".tgme_widget_message_video_thumb").getAttribute("style") } catch (e) {
+                            console.log(`ss: ${e}`)
+                        }
                     }
                     if (cover) {
-                        try { cover = cover.match(cover_regex)[1] } catch (e) { console.log(e) }
+                        try { cover = cover.match(cover_regex)[1] } catch (e) { console.log(`ts: ${e}`) }
                     }
                     return resp.send({
                         success: true,
                         message: {
-                            text: container.querySelector(".tgme_widget_message_text").innerHTML,
+                            text: text,
                             name: container.querySelector(".tgme_widget_message_owner_name > span").text,
                             author: author,
                             cover: cover,
