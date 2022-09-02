@@ -191,7 +191,7 @@ app.get('/channel_parse', (req, resp) => {
                             })
                         }
                     }
-                    if (result) {
+                    if (result.length) {
                         return resp.send({
                             success: true,
                             messages: result
