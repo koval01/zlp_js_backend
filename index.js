@@ -164,9 +164,9 @@ app.get('/channel_parse', (req, resp) => {
                     const messages = html_parser.parse(body).querySelectorAll(".tgme_widget_message")
                     const container = messages[messages.length - 1 - parseInt(req.query.offset)]
                     const cover_regex = /background-image:url\('(.*?)'\)/
-                    let text = null
-                    let author = null
-                    let cover = null
+                    let text = ""
+                    let author = ""
+                    let cover = ""
                     try { text = container.querySelector(".tgme_widget_message_text").innerHTML } catch (_) {}
                     try { author = container.querySelector(".tgme_widget_message_from_author").text } catch (_) {}
                     try { cover = container.querySelector(".tgme_widget_message_photo_wrap").getAttribute("style") } catch (_) {
@@ -175,16 +175,20 @@ app.get('/channel_parse', (req, resp) => {
                     if (cover) {
                         try { cover = cover.match(cover_regex)[1] } catch (_) { }
                     }
-                    return resp.send({
-                        success: true,
-                        message: {
-                            text: text,
-                            name: container.querySelector(".tgme_widget_message_owner_name > span").text,
-                            author: author,
-                            cover: cover,
-                            datetime_utc: container.querySelector(".tgme_widget_message_date > time").getAttribute("datetime")
-                        }
-                    })
+                    if (text.length) {
+                        return resp.send({
+                            success: true,
+                            message: {
+                                text: text,
+                                name: container.querySelector(".tgme_widget_message_owner_name > span").text,
+                                author: author,
+                                cover: cover,
+                                datetime_utc: container.querySelector(".tgme_widget_message_date > time").getAttribute("datetime")
+                            }
+                        })
+                    } else {
+                        return input_e(resp, 503, "no text post")
+                    }
                 } else {
                     return input_e(resp, response.statusCode, error)
                 }
