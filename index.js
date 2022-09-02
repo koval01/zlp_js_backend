@@ -167,7 +167,6 @@ app.get('/channel_parse', (req, resp) => {
                         req.query.offset = 5
                     }
                     messages = messages.reverse().slice(parseInt(req.query.limit))
-                    console.log(messages)
                     let result = []
                     for (let i = 0; i < messages; i++) {
                         let container = messages[i]
@@ -182,6 +181,10 @@ app.get('/channel_parse', (req, resp) => {
                         if (cover) {
                             try { cover = cover.match(cover_regex)[1] } catch (_) { }
                         }
+                        console.log(text)
+                        console.log(author)
+                        console.log(cover)
+                        console.log(container.querySelector(".tgme_widget_message_owner_name > span").text)
                         if (text.length) {
                             result.push({
                                 text: text,
