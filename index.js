@@ -168,7 +168,8 @@ app.get('/channel_parse', (req, resp) => {
                             text: container.querySelector(".tgme_widget_message_text").innerHTML,
                             name: container.querySelector(".tgme_widget_message_owner_name > span").text,
                             author: author,
-                            datetime_utc: container.querySelector(".tgme_widget_message_date > time").getAttribute("datetime")
+                            datetime_utc: container.querySelector(".tgme_widget_message_date > time").getAttribute("datetime"),
+                            cover: container.querySelector(".tgme_widget_message_photo_wrap").style.backgroundImage
                         }
                     })
                 } else {
