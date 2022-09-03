@@ -187,7 +187,8 @@ app.get('/channel_parse', (req, resp) => {
                                 name: container.querySelector(".tgme_widget_message_owner_name > span").text,
                                 author: author,
                                 cover: cover,
-                                datetime_utc: container.querySelector(".tgme_widget_message_date > time").getAttribute("datetime")
+                                datetime_utc: container.querySelector(".tgme_widget_message_date > time").getAttribute("datetime"),
+                                link: container.querySelector(".tgme_widget_message_date").getAttribute("href")
                             })
                         }
                     }
