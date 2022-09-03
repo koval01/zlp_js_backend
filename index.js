@@ -181,6 +181,9 @@ app.get('/channel_parse', (req, resp) => {
                         if (cover) {
                             try { cover = cover.match(cover_regex)[1] } catch (_) { }
                         }
+                        const regex_link = /(https:\/\/t.me\/)([A-z\d_\-]*?\/[\d]*$)/
+                        const org_link = container.querySelector(".tgme_widget_message_date").getAttribute("href")
+                        const link = `https://t.me/s/${org_link.match(regex_link)[2]}`
                         if (text.length) {
                             result.push({
                                 text: text,
@@ -188,7 +191,7 @@ app.get('/channel_parse', (req, resp) => {
                                 author: author,
                                 cover: cover,
                                 datetime_utc: container.querySelector(".tgme_widget_message_date > time").getAttribute("datetime"),
-                                link: container.querySelector(".tgme_widget_message_date").getAttribute("href")
+                                link: link
                             })
                         }
                     }
