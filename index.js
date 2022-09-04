@@ -359,7 +359,7 @@ app.post('/donate/payment_get', (req, resp) => {
     
                             for (let i = 0; i < splitted_pattern.length; i++) {
                                 if (splitted_pattern[i] === "{amount}") {
-                                    data.enrolled = splitted_exc_com[i]
+                                    data.enrolled = parseInt(splitted_exc_com[i])
                                 }
                             }
                         } else { data.enrolled = 0 }
