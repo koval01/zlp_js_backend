@@ -350,6 +350,19 @@ app.post('/donate/payment_get', (req, resp) => {
             try {
                 function response_(data) {
                     if (data) {
+                        if (json_body.tokens_send) {
+                            const pattern = data.products[0].commands[0]
+                            const exc_com = data.sent_commands[0].command
+    
+                            const splitted_pattern = pattern.split("\x20")
+                            const splitted_exc_com = exc_com.split("\x20")
+    
+                            for (let i = 0; i < splitted_pattern.length; i++) {
+                                if (splitted_pattern[i] === "{amount}") {
+                                    data.enrolled = splitted_exc_com[i]
+                                }
+                            }
+                        } else { data.enrolled = 0 }
                         data.status = (data.status === 2) ? true : false
                         return {
                             "id": data.id,
@@ -357,7 +370,8 @@ app.post('/donate/payment_get', (req, resp) => {
                             "email": censorEmail(data.email),
                             "created_at": data.created_at,
                             "payment_system": data.payment_system,
-                            "status": data.status
+                            "status": data.status,
+                            "enrolled": data.enrolled
                         }
                     } else {
                         return null
