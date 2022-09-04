@@ -106,7 +106,7 @@ function reccheck(callback, token) {
 
 app.get('/channel', (req, resp) => {
     try {
-        const choice_ = ['zalupa_history', 'zalupaonline']
+        let choice_ = ['zalupa_history', 'zalupaonline']
         request(
             {
                 uri: `https://t.me/s/${choice_[req.query.choice]}?before=${req.query.before}`,
@@ -123,8 +123,8 @@ app.get('/channel', (req, resp) => {
             (error, response, body) => {
                 if (!error && response.statusCode == 200) {
                     body = body.toString().replace(/\\/gm, "")
-                    const regex = /data-post="[A-z\d_-]*\/[\d]*"/gm
-                    const matched = body.match(regex)
+                    let regex = /data-post="[A-z\d_-]*\/[\d]*"/gm
+                    let matched = body.match(regex)
                     return resp.send({
                         success: true,
                         last_post: matched[matched.length - 1].match(/data-post="([A-z\d_-]*\/[\d]*)"/)[1]
@@ -141,7 +141,7 @@ app.get('/channel', (req, resp) => {
 
 app.get('/channel_parse', (req, resp) => {
     try {
-        const choice_ = ['zalupa_history', 'zalupaonline']
+        let choice_ = ['zalupa_history', 'zalupaonline']
         if (!req.query.offset) {
             req.query.offset = 0
         }
@@ -160,7 +160,7 @@ app.get('/channel_parse', (req, resp) => {
             },
             (error, response, body) => {
                 if (!error && response.statusCode == 200) {
-                    const cover_regex = /background-image:url\('(.*?)'\)/
+                    let cover_regex = /background-image:url\('(.*?)'\)/
                     body = body.toString().replace(/\\/gm, "")
                     let messages = html_parser.parse(body).querySelectorAll(".tgme_widget_message")
                     if (!req.query.offset) {
@@ -181,9 +181,9 @@ app.get('/channel_parse', (req, resp) => {
                         if (cover) {
                             try { cover = cover.match(cover_regex)[1] } catch (_) { }
                         }
-                        const regex_link = /(https:\/\/t.me\/)([A-z\d_\-]*?\/[\d]*$)/
-                        const org_link = container.querySelector(".tgme_widget_message_date").getAttribute("href")
-                        const link = `https://t.me/s/${org_link.match(regex_link)[2]}`
+                        let regex_link = /(https:\/\/t.me\/)([A-z\d_\-]*?\/[\d]*$)/
+                        let org_link = container.querySelector(".tgme_widget_message_date").getAttribute("href")
+                        let link = `https://t.me/s/${org_link.match(regex_link)[2]}`
                         if (text.length) {
                             result.push({
                                 text: text,
@@ -214,7 +214,7 @@ app.get('/channel_parse', (req, resp) => {
 })
 
 app.post('/donate/services', (req, resp) => {
-    const json_body = req.body
+    let json_body = req.body
     reccheck(function(result) {
         if (result) {
             try {
@@ -273,7 +273,7 @@ app.post('/donate/services', (req, resp) => {
 })
 
 app.post('/donate/coupon', (req, resp) => {
-    const json_body = req.body
+    let json_body = req.body
     reccheck(function(result) {
         if (result) {
             try {
@@ -344,18 +344,18 @@ app.post('/donate/coupon', (req, resp) => {
 })
 
 app.post('/donate/payment_get', (req, resp) => {
-    const json_body = req.body
+    let json_body = req.body
     reccheck(function(result) {
         if (result) {
             try {
                 function response_(data) {
                     if (data) {
                         if (json_body.tokens_send) {
-                            const pattern = data.products[0].commands[0]
-                            const exc_com = data.sent_commands[0].command
+                            let pattern = data.products[0].commands[0]
+                            let exc_com = data.sent_commands[0].command
     
-                            const splitted_pattern = pattern.split("\x20")
-                            const splitted_exc_com = exc_com.split("\x20")
+                            let splitted_pattern = pattern.split("\x20")
+                            let splitted_exc_com = exc_com.split("\x20")
     
                             for (let i = 0; i < splitted_pattern.length; i++) {
                                 if (splitted_pattern[i] === "{amount}") {
@@ -470,7 +470,7 @@ app.post('/donate/payment/create', (req, resp) => {
 
 app.get('/server', (req, resp) => {
     try {
-        const options = {
+        let options = {
             timeout: 1000 * 3
         }
         function result_(data) {
