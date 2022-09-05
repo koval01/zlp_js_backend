@@ -7,6 +7,8 @@ const html_parser = require('node-html-parser')
 const express = require('express')
 const mcstatus = require('minecraft-server-util')
 const winston = require('winston')
+const crypto = require('crypto')
+const mysql = require('mysql')
 
 
 const app = express()
@@ -43,6 +45,13 @@ app.use(function (err, req, resp, next) {
         message: "Internal server error",
         exception: "server error"
     })
+})
+
+var con = mysql.createConnection({
+    host: process.env.DB_HOSTNAME,
+    user: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE
 })
 
 function main_e(resp, error = "", message = "Main function error") {
@@ -181,14 +190,33 @@ app.get('/channel_parse', (req, resp) => {
 
 app.post('/promotion', (req, resp) => {
     let body = req.body
-    try {
-        return resp.json({
-            success: true,
-            body: body
-        })
-    } catch (_) {
-        return main_e(resp, "Error build")
+    resp.set("Content-Type", "text/html")
+
+    if (!body.username || !body.ip || !body.timestamp || !body.signature) {
+        return resp.send("Присланы не все данные, вероятно запрос подделан")
     }
+
+    let shasum = crypto.createHash('sha1')
+    shasum.update(body.username + body.timestamp + process.env.MR_SECRET_KEY)
+    let signature = shasum.digest('hex')
+
+    if (body.signature != signature) {
+        return resp.send("Неверная подпись / секретный ключ")
+    }
+
+    try {
+        con.connect(function(err) {
+            if (err) throw err;
+            let sql = "UPDATE customers SET address = 'Canyon 123' WHERE address = 'Valley 345'";
+            con.query(sql, function (err, result) {
+                if (err) throw err
+            })
+        })
+    } catch (e) {
+        return resp.send(`Ошибка базы данных: ${e}`)
+    }
+
+    return resp.send("ok")
 })
 
 app.post('/donate/services', (req, resp) => {
