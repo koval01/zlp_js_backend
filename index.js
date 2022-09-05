@@ -19,6 +19,7 @@ const logger = new winston.createLogger(myWinstonOptions)
 
 app.set('port', (process.env.PORT || 5000))
 app.use(express.json())
+app.use(express.urlencoded())
 app.use(compression())
 app.use(cors())
 
@@ -44,10 +45,10 @@ app.use(function (err, req, resp, next) {
     })
 })
 
-function main_e(resp) {
+function main_e(resp, error = "", message = "Main function error") {
     return resp.status(503).json({
         success: false,
-        message: 'Main function error', 
+        message: message, 
         exception: error
     })
 }
@@ -103,41 +104,6 @@ function reccheck(callback, token) {
         }
     )
 }
-
-app.get('/channel', (req, resp) => {
-    try {
-        let choice_ = ['zalupa_history', 'zalupaonline']
-        request(
-            {
-                uri: `https://t.me/s/${choice_[req.query.choice]}?before=${req.query.before}`,
-                method: 'POST',
-                headers: {
-                    Origin: 'https://t.me',
-                    Referer: `https://t.me/s/${choice_[req.query.choice]}`,
-                    Host: 't.me',
-                    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.2 Safari/605.1.15',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    Connection: 'keep-alive'
-                }
-            },
-            (error, response, body) => {
-                if (!error && response.statusCode == 200) {
-                    body = body.toString().replace(/\\/gm, "")
-                    let regex = /data-post="[A-z\d_-]*\/[\d]*"/gm
-                    let matched = body.match(regex)
-                    return resp.send({
-                        success: true,
-                        last_post: matched[matched.length - 1].match(/data-post="([A-z\d_-]*\/[\d]*)"/)[1]
-                    })
-                } else {
-                    return input_e(resp, response.statusCode, error)
-                }
-            }
-        )
-    } catch (_) {
-        return main_e(resp)
-    }
-})
 
 app.get('/channel_parse', (req, resp) => {
     try {
@@ -210,6 +176,18 @@ app.get('/channel_parse', (req, resp) => {
         )
     } catch (_) {
         return main_e(resp)
+    }
+})
+
+app.post('/promotion', (req, resp) => {
+    let body = req.body
+    try {
+        return resp.json({
+            success: true,
+            body: body
+        })
+    } catch (_) {
+        return main_e(resp, "Error build")
     }
 })
 
