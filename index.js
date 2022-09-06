@@ -246,7 +246,7 @@ app.post('/promotion', (req, resp) => {
         else if (!result.length) {
             return no_player()
         }
-        else if (!Object.keys.result[0].includes("uuid")) {
+        else if (!result[0].uuid) {
             return no_player()
         }
         else {
