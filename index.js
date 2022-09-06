@@ -37,6 +37,18 @@ function logError(err, req, res, next) {
 }
 app.use(logError)
 
+const con = mysql.createConnection({
+    host: process.env.DB_HOSTNAME,
+    user: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE,
+    ssl: false
+})
+
+function sql_con_close() {
+    con.end(function(err) {})
+}
+
 app.use(function (err, req, resp, next) {
     logger.error(err.stack)
     next()
@@ -197,13 +209,6 @@ app.post('/promotion', (req, resp) => {
         return resp.send("Неверная подпись / секретный ключ")
     }
 
-    let con = mysql.createConnection({
-        host: process.env.DB_HOSTNAME,
-        user: process.env.DB_USERNAME,
-        password: process.env.DB_PASSWORD,
-        database: process.env.DB_DATABASE
-    })
-
     function sql_request(query, values = []) {
         let error = (e) => resp.send(`Ошибка базы данных: ${e}`)
         con.connect(function(err) {
@@ -221,9 +226,11 @@ app.post('/promotion', (req, resp) => {
     if (user_field) {
         console.log("ok")
     } else {
+        sql_con_close()
         return
     }
 
+    sql_con_close()
     return resp.send("ok")
 })
 
