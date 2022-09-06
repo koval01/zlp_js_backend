@@ -191,7 +191,23 @@ app.get('/channel_parse', (req, resp) => {
 
 app.post('/promotion', (req, resp) => {
     let body = req.body
+    let monitorings = [{
+        name: "minecraftrating.ru",
+        permission: "monitoring_1"
+    }]
     resp.set("Content-Type", "text/html")
+
+    if (!req.query.monitoring) {
+        return resp.send("Не указан мониторинг")
+    }
+
+    function get_mon_id() {
+        for (i=0; i < monitorings.length; i++) {
+            if (req.query.monitoring === monitorings[i].name) {
+                return monitorings[i].permission
+            }
+        }
+    }
 
     if (!body.username || !body.ip || !body.timestamp || !body.signature) {
         return resp.send("Присланы не все данные, вероятно запрос подделан")
@@ -206,7 +222,7 @@ app.post('/promotion', (req, resp) => {
     }
 
     function sql_request(callback, query, values = []) {
-        let error = (e) => console.log(`Database error: ${e}`)
+        let error = (e) => logger.error(`Database error: ${e}`)
         con.query(query, values, 
             function (err, result, _) {
                 if (err) error(err)
@@ -215,13 +231,26 @@ app.post('/promotion', (req, resp) => {
     }
 
     sql_request(function(result) {
+        let error = () => resp.send(`Ошибка базы данных`)
         if (!result) {
-            return resp.send(`Ошибка базы данных`)
+            return error
         }
-        console.log(result)
-    }, "SELECT `uuid` FROM `luckperms_players` WHERE `username` = ?", [body.username])
-
-    return resp.send("ok")
+        else if (!result[0].uuid) {
+            sql_request(function(insert_result) {
+                logger.info(`Result insert to luckperms : ${insert_result}`)
+                return resp.send("ok")
+            }, 
+                "INSERT luckperms_user_permissions (`uuid`, `permission`) VALUES (?, ?)", 
+                [result[0].uuid, get_mon_id()]
+            )
+        } else {
+            return resp.send(`Игрок не найден`)
+        }
+        return error
+    }, 
+        "SELECT `uuid` FROM `luckperms_players` WHERE `username` = ?", 
+        [body.username]
+    )
 })
 
 app.post('/donate/services', (req, resp) => {
