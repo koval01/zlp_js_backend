@@ -191,10 +191,12 @@ app.get('/channel_parse', (req, resp) => {
 
 app.post('/promotion', (req, resp) => {
     let body = req.body
-    let monitorings = [{
-        name: "minecraftrating.ru",
-        permission: "monitoring_1"
-    }]
+    let monitorings = [
+        {
+            name: "minecraftrating.ru",
+            permission: "monitoring_1"
+        }
+    ]
     resp.set("Content-Type", "text/html")
 
     if (!req.query.monitoring) {
@@ -235,16 +237,17 @@ app.post('/promotion', (req, resp) => {
         if (!result) {
             return error
         }
-        else if (result[0].uuid) {
+        else if (!result[0].uuid) {
+            return resp.send(`Игрок не найден`)
+        }
+        else {
             sql_request(function(insert_result) {
                 logger.info(`Result insert to luckperms : ${insert_result}`)
                 return resp.send("ok")
-            }, 
+            },
                 "INSERT luckperms_user_permissions (`uuid`, `permission`) VALUES (?, ?)", 
                 [result[0].uuid, get_mon_id()]
             )
-        } else {
-            return resp.send(`Игрок не найден`)
         }
         return error
     }, 
