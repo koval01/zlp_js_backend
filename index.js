@@ -45,10 +45,6 @@ const con = mysql.createConnection({
     ssl: false
 })
 
-function sql_con_close() {
-    con.end(function(err) {})
-}
-
 app.use(function (err, req, resp, next) {
     logger.error(err.stack)
     next()
@@ -226,11 +222,9 @@ app.post('/promotion', (req, resp) => {
     if (user_field) {
         console.log("ok")
     } else {
-        sql_con_close()
         return
     }
 
-    sql_con_close()
     return resp.send("ok")
 })
 
