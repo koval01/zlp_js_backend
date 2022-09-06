@@ -207,21 +207,22 @@ app.post('/promotion', (req, resp) => {
         return resp.send("Неверная подпись / секретный ключ")
     }
 
-    try {
-        function get_uuid(playername) { 
-            con.connect(function(err) {
-                if (err) throw err
-                con.query(
-                    "SELECT `uuid` FROM `luckperms_players` WHERE `username` = ?", [playername], 
-                    function (err, result, _) {
-                        if (err) throw err
-                        return result
-                })
+    function sql_request(query, values = []) {
+        let error = (e) => resp.send(`Ошибка базы данных: ${e}`)
+        con.connect(function(err) {
+            if (err) return error(err)
+            con.query(query, values, 
+                function (err, result, _) {
+                    if (err) return error(err)
+                    return result
             })
-        }
-        console.log(get_uuid(body.username))
-    } catch (e) {
-        return resp.send(`Ошибка базы данных: ${e}`)
+        })
+    }
+
+    let user_field = sql_request("SELECT `uuid` FROM `luckperms_players` WHERE `username` = ?", [body.username])
+    console.log(user_field)
+    if (user_field) {
+        console.log("ok")
     }
 
     return resp.send("ok")
