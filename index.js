@@ -208,13 +208,18 @@ app.post('/promotion', (req, resp) => {
     }
 
     try {
-        con.connect(function(err) {
-            if (err) throw err;
-            let sql = "UPDATE customers SET address = 'Canyon 123' WHERE address = 'Valley 345'";
-            con.query(sql, function (err, result) {
+        function get_uuid(playername) { 
+            con.connect(function(err) {
                 if (err) throw err
+                con.query(
+                    "SELECT `uuid` FROM `luckperms_players` WHERE `username` = ?", [playername], 
+                    function (err, result, _) {
+                        if (err) throw err
+                        return result
+                })
             })
-        })
+        }
+        console.log(get_uuid(body.username))
     } catch (e) {
         return resp.send(`Ошибка базы данных: ${e}`)
     }
