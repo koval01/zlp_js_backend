@@ -238,12 +238,16 @@ app.post('/promotion', (req, resp) => {
     }
 
     sql_request(function(result) {
-        let error = () => resp.send(`Ошибка базы данных`)
+        let error = () => resp.send("Ошибка базы данных")
+        let no_player = () => resp.send("Игрок не найден")
         if (!result) {
-            return error
+            return error()
+        }
+        else if (!result.length) {
+            return no_player()
         }
         else if (!Object.keys.result[0].includes("uuid")) {
-            return resp.send(`Игрок не найден`)
+            return no_player()
         }
         else {
             sql_request(function(insert_result) {
