@@ -45,6 +45,15 @@ const con = mysql.createConnection({
     ssl: false
 })
 
+function sql_request(callback, query, values = []) {
+    let error = (e) => logger.error(`Database error: ${e}`)
+    con.query(query, values, 
+        function (err, result, _) {
+            if (err) error(err)
+            callback(result)
+    })
+}
+
 app.use(function (err, req, resp, next) {
     logger.error(err.stack)
     next()
@@ -221,15 +230,6 @@ app.post('/promotion', (req, resp) => {
 
     if (body.signature != signature) {
         return resp.send("Неверная подпись / секретный ключ")
-    }
-
-    function sql_request(callback, query, values = []) {
-        let error = (e) => logger.error(`Database error: ${e}`)
-        con.query(query, values, 
-            function (err, result, _) {
-                if (err) error(err)
-                callback(result)
-        })
     }
 
     sql_request(function(result) {
