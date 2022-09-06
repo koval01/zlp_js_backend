@@ -207,13 +207,10 @@ app.post('/promotion', (req, resp) => {
 
     function sql_request(query, values = []) {
         let error = (e) => resp.send(`Ошибка базы данных: ${e}`)
-        con.connect(function(err) {
-            if (err) error(err)
-            con.query(query, values, 
-                function (err, result, _) {
-                    if (err) error(err)
-                    return result
-            })
+        con.query(query, values, 
+            function (err, result, _) {
+                if (err) error(err)
+                return result
         })
     }
 
