@@ -220,6 +220,11 @@ app.post('/promotion', (req, resp) => {
         }
     }
 
+    let permission_ident = get_mon_id()
+    if (!permission_ident) {
+        return resp.send("Неверно указан мониторинг")
+    }
+
     if (!body.username || !body.ip || !body.timestamp || !body.signature) {
         return resp.send("Присланы не все данные, вероятно запрос подделан")
     }
@@ -237,7 +242,7 @@ app.post('/promotion', (req, resp) => {
         if (!result) {
             return error
         }
-        else if (typeof result[0].uuid !== "undefined") {
+        else if (!Object.keys.result[0].includes("uuid")) {
             return resp.send(`Игрок не найден`)
         }
         else {
@@ -246,7 +251,7 @@ app.post('/promotion', (req, resp) => {
                 return resp.send("ok")
             },
                 "INSERT luckperms_user_permissions (`uuid`, `permission`) VALUES (?, ?)", 
-                [result[0].uuid, get_mon_id()]
+                [result[0].uuid, permission_ident]
             )
         }
         return error
