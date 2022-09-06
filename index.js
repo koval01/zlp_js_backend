@@ -237,7 +237,7 @@ app.post('/promotion', (req, resp) => {
         if (!result) {
             return error
         }
-        else if (!result[0].uuid) {
+        else if (typeof result[0].uuid !== "undefined") {
             return resp.send(`Игрок не найден`)
         }
         else {
