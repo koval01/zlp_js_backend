@@ -255,7 +255,7 @@ app.post('/promotion', (req, resp) => {
         }
         else {
             sql_request(function(insert_result) {
-                logger.info(`Result insert to luckperms : ${insert_result}`)
+                logger.info(`Result insert to luckperms : ${JSON.stringify(insert_result)}`)
                 return resp.send("ok")
             },
                 "INSERT luckperms_user_permissions (`uuid`, `permission`) VALUES (?, ?)", 
