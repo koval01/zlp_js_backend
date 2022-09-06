@@ -47,16 +47,6 @@ app.use(function (err, req, resp, next) {
     })
 })
 
-var con = mysql.createConnection({
-    host: process.env.DB_HOSTNAME,
-    user: process.env.DB_USERNAME,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_DATABASE,
-    ssl: {
-        rejectUnauthorized: false
-    }
-})
-
 function main_e(resp, error = "", message = "Main function error") {
     return resp.status(503).json({
         success: false,
@@ -207,10 +197,17 @@ app.post('/promotion', (req, resp) => {
         return resp.send("Неверная подпись / секретный ключ")
     }
 
+    let con = mysql.createConnection({
+        host: process.env.DB_HOSTNAME,
+        user: process.env.DB_USERNAME,
+        password: process.env.DB_PASSWORD,
+        database: process.env.DB_DATABASE
+    })
+
     function sql_request(query, values = []) {
         let error = (e) => resp.send(`Ошибка базы данных: ${e}`)
         con.connect(function(err) {
-            if (err) return error(err)
+            if (err) error(err)
             con.query(query, values, 
                 function (err, result, _) {
                     if (err) error(err)
