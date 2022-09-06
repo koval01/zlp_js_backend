@@ -205,22 +205,21 @@ app.post('/promotion', (req, resp) => {
         return resp.send("Неверная подпись / секретный ключ")
     }
 
-    function sql_request(query, values = []) {
-        let error = (e) => resp.send(`Ошибка базы данных: ${e}`)
+    function sql_request(callback, query, values = []) {
+        let error = (e) => console.log(`Database error: ${e}`)
         con.query(query, values, 
             function (err, result, _) {
                 if (err) error(err)
-                return result
+                callback(result)
         })
     }
 
-    let user_field = sql_request("SELECT `uuid` FROM `luckperms_players` WHERE `username` = ?", [body.username])
-    console.log(user_field)
-    if (user_field) {
-        console.log("ok")
-    } else {
-        return
-    }
+    sql_request(function(result) {
+        if (!result) {
+            return resp.send(`Ошибка базы данных`)
+        }
+        console.log(result)
+    }, "SELECT `uuid` FROM `luckperms_players` WHERE `username` = ?", [body.username])
 
     return resp.send("ok")
 })
