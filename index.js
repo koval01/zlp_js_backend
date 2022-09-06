@@ -213,7 +213,7 @@ app.post('/promotion', (req, resp) => {
             if (err) return error(err)
             con.query(query, values, 
                 function (err, result, _) {
-                    if (err) return error(err)
+                    if (err) error(err)
                     return result
             })
         })
@@ -223,6 +223,8 @@ app.post('/promotion', (req, resp) => {
     console.log(user_field)
     if (user_field) {
         console.log("ok")
+    } else {
+        return
     }
 
     return resp.send("ok")
