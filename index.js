@@ -235,7 +235,7 @@ app.post('/promotion', (req, resp) => {
         if (!result) {
             return error
         }
-        else if (!result[0].uuid) {
+        else if (result[0].uuid) {
             sql_request(function(insert_result) {
                 logger.info(`Result insert to luckperms : ${insert_result}`)
                 return resp.send("ok")
