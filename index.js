@@ -261,9 +261,6 @@ let give_award = (body, monitoring) => {
         monitoring_statistic(monitoring["name"], body.username)
     }
 
-    console.log(body.username)
-    console.log(monitoring)
-
     sql_request(function(result) {
         let error = () => { logger.error(`Error give award, database result : ${result}`) }
         let no_player = () => { logger.error(`Error give award, player not found. Database result : ${result}`) }
@@ -361,7 +358,7 @@ app.get('/tmonitoring_promotion', (req, resp) => {
             resp.send("Invalid hash")
         }
         body.username = api_resp.username
-        if (give_award(resp, body, {
+        if (give_award(body, {
             name: "tmonitoring.com",
             permission: "monitoring_3",
         })) {
@@ -405,7 +402,7 @@ app.post('/promotion', (req, resp) => {
         return resp.send("Неверная подпись / секретный ключ")
     }
 
-    if (give_award(resp, body, mon)) {
+    if (give_award(body, mon)) {
         return resp.send("ok")
     }
 
