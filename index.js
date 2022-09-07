@@ -318,8 +318,7 @@ let give_award = (body, monitoring) => {
                 } else if (parseInt(permission[0].value) !== 1) {
                     return update_permission()
                 } else if (parseInt(permission[0].value) === 1) {
-                    permission_already_given()
-                    return
+                    return permission_already_given()
                 }
                 return error()
             }, 
