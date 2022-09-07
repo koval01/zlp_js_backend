@@ -258,8 +258,27 @@ app.get('/monitoringminecraft.ru', (req, resp) => {
 
 app.get('/tmonitoring_promotion', (req, resp) => {
     let body = req.query
-    let api_host = "https://tmonitoring.com/api/check/"
+    let api_host = "https://tmonitoring.com/api/check"
     resp.set("Content-Type", "text/html")
+
+    let get_data = () => {
+        request(
+            {
+                uri: `${api_host}/${body.hash}?id=${body.id}`,
+                method: "GET",
+            },
+            (error, response, body) => {
+                if (!error && response.statusCode == 200) {
+                    body = JSON.parse(body)
+                    callback(body)
+                } else {
+                    callback({})
+                }
+            }
+        )
+    }
+
+    console.log(get_data())
     
 })
 
