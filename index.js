@@ -203,6 +203,7 @@ app.get('/channel_parse', (req, resp) => {
 })
 
 app.get('/monitoringminecraft.ru', (req, resp) => {
+    // temporary function
     resp.set("Content-Type", "text/html")
     resp.send("7adb86d84714ddd37f4961795e233de2")
 })
@@ -265,11 +266,35 @@ app.post('/promotion', (req, resp) => {
             return no_player()
         }
         else {
-            sql_request(function(insert_result) {
-                logger.info(`Result insert to luckperms : ${JSON.stringify(insert_result)}`)
-                return resp.send("ok")
-            },
-            "INSERT luckperms_user_permissions (uuid, permission, value, server, world, expiry, contexts) VALUES (?, ?, 1, 'global', 'global', '0', '{}')", 
+            let add_permission = () => {
+                sql_request(function(insert_result) {
+                    logger.info(`Result insert to luckperms : ${JSON.stringify(insert_result)}`)
+                    return resp.send("ok")
+                },
+                    "INSERT luckperms_user_permissions (uuid, permission, value, server, world, expiry, contexts) VALUES (?, ?, 1, 'global', 'global', '0', '{}')", 
+                    [result[0].uuid, permission_ident]
+                )
+            }
+            let update_permission = () => {
+                sql_request(function(update_result) {
+                    logger.info(`Result insert to luckperms : ${JSON.stringify(update_result)}`)
+                    return resp.send("ok")
+                },
+                    "UPDATE luckperms_user_permissions SET `value` = 1 WHETE `uuid` = ? AND `permission` = ? ORDER BY id DESC LIMIT 1", 
+                    [result[0].uuid, permission_ident]
+                )
+            }
+            sql_request(function(permission) {
+                if (!permission.length) {
+                    return add_permission()
+                } else if (parseInt(permission[0].value) !== 1) {
+                    return update_permission()
+                } else if (parseInt(permission[0].value) === 1) {
+                    return resp.send("Право уже выдано")
+                }
+                return resp.send("Неизвестная ошибка")
+            }, 
+                "SELECT `uuid`, `permission`, `value` FROM luckperms_user_permissions WHERE `uuid` = ? AND `permission` = ?", 
                 [result[0].uuid, permission_ident]
             )
         }
