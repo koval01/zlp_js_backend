@@ -72,10 +72,10 @@ function sql_request(callback, query, values = []) {
 }
 
 function monitoring_statistic(monitroing_name, username) {
-    let check_in_db = () => {
+    let check_in_db = (callback) => {
         sql_request(function(data) {
             logger.info(`Monitoring statistic select : ${JSON.stringify(data)}`)
-            return data
+            callback(data)
         },
             "SELECT * FROM `monitoring_statistic` WHERE `username` = ? AND `monitoring` = ?", 
             [username, monitroing_name]
@@ -99,9 +99,11 @@ function monitoring_statistic(monitroing_name, username) {
             [username, monitroing_name]
         )
     }
-    if (check_in_db()) {
-        return update()
-    } else { return insert() }
+    check_in_db(function(data) {
+        if (data) {
+            return update()
+        } else { return insert() }
+    })
 }
 
 app.use(function (err, req, resp, next) {
