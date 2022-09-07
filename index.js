@@ -407,7 +407,7 @@ app.post('/promotion', (req, resp) => {
     }
 
     let award_ = give_award(body, mon)
-    if (award_.ok) {
+    if (award_ && award_.ok) {
         return resp.send("ok")
     }
 
