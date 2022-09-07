@@ -261,24 +261,30 @@ let give_award = (body, monitoring) => {
         monitoring_statistic(monitoring["name"], body.username)
     }
 
-    console.log(body.username)
-    console.log(monitoring)
-
     sql_request(function(result) {
-        let error = () => { logger.error(`Error give award, database result : ${result}`) }
-        let no_player = () => { logger.error(`Error give award, player not found. Database result : ${result}`) }
-        let permission_already_given = () => { logger.error(`Error give award, already given. Database result : ${result}`) }
+        let error = () => { 
+            let r = {error: `Error give award, database result : ${result}`}
+            logger.error(r.error)
+            return r
+        }
+        let no_player = () => { 
+            let r = {error: `Error give award, player not found. Database result : ${result}`}
+            logger.error(r.error)
+            return r
+        }
+        let permission_already_given = () => { 
+            let r = {error: `Error give award, already given. Database result : ${result}`}
+            logger.error(r.error)
+            return r
+        }
         if (!result) {
-            error()
-            return
+            return error()
         }
         else if (!result.length) {
-            no_player()
-            return
+            return no_player()
         }
         else if (!result[0].uuid) {
-            no_player()
-            return
+            return no_player()
         }
         else {
             let add_permission = () => {
@@ -288,8 +294,7 @@ let give_award = (body, monitoring) => {
                         logger.info(`Result insert to luckperms : ${JSON.stringify(insert_result)}`)
                         return "ok"
                     }
-                    error()
-                    return
+                    return error()
                 },
                     "INSERT luckperms_user_permissions (uuid, permission, value, server, world, expiry, contexts) VALUES (?, ?, 1, 'global', 'global', '0', '{}')", 
                     [result[0].uuid, permission_ident]
@@ -300,10 +305,9 @@ let give_award = (body, monitoring) => {
                     if (update_result) {
                         stat()
                         logger.info(`Result update row in luckperms : ${JSON.stringify(update_result)}`)
-                        return "ok"
+                        return {ok: true}
                     }
-                    error()
-                    return
+                    return error()
                 },
                     "UPDATE luckperms_user_permissions SET `value` = 1 WHERE `uuid` = ? AND `permission` = ? ORDER BY id DESC LIMIT 1", 
                     [result[0].uuid, permission_ident]
@@ -318,15 +322,13 @@ let give_award = (body, monitoring) => {
                     permission_already_given()
                     return
                 }
-                error()
-                return
+                return error()
             }, 
                 "SELECT `uuid`, `permission`, `value` FROM luckperms_user_permissions WHERE `uuid` = ? AND `permission` = ? ORDER BY id DESC LIMIT 1", 
                 [result[0].uuid, permission_ident]
             )
         }
-        error()
-        return
+        return error()
     }, 
         "SELECT `uuid` FROM `luckperms_players` WHERE `username` = ?", 
         [body.username]
@@ -361,13 +363,14 @@ app.get('/tmonitoring_promotion', (req, resp) => {
             resp.send("Invalid hash")
         }
         body.username = api_resp.username
-        if (give_award(body, {
+        let award_ = give_award(body, {
             name: "tmonitoring.com",
             permission: "monitoring_3",
-        })) {
+        })
+        if (award_.ok) {
             resp.send("ok")
         }
-        resp.send("Error database")
+        resp.send(award_.error)
     }
     resp.send("Error")
 })
@@ -405,11 +408,12 @@ app.post('/promotion', (req, resp) => {
         return resp.send("Неверная подпись / секретный ключ")
     }
 
-    if (give_award(body, mon)) {
+    let award_ = give_award(body, mon)
+    if (award_.ok) {
         return resp.send("ok")
     }
 
-    return resp.send("Error")
+    return resp.send(award_.error)
 })
 
 app.post('/donate/services', (req, resp) => {
