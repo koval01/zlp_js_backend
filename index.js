@@ -280,7 +280,7 @@ app.post('/promotion', (req, resp) => {
                     logger.info(`Result insert to luckperms : ${JSON.stringify(update_result)}`)
                     return resp.send("ok")
                 },
-                    "UPDATE luckperms_user_permissions SET `value` = 1 WHETE `uuid` = ? AND `permission` = ? ORDER BY id DESC LIMIT 1", 
+                    "UPDATE luckperms_user_permissions SET `value` = 1 WHERE `uuid` = ? AND `permission` = ? ORDER BY id DESC LIMIT 1", 
                     [result[0].uuid, permission_ident]
                 )
             }
