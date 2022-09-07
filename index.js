@@ -209,6 +209,10 @@ app.post('/promotion', (req, resp) => {
             name: "minecraftrating.ru",
             permission: "monitoring_1",
 
+        },
+        {
+            name: "monitoringminecraft.ru",
+            permission: "monitoring_2",
         }
     ]
     let secrets = JSON.parse(process.env.MONITORING_SECRETS)
