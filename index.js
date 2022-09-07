@@ -276,6 +276,7 @@ let give_award = (body, monitoring) => {
         let permission_already_given = () => { 
             return e("Error give award, already given. Database result")
         }
+        console.log(result)
         if (!result) {
             return error()
         }
