@@ -269,7 +269,7 @@ app.get('/tmonitoring_promotion', (req, resp) => {
             },
             (error, response, body) => {
                 if (!error && response.statusCode == 200) {
-                    body = JSON.parse(body)
+                    // body = JSON.parse(body)
                     callback(body)
                 } else {
                     callback({})
@@ -278,8 +278,12 @@ app.get('/tmonitoring_promotion', (req, resp) => {
         )
     }
 
-    console.log(get_data())
-    
+    let api_resp = get_data()
+    if (api_resp) {
+        resp.send(api_resp)
+    } else {
+        resp.send("Ошибка")
+    }
 })
 
 app.post('/promotion', (req, resp) => {
