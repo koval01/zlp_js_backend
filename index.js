@@ -273,7 +273,7 @@ let give_award = (body, monitoring) => {
             return
         }
         else if (!result.length) {
-            error()
+            no_player()
             return
         }
         else if (!result[0].uuid) {
