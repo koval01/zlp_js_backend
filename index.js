@@ -261,7 +261,7 @@ let give_award = (body, monitoring) => {
         monitoring_statistic(monitoring["name"], body.username)
     }
 
-    console.log(body)
+    console.log(body.username)
     console.log(monitoring)
 
     sql_request(function(result) {
