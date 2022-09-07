@@ -385,7 +385,7 @@ app.post('/promotion', (req, resp) => {
         }
     }
 
-    if (!permission_ident) {
+    if (!get_mon_()["name"]) {
         return resp.send("Неверно указан мониторинг")
     }
 
