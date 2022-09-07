@@ -7,6 +7,8 @@ const html_parser = require('node-html-parser')
 const express = require('express')
 const mcstatus = require('minecraft-server-util')
 const winston = require('winston')
+const crypto = require('crypto')
+const mysql = require('mysql')
 
 
 const app = express()
@@ -19,6 +21,7 @@ const logger = new winston.createLogger(myWinstonOptions)
 
 app.set('port', (process.env.PORT || 5000))
 app.use(express.json())
+app.use(express.urlencoded())
 app.use(compression())
 app.use(cors())
 
@@ -34,6 +37,27 @@ function logError(err, req, res, next) {
 }
 app.use(logError)
 
+const mysql_ = function() {
+    return cursor = mysql.createConnection({
+        host: process.env.DB_HOSTNAME,
+        user: process.env.DB_USERNAME,
+        password: process.env.DB_PASSWORD,
+        database: process.env.DB_DATABASE,
+        ssl: false
+    })
+}
+
+function sql_request(callback, query, values = []) {
+    let error = (e) => logger.error(`Database error: ${e}`)
+    let con = mysql_()
+    con.query(query, values, 
+        function (err, result, _) {
+            if (err) error(err)
+            callback(result)
+            con.end()
+    })
+}
+
 app.use(function (err, req, resp, next) {
     logger.error(err.stack)
     next()
@@ -44,10 +68,10 @@ app.use(function (err, req, resp, next) {
     })
 })
 
-function main_e(resp) {
+function main_e(resp, error = "", message = "Main function error") {
     return resp.status(503).json({
         success: false,
-        message: 'Main function error', 
+        message: message, 
         exception: error
     })
 }
@@ -103,41 +127,6 @@ function reccheck(callback, token) {
         }
     )
 }
-
-app.get('/channel', (req, resp) => {
-    try {
-        let choice_ = ['zalupa_history', 'zalupaonline']
-        request(
-            {
-                uri: `https://t.me/s/${choice_[req.query.choice]}?before=${req.query.before}`,
-                method: 'POST',
-                headers: {
-                    Origin: 'https://t.me',
-                    Referer: `https://t.me/s/${choice_[req.query.choice]}`,
-                    Host: 't.me',
-                    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.2 Safari/605.1.15',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    Connection: 'keep-alive'
-                }
-            },
-            (error, response, body) => {
-                if (!error && response.statusCode == 200) {
-                    body = body.toString().replace(/\\/gm, "")
-                    let regex = /data-post="[A-z\d_-]*\/[\d]*"/gm
-                    let matched = body.match(regex)
-                    return resp.send({
-                        success: true,
-                        last_post: matched[matched.length - 1].match(/data-post="([A-z\d_-]*\/[\d]*)"/)[1]
-                    })
-                } else {
-                    return input_e(resp, response.statusCode, error)
-                }
-            }
-        )
-    } catch (_) {
-        return main_e(resp)
-    }
-})
 
 app.get('/channel_parse', (req, resp) => {
     try {
@@ -211,6 +200,73 @@ app.get('/channel_parse', (req, resp) => {
     } catch (_) {
         return main_e(resp)
     }
+})
+
+app.post('/promotion', (req, resp) => {
+    let body = req.body
+    let monitorings = [
+        {
+            name: "minecraftrating.ru",
+            permission: "monitoring_1"
+        }
+    ]
+    resp.set("Content-Type", "text/html")
+
+    if (!req.query.monitoring) {
+        return resp.send("Не указан мониторинг")
+    }
+
+    function get_mon_id() {
+        for (i=0; i < monitorings.length; i++) {
+            if (req.query.monitoring === monitorings[i].name) {
+                return monitorings[i].permission
+            }
+        }
+    }
+
+    let permission_ident = get_mon_id()
+    if (!permission_ident) {
+        return resp.send("Неверно указан мониторинг")
+    }
+
+    if (!body.username || !body.ip || !body.timestamp || !body.signature) {
+        return resp.send("Присланы не все данные, вероятно запрос подделан")
+    }
+
+    let shasum = crypto.createHash('sha1')
+    shasum.update(body.username + body.timestamp + process.env.MR_SECRET_KEY)
+    let signature = shasum.digest('hex')
+
+    if (body.signature != signature) {
+        return resp.send("Неверная подпись / секретный ключ")
+    }
+
+    sql_request(function(result) {
+        let error = () => resp.send("Ошибка базы данных")
+        let no_player = () => resp.send("Игрок не найден")
+        if (!result) {
+            return error()
+        }
+        else if (!result.length) {
+            return no_player()
+        }
+        else if (!result[0].uuid) {
+            return no_player()
+        }
+        else {
+            sql_request(function(insert_result) {
+                logger.info(`Result insert to luckperms : ${JSON.stringify(insert_result)}`)
+                return resp.send("ok")
+            },
+                "INSERT luckperms_user_permissions (`uuid`, `permission`) VALUES (?, ?)", 
+                [result[0].uuid, permission_ident]
+            )
+        }
+        return error
+    }, 
+        "SELECT `uuid` FROM `luckperms_players` WHERE `username` = ?", 
+        [body.username]
+    )
 })
 
 app.post('/donate/services', (req, resp) => {
