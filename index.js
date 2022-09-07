@@ -294,7 +294,7 @@ app.post('/promotion', (req, resp) => {
                 }
                 return resp.send("Неизвестная ошибка")
             }, 
-                "SELECT `uuid`, `permission`, `value` FROM luckperms_user_permissions WHERE `uuid` = ? AND `permission` = ?", 
+                "SELECT `uuid`, `permission`, `value` FROM luckperms_user_permissions WHERE `uuid` = ? AND `permission` = ? ORDER BY id DESC LIMIT 1", 
                 [result[0].uuid, permission_ident]
             )
         }
