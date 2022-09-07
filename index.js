@@ -211,7 +211,7 @@ app.post('/promotion', (req, resp) => {
 
         }
     ]
-    let secrets = process.env.MONITORING_SECRETS
+    let secrets = JSON.parse(process.env.MONITORING_SECRETS)
     resp.set("Content-Type", "text/html")
 
     if (!req.query.monitoring) {
