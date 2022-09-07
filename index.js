@@ -365,10 +365,13 @@ app.get('/tmonitoring_promotion', (req, resp) => {
             name: "tmonitoring.com",
             permission: "monitoring_3",
         })
-        if (award_.ok) {
-            resp.send("ok")
+        if (award_) {
+            if (award_.ok) {
+                return resp.send("ok")
+            } else if (award_.error) {
+                return resp.send(award_.error)
+            }
         }
-        resp.send(award_.error)
     }
     resp.send("Error")
 })
@@ -407,11 +410,16 @@ app.post('/promotion', (req, resp) => {
     }
 
     let award_ = give_award(body, mon)
-    if (award_ && award_.ok) {
-        return resp.send("ok")
+    console.log(award_)
+    if (award_) {
+        if (award_.ok) {
+            return resp.send("ok")
+        } else if (award_.error) {
+            return resp.send(award_.error)
+        }
     }
 
-    return resp.send(award_.error)
+    return resp.send("Error")
 })
 
 app.post('/donate/services', (req, resp) => {
