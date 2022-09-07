@@ -255,7 +255,7 @@ app.get('/monitoringminecraft.ru', (req, resp) => {
     resp.send("7adb86d84714ddd37f4961795e233de2")
 })
 
-let give_award = (callback, body, monitoring) => {
+let give_award = (resp, body, monitoring) => {
     let permission_ident = monitoring["permission"]
     let stat = () => {
         monitoring_statistic(monitoring["name"], body.username)
@@ -265,6 +265,7 @@ let give_award = (callback, body, monitoring) => {
         let e = (t) => {
             let r = {error: `${t} : ${result}`}
             logger.error(r.error)
+            resp.send(r.error)
             return r
         }
         let error = () => { 
@@ -276,14 +277,15 @@ let give_award = (callback, body, monitoring) => {
         let permission_already_given = () => { 
             return e("Error give award, already given. Database result")
         }
+        console.log(result)
         if (!result) {
-            callback(error())
+            return error()
         }
         else if (!result.length) {
-            callback(no_player())
+            return no_player()
         }
         else if (!result[0].uuid) {
-            callback(no_player())
+            return no_player()
         }
         else {
             let add_permission = () => {
@@ -314,19 +316,19 @@ let give_award = (callback, body, monitoring) => {
             }
             sql_request(function(permission) {
                 if (!permission.length) {
-                    callback(add_permission())
+                    return add_permission()
                 } else if (parseInt(permission[0].value) !== 1) {
-                    callback(update_permission())
+                    return update_permission()
                 } else if (parseInt(permission[0].value) === 1) {
-                    callback(permission_already_given())
+                    return permission_already_given()
                 }
-                callback(error())
+                return error()
             }, 
                 "SELECT `uuid`, `permission`, `value` FROM luckperms_user_permissions WHERE `uuid` = ? AND `permission` = ? ORDER BY id DESC LIMIT 1", 
                 [result[0].uuid, permission_ident]
             )
         }
-        callback(error())
+        return error()
     }, 
         "SELECT `uuid` FROM `luckperms_players` WHERE `username` = ?", 
         [body.username]
@@ -361,15 +363,7 @@ app.get('/tmonitoring_promotion', (req, resp) => {
             resp.send("Invalid hash")
         }
         body.username = api_resp.username
-        give_award(function(award_) {
-            if (award_) {
-                if (award_.ok) {
-                    return resp.send("ok")
-                } else if (award_.error) {
-                    return resp.send(award_.error)
-                }
-            }
-        }, body, {
+        give_award(reps, body, {
             name: "tmonitoring.com",
             permission: "monitoring_3",
         })
@@ -410,17 +404,7 @@ app.post('/promotion', (req, resp) => {
         return resp.send("Неверная подпись / секретный ключ")
     }
 
-    give_award(function(award_) {
-        if (award_) {
-            if (award_.ok) {
-                return resp.send("ok")
-            } else if (award_.error) {
-                return resp.send(award_.error)
-            }
-        }
-    }, body, mon)
-
-    return resp.send("Error")
+    give_award(resp, body, mon)
 })
 
 app.post('/donate/services', (req, resp) => {
@@ -717,4 +701,3 @@ app.listen(app.get('port'), () => {
 process.on('uncaughtException', function (exception) {
     logger.error(`Uncaught exception: ${exception}`)
 })
-
