@@ -202,6 +202,11 @@ app.get('/channel_parse', (req, resp) => {
     }
 })
 
+app.post('/monitoringminecraft.ru', (req, resp) => {
+    resp.set("Content-Type", "text/html")
+    resp.send("7adb86d84714ddd37f4961795e233de2")
+})
+
 app.post('/promotion', (req, resp) => {
     let body = req.body
     let monitorings = [
