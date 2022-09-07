@@ -261,6 +261,9 @@ let give_award = (body, monitoring) => {
         monitoring_statistic(monitoring["name"], body.username)
     }
 
+    console.log(body.username)
+    console.log(monitoring)
+
     sql_request(function(result) {
         let error = () => { logger.error(`Error give award, database result : ${result}`) }
         let no_player = () => { logger.error(`Error give award, player not found. Database result : ${result}`) }
