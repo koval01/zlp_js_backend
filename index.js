@@ -10,6 +10,19 @@ const winston = require('winston')
 const crypto = require('crypto')
 const mysql = require('mysql')
 
+const monitorings = [
+    {
+        name: "minecraftrating.ru",
+        permission: "monitoring_1",
+
+    },
+    {
+        name: "monitoringminecraft.ru",
+        permission: "monitoring_2",
+    }
+]
+const secrets = JSON.parse(process.env.MONITORING_SECRETS)
+
 
 const app = express()
 
@@ -56,6 +69,39 @@ function sql_request(callback, query, values = []) {
             callback(result)
             con.end()
     })
+}
+
+function monitoring_statistic(monitroing_name, username) {
+    let check_in_db = () => {
+        sql_request(function(data) {
+            logger.info(`Monitoring statistic select : ${JSON.stringify(data)}`)
+            return data
+        },
+            "SELECT * FROM `monitoring_statistic` WHERE `username` = ? AND `monitoring` = ?", 
+            [username, monitroing_name]
+        )
+    }
+    let update = () => {
+        sql_request(function(update_result) {
+            logger.info(`Monitoring statistic update player : ${JSON.stringify(update_result)}`)
+            return update_result
+        },
+            "UPDATE monitoring_statistic SET `votes` = `votes` + 1, `timestep` = NOW() WHERE `username` = ? AND `monitoring` = ?", 
+            [username, monitroing_name]
+        )
+    }
+    let insert = () => {
+        sql_request(function(insert_result) {
+            logger.info(`Monitoring statistic add player : ${JSON.stringify(insert_result)}`)
+            return insert_result
+        },
+            "INSERT monitoring_statistic (username, monitoring, timestep, votes) VALUES (?, ?, NOW(), 1)", 
+            [username, monitroing_name]
+        )
+    }
+    if (check_in_db()) {
+        return update()
+    } else { return insert() }
 }
 
 app.use(function (err, req, resp, next) {
@@ -208,27 +254,22 @@ app.get('/monitoringminecraft.ru', (req, resp) => {
     resp.send("7adb86d84714ddd37f4961795e233de2")
 })
 
+app.get('/tmonitoring_promotion', (req, resp) => {
+    let body = req.query
+    let api_host = "https://tmonitoring.com/api/check/"
+    resp.set("Content-Type", "text/html")
+    
+})
+
 app.post('/promotion', (req, resp) => {
     let body = req.body
-    let monitorings = [
-        {
-            name: "minecraftrating.ru",
-            permission: "monitoring_1",
-
-        },
-        {
-            name: "monitoringminecraft.ru",
-            permission: "monitoring_2",
-        }
-    ]
-    let secrets = JSON.parse(process.env.MONITORING_SECRETS)
     resp.set("Content-Type", "text/html")
 
     if (!req.query.monitoring) {
         return resp.send("Не указан мониторинг")
     }
 
-    function get_mon_() {
+    let get_mon_ = () => {
         for (i=0; i < monitorings.length; i++) {
             if (req.query.monitoring === monitorings[i].name) {
                 return monitorings[i]
@@ -253,6 +294,10 @@ app.post('/promotion', (req, resp) => {
         return resp.send("Неверная подпись / секретный ключ")
     }
 
+    let stat = () => {
+        monitoring_statistic(get_mon_()["name"], body.username)
+    }
+
     sql_request(function(result) {
         let error = () => resp.send("Ошибка базы данных")
         let no_player = () => resp.send("Игрок не найден")
@@ -268,8 +313,12 @@ app.post('/promotion', (req, resp) => {
         else {
             let add_permission = () => {
                 sql_request(function(insert_result) {
-                    logger.info(`Result insert to luckperms : ${JSON.stringify(insert_result)}`)
-                    return resp.send("ok")
+                    if (insert_result) {
+                        stat()
+                        logger.info(`Result insert to luckperms : ${JSON.stringify(insert_result)}`)
+                        return resp.send("ok")
+                    }
+                    return error
                 },
                     "INSERT luckperms_user_permissions (uuid, permission, value, server, world, expiry, contexts) VALUES (?, ?, 1, 'global', 'global', '0', '{}')", 
                     [result[0].uuid, permission_ident]
@@ -277,8 +326,12 @@ app.post('/promotion', (req, resp) => {
             }
             let update_permission = () => {
                 sql_request(function(update_result) {
-                    logger.info(`Result insert to luckperms : ${JSON.stringify(update_result)}`)
-                    return resp.send("ok")
+                    if (update_result) {
+                        stat()
+                        logger.info(`Result update row in luckperms : ${JSON.stringify(update_result)}`)
+                        return resp.send("ok")
+                    }
+                    return error
                 },
                     "UPDATE luckperms_user_permissions SET `value` = 1 WHERE `uuid` = ? AND `permission` = ? ORDER BY id DESC LIMIT 1", 
                     [result[0].uuid, permission_ident]
