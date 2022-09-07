@@ -262,20 +262,19 @@ let give_award = (body, monitoring) => {
     }
 
     sql_request(function(result) {
-        let error = () => { 
-            let r = {error: `Error give award, database result : ${result}`}
+        let e = (t) => {
+            let r = {error: `${t} : ${result}`}
             logger.error(r.error)
             return r
+        }
+        let error = () => { 
+            return e("Error give award, database result")
         }
         let no_player = () => { 
-            let r = {error: `Error give award, player not found. Database result : ${result}`}
-            logger.error(r.error)
-            return r
+            return e("Error give award, player not found. Database result")
         }
         let permission_already_given = () => { 
-            let r = {error: `Error give award, already given. Database result : ${result}`}
-            logger.error(r.error)
-            return r
+            return e("Error give award, already given. Database result")
         }
         if (!result) {
             return error()
