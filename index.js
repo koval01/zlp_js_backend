@@ -387,8 +387,9 @@ app.post('/promotion', (req, resp) => {
             }
         }
     }
+    let mon = get_mon_()
 
-    if (!get_mon_()["name"]) {
+    if (!mon["name"]) {
         return resp.send("Неверно указан мониторинг")
     }
 
@@ -397,14 +398,14 @@ app.post('/promotion', (req, resp) => {
     }
 
     let shasum = crypto.createHash('sha1')
-    shasum.update(body.username + body.timestamp + secrets[get_mon_()["name"]])
+    shasum.update(body.username + body.timestamp + secrets[mon["name"]])
     let signature = shasum.digest('hex')
 
     if (body.signature != signature) {
         return resp.send("Неверная подпись / секретный ключ")
     }
 
-    if (give_award(resp, body, get_mon_())) {
+    if (give_award(resp, body, mon)) {
         return resp.send("ok")
     }
 
