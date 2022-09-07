@@ -207,24 +207,26 @@ app.post('/promotion', (req, resp) => {
     let monitorings = [
         {
             name: "minecraftrating.ru",
-            permission: "monitoring_1"
+            permission: "monitoring_1",
+
         }
     ]
+    let secrets = process.env.MONITORING_SECRETS
     resp.set("Content-Type", "text/html")
 
     if (!req.query.monitoring) {
         return resp.send("Не указан мониторинг")
     }
 
-    function get_mon_id() {
+    function get_mon_() {
         for (i=0; i < monitorings.length; i++) {
             if (req.query.monitoring === monitorings[i].name) {
-                return monitorings[i].permission
+                return monitorings[i]
             }
         }
     }
 
-    let permission_ident = get_mon_id()
+    let permission_ident = get_mon_()["permission"]
     if (!permission_ident) {
         return resp.send("Неверно указан мониторинг")
     }
@@ -234,7 +236,7 @@ app.post('/promotion', (req, resp) => {
     }
 
     let shasum = crypto.createHash('sha1')
-    shasum.update(body.username + body.timestamp + process.env.MR_SECRET_KEY)
+    shasum.update(body.username + body.timestamp + secrets[get_mon_()["name"]])
     let signature = shasum.digest('hex')
 
     if (body.signature != signature) {
@@ -258,7 +260,7 @@ app.post('/promotion', (req, resp) => {
                 logger.info(`Result insert to luckperms : ${JSON.stringify(insert_result)}`)
                 return resp.send("ok")
             },
-                "INSERT luckperms_user_permissions (`uuid`, `permission`) VALUES (?, ?)", 
+            "INSERT luckperms_user_permissions (uuid, permission, value, server, world, expiry, contexts) VALUES (?, ?, 1, 'global', 'global', '0', '{}')", 
                 [result[0].uuid, permission_ident]
             )
         }
