@@ -100,7 +100,7 @@ function monitoring_statistic(monitroing_name, username) {
         )
     }
     check_in_db(function(data) {
-        if (data) {
+        if (data.length) {
             return update()
         } else { return insert() }
     })
