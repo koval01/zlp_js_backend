@@ -14,7 +14,6 @@ const monitorings = [
     {
         name: "minecraftrating.ru",
         permission: "monitoring_1",
-
     },
     {
         name: "monitoringminecraft.ru",
@@ -256,12 +255,87 @@ app.get('/monitoringminecraft.ru', (req, resp) => {
     resp.send("7adb86d84714ddd37f4961795e233de2")
 })
 
+let give_award = (body, monitoring) => {
+    let permission_ident = monitoring["permission"]
+    let stat = () => {
+        monitoring_statistic(monitoring["name"], body.username)
+    }
+
+    sql_request(function(result) {
+        let error = () => { logger.error(`Error give award, database result : ${result}`) }
+        let no_player = () => { logger.error(`Error give award, player not found. Database result : ${result}`) }
+        let permission_already_given = () => { logger.error(`Error give award, already given. Database result : ${result}`) }
+        if (!result) {
+            error()
+            return
+        }
+        else if (!result.length) {
+            error()
+            return
+        }
+        else if (!result[0].uuid) {
+            no_player()
+            return
+        }
+        else {
+            let add_permission = () => {
+                sql_request(function(insert_result) {
+                    if (insert_result) {
+                        stat()
+                        logger.info(`Result insert to luckperms : ${JSON.stringify(insert_result)}`)
+                        return "ok"
+                    }
+                    error()
+                    return
+                },
+                    "INSERT luckperms_user_permissions (uuid, permission, value, server, world, expiry, contexts) VALUES (?, ?, 1, 'global', 'global', '0', '{}')", 
+                    [result[0].uuid, permission_ident]
+                )
+            }
+            let update_permission = () => {
+                sql_request(function(update_result) {
+                    if (update_result) {
+                        stat()
+                        logger.info(`Result update row in luckperms : ${JSON.stringify(update_result)}`)
+                        return "ok"
+                    }
+                    error()
+                    return
+                },
+                    "UPDATE luckperms_user_permissions SET `value` = 1 WHERE `uuid` = ? AND `permission` = ? ORDER BY id DESC LIMIT 1", 
+                    [result[0].uuid, permission_ident]
+                )
+            }
+            sql_request(function(permission) {
+                if (!permission.length) {
+                    return add_permission()
+                } else if (parseInt(permission[0].value) !== 1) {
+                    return update_permission()
+                } else if (parseInt(permission[0].value) === 1) {
+                    permission_already_given()
+                    return
+                }
+                error()
+                return
+            }, 
+                "SELECT `uuid`, `permission`, `value` FROM luckperms_user_permissions WHERE `uuid` = ? AND `permission` = ? ORDER BY id DESC LIMIT 1", 
+                [result[0].uuid, permission_ident]
+            )
+        }
+        error()
+        return
+    }, 
+        "SELECT `uuid` FROM `luckperms_players` WHERE `username` = ?", 
+        [body.username]
+    )
+}
+
 app.get('/tmonitoring_promotion', (req, resp) => {
     let body = req.query
     let api_host = "https://tmonitoring.com/api/check"
     resp.set("Content-Type", "text/html")
 
-    let get_data = () => {
+    let get_data = (callback) => {
         request(
             {
                 uri: `${api_host}/${body.hash}?id=${body.id}`,
@@ -269,7 +343,7 @@ app.get('/tmonitoring_promotion', (req, resp) => {
             },
             (error, response, body) => {
                 if (!error && response.statusCode == 200) {
-                    // body = JSON.parse(body)
+                    body = JSON.parse(body)
                     callback(body)
                 } else {
                     callback({})
@@ -280,10 +354,19 @@ app.get('/tmonitoring_promotion', (req, resp) => {
 
     let api_resp = get_data()
     if (api_resp) {
-        resp.send(api_resp)
-    } else {
-        resp.send("Ошибка")
+        if (api_resp.hash != 32 || body.hash != 32 || api_resp.hash != body.hash) {
+            resp.send("Invalid hash")
+        }
+        body.username = api_resp.username
+        if (give_award(resp, body, {
+            name: "tmonitoring.com",
+            permission: "monitoring_3",
+        })) {
+            resp.send("ok")
+        }
+        resp.send("Error database")
     }
+    resp.send("Error")
 })
 
 app.post('/promotion', (req, resp) => {
@@ -302,7 +385,6 @@ app.post('/promotion', (req, resp) => {
         }
     }
 
-    let permission_ident = get_mon_()["permission"]
     if (!permission_ident) {
         return resp.send("Неверно указан мониторинг")
     }
@@ -319,68 +401,11 @@ app.post('/promotion', (req, resp) => {
         return resp.send("Неверная подпись / секретный ключ")
     }
 
-    let stat = () => {
-        monitoring_statistic(get_mon_()["name"], body.username)
+    if (give_award(resp, body, get_mon_())) {
+        return resp.send("ok")
     }
 
-    sql_request(function(result) {
-        let error = () => resp.send("Ошибка базы данных")
-        let no_player = () => resp.send("Игрок не найден")
-        if (!result) {
-            return error()
-        }
-        else if (!result.length) {
-            return no_player()
-        }
-        else if (!result[0].uuid) {
-            return no_player()
-        }
-        else {
-            let add_permission = () => {
-                sql_request(function(insert_result) {
-                    if (insert_result) {
-                        stat()
-                        logger.info(`Result insert to luckperms : ${JSON.stringify(insert_result)}`)
-                        return resp.send("ok")
-                    }
-                    return error
-                },
-                    "INSERT luckperms_user_permissions (uuid, permission, value, server, world, expiry, contexts) VALUES (?, ?, 1, 'global', 'global', '0', '{}')", 
-                    [result[0].uuid, permission_ident]
-                )
-            }
-            let update_permission = () => {
-                sql_request(function(update_result) {
-                    if (update_result) {
-                        stat()
-                        logger.info(`Result update row in luckperms : ${JSON.stringify(update_result)}`)
-                        return resp.send("ok")
-                    }
-                    return error
-                },
-                    "UPDATE luckperms_user_permissions SET `value` = 1 WHERE `uuid` = ? AND `permission` = ? ORDER BY id DESC LIMIT 1", 
-                    [result[0].uuid, permission_ident]
-                )
-            }
-            sql_request(function(permission) {
-                if (!permission.length) {
-                    return add_permission()
-                } else if (parseInt(permission[0].value) !== 1) {
-                    return update_permission()
-                } else if (parseInt(permission[0].value) === 1) {
-                    return resp.send("Право уже выдано")
-                }
-                return resp.send("Неизвестная ошибка")
-            }, 
-                "SELECT `uuid`, `permission`, `value` FROM luckperms_user_permissions WHERE `uuid` = ? AND `permission` = ? ORDER BY id DESC LIMIT 1", 
-                [result[0].uuid, permission_ident]
-            )
-        }
-        return error
-    }, 
-        "SELECT `uuid` FROM `luckperms_players` WHERE `username` = ?", 
-        [body.username]
-    )
+    return resp.send("Error")
 })
 
 app.post('/donate/services', (req, resp) => {
