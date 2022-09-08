@@ -403,7 +403,7 @@ app.post('/promotion', (req, resp) => {
         return resp.send("Неверная подпись / секретный ключ")
     }
 
-    give_award(resp, body, mon)
+    return give_award(resp, body, mon)
 })
 
 app.post('/donate/services', (req, resp) => {
