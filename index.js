@@ -260,6 +260,38 @@ app.get('/tmonitoring_promotion', (req, resp) => {
     let body = req.query
     let api_host = "https://tmonitoring.com/api/check/"
     resp.set("Content-Type", "text/html")
+
+    let get_data = (callback) => {
+        request(
+            {
+                uri: `${api_host}/${body.hash}?id=${body.id}`,
+                method: "GET",
+            },
+            (error, response, body) => {
+                if (!error && response.statusCode == 200) {
+                    body = JSON.parse(body)
+                    callback(body)
+                } else {
+                    callback({})
+                }
+            }
+        )
+    }
+
+    let stat = () => {
+        monitoring_statistic(get_mon_()["name"], body.username)
+    }
+
+    let api_resp = get_data()
+    if (api_resp) {
+        if (api_resp.hash != 32 || body.hash != 32 || api_resp.hash != body.hash) {
+            resp.send("Invalid hash")
+        }
+        body.username = api_resp.username
+        // give award
+        return resp.send("ok")
+    }
+    return resp.send("Error")
     
 })
 
@@ -654,4 +686,3 @@ app.listen(app.get('port'), () => {
 process.on('uncaughtException', function (exception) {
     logger.error(`Uncaught exception: ${exception}`)
 })
-
