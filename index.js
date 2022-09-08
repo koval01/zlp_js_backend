@@ -264,8 +264,7 @@ let give_award = (resp, body, monitoring) => {
     sql_request(function(result) {
         let e = (t) => {
             logger.error(`${t} Database result : ${result}`)
-            resp.send(t)
-            return r
+            return resp.send(t)
         }
         let error = () => { 
             return e("Error give award")
