@@ -255,7 +255,7 @@ app.get('/monitoringminecraft.ru', (req, resp) => {
     resp.send("7adb86d84714ddd37f4961795e233de2")
 })
 
-let give_award = (resp, body, monitoring) => {
+let give_award = (callback, resp, body, monitoring) => {
     let permission_ident = monitoring["permission"]
     let stat = () => {
         monitoring_statistic(monitoring["name"], body.username)
@@ -277,13 +277,13 @@ let give_award = (resp, body, monitoring) => {
         }
         console.log(result)
         if (!result) {
-            return error()
+            callback(error())
         }
         else if (!result.length) {
-            return no_player()
+            callback(no_player())
         }
         else if (!result[0].uuid) {
-            return no_player()
+            callback(no_player())
         }
         else {
             let add_permission = () => {
@@ -314,19 +314,19 @@ let give_award = (resp, body, monitoring) => {
             }
             sql_request(function(permission) {
                 if (!permission.length) {
-                    return add_permission()
+                    callback(add_permission())
                 } else if (parseInt(permission[0].value) !== 1) {
-                    return update_permission()
+                    callback(update_permission())
                 } else if (parseInt(permission[0].value) === 1) {
-                    return permission_already_given()
+                    callback(permission_already_given())
                 }
-                return error()
+                callback(error())
             }, 
                 "SELECT `uuid`, `permission`, `value` FROM luckperms_user_permissions WHERE `uuid` = ? AND `permission` = ? ORDER BY id DESC LIMIT 1", 
                 [result[0].uuid, permission_ident]
             )
         }
-        return error()
+        callback(error())
     }, 
         "SELECT `uuid` FROM `luckperms_players` WHERE `username` = ?", 
         [body.username]
@@ -361,7 +361,9 @@ app.get('/tmonitoring_promotion', (req, resp) => {
             resp.send("Invalid hash")
         }
         body.username = api_resp.username
-        give_award(reps, body, {
+        give_award(function(r) {
+            return r
+        }, reps, body, {
             name: "tmonitoring.com",
             permission: "monitoring_3",
         })
@@ -402,7 +404,9 @@ app.post('/promotion', (req, resp) => {
         return resp.send("Неверная подпись / секретный ключ")
     }
 
-    return give_award(resp, body, mon)
+    give_award(function(r) {
+        return r
+    }, resp, body, mon)
 })
 
 app.post('/donate/services', (req, resp) => {
