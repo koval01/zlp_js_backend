@@ -278,7 +278,9 @@ app.get('/events', (req, resp) => {
                         let container = messages[i]
                         let text_post = container.querySelector(".tgme_widget_message_text").rawText.replace("&#33;", "\n")
                         if (text_post.length) {
+                            console.log(text_post)
                             let parsed_ = text_post.match(message_regex)
+                            console.log(parsed_)
                             if (parsed_) {
                                 console.log(parsed_)
                                 let date_st = parsed_[2].match(time_regex)
