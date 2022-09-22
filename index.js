@@ -276,7 +276,7 @@ app.get('/events', (req, resp) => {
                     let result = []
                     for (let i = 0; i < messages.length; i++) {
                         let container = messages[i]
-                        let text_post = container.querySelector(".tgme_widget_message_text").innerText
+                        let text_post = container.querySelector(".tgme_widget_message_text").rawText
                         if (text_post.length) {
                             let parsed_ = text_post.match(message_regex)
                             console.log(text_post)
