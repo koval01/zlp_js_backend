@@ -278,29 +278,31 @@ app.get('/events', (req, resp) => {
                         let container = messages[i]
                         let text_post = container.querySelector(".tgme_widget_message_text").innerHTML.toString()
                         if (text_post.length) {
-                            let parsed_ = text_post.match(message_regex)
-                            if (parsed_) {
-                                console.log(parsed_[0])
-                                console.log(parsed_[1])
-                                let date_st = parsed_[2].match(time_regex)
-                                let date_end = parsed_[3].match(time_regex)
-                                console.log(date_st)
-                                console.log(date_end)
-                                let defined_date_st = new Date(`20${date_st[3]}`, date_st[2] - 1, date_st[1], date_st[4], date_st[5], '00')
-                                let defined_date_end = new Date(`20${date_end[3]}`, date_end[2] - 1, date_end[1], date_end[4], date_end[5], '00')
-                                console.log(defined_date_st)
-                                console.log(defined_date_end)
-                                let to_start = ((defined_date_st - time_in_moscow) / 1000)
-                                let to_end = ((time_in_moscow - defined_date_end) / 1000)
-                                console.log(to_start)
-                                console.log(to_end)
-                                if (to_start < 259200 && to_end < 259200) {
-                                    result.push({
-                                        title: parsed_[1],
-                                        date_start: defined_date_st.toJSON(),
-                                        date_end: defined_date_end.toJSON(),
-                                        text: parsed_[4]
-                                    })
+                            let parsed_match = text_post.matchAll(message_regex)
+                            for (const parsed_ of parsed_match) {
+                                if (parsed_) {
+                                    console.log(parsed_[0])
+                                    console.log(parsed_[1])
+                                    let date_st = parsed_[2].match(time_regex)
+                                    let date_end = parsed_[3].match(time_regex)
+                                    console.log(date_st)
+                                    console.log(date_end)
+                                    let defined_date_st = new Date(`20${date_st[3]}`, date_st[2] - 1, date_st[1], date_st[4], date_st[5], '00')
+                                    let defined_date_end = new Date(`20${date_end[3]}`, date_end[2] - 1, date_end[1], date_end[4], date_end[5], '00')
+                                    console.log(defined_date_st)
+                                    console.log(defined_date_end)
+                                    let to_start = ((defined_date_st - time_in_moscow) / 1000)
+                                    let to_end = ((time_in_moscow - defined_date_end) / 1000)
+                                    console.log(to_start)
+                                    console.log(to_end)
+                                    if (to_start < 259200 && to_end < 259200) {
+                                        result.push({
+                                            title: parsed_[1],
+                                            date_start: defined_date_st.toJSON(),
+                                            date_end: defined_date_end.toJSON(),
+                                            text: parsed_[4]
+                                        })
+                                    }
                                 }
                             }
                         }
