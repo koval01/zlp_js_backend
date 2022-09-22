@@ -281,7 +281,7 @@ app.get('/events', (req, resp) => {
                         if (text_post.length) {
                             let parsed_ = text_post.match(message_regex)
                             if (parsed_) {
-                                console.log(parsed_)
+                                console.log(parsed_[2])
                                 let date_st = parsed_[2].match(time_regex)
                                 let date_end = parsed_[3].match(time_regex)
                                 console.log(date_st)
