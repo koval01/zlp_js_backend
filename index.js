@@ -278,6 +278,7 @@ app.get('/events', (req, resp) => {
                         let text_post = container.querySelector(".tgme_widget_message_text").textContent
                         if (text_post.length) {
                             let parsed_ = text_post.match(message_regex)
+                            console.log(parsed_)
                             let date_st = parsed_[2].match(time_regex)
                             let date_end = parsed_[3].match(time_regex)
                             let defined_date_st = new Date(`20${date_st[3]}`, date_st[2] - 1, date_st[1], date_st[4], date_st[5], '00')
