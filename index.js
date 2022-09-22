@@ -9,6 +9,7 @@ const mcstatus = require('minecraft-server-util')
 const winston = require('winston')
 const crypto = require('crypto')
 const mysql = require('mysql')
+const { text } = require('body-parser')
 
 const monitorings = [
     {
@@ -276,6 +277,7 @@ app.get('/events', (req, resp) => {
                     for (let i = 0; i < messages.length; i++) {
                         let container = messages[i]
                         let text_post = container.querySelector(".tgme_widget_message_text").textContent
+                        console.log(text_post)
                         if (text_post.length) {
                             let parsed_ = text_post.match(message_regex)
                             console.log(parsed_)
