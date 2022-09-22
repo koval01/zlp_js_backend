@@ -270,14 +270,13 @@ app.get('/events', (req, resp) => {
                 if (!error && response.statusCode == 200) {
                     body = body.toString().replace(/\\/gm, "")
                     let time_in_moscow = new Date(new Date().toLocaleString("en-US", {timeZone: "Europe/Moscow"}))
-                    let message_regex = /([\s\S]+)\n(\d\d.\d\d.\d\d-\d\d:\d\d)\/(\d\d.\d\d.\d\d-\d\d:\d\d)\n!\n([\s\S]+)/gm
+                    let message_regex = /([\s\S]+)<br>(\d\d.\d\d.\d\d-\d\d:\d\d)\/(\d\d.\d\d.\d\d-\d\d:\d\d)<br>&#33;<br>([\s\S]+)/gm
                     let time_regex = /(\d\d).(\d\d).(\d\d)-(\d\d):(\d\d)/
                     let messages = html_parser.parse(body).querySelectorAll(".tgme_widget_message_wrap")
                     let result = []
                     for (let i = 0; i < messages.length; i++) {
                         let container = messages[i]
                         let text_post = container.querySelector(".tgme_widget_message_text").innerHTML
-                        text_post = text_post.replaceAll("<br>", "\n").replaceAll("&#33;", "!")
                         if (text_post.length) {
                             let parsed_ = text_post.match(message_regex)
                             if (parsed_) {
