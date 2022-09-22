@@ -297,7 +297,7 @@ app.get('/events', (req, resp) => {
                     if (result.length) {
                         return resp.send({
                             success: true,
-                            messages: result
+                            events: result
                         })
                     } else {
                         return input_e(resp, 503, "result array is void")
