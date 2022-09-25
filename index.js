@@ -10,6 +10,7 @@ const winston = require('winston')
 const crypto = require('crypto')
 const mysql = require('mysql')
 const youtubedl = require('youtube-dl-exec')
+const redis = require("redis")
 const { text } = require('body-parser')
 
 const monitorings = [
@@ -51,6 +52,16 @@ function logError(err, req, res, next) {
     next()
 }
 app.use(logError)
+
+let redisClient
+
+(async () => {
+  redisClient = redis.createClient()
+
+  redisClient.on("error", (error) => logger.error(`Error : ${error}`))
+
+  await redisClient.connect()
+})()
 
 const mysql_ = function() {
     return cursor = mysql.createConnection({
@@ -331,6 +342,8 @@ app.post('/events', async (req, resp) => {
 })
 
 app.post('/youtube_get', async (req, resp) => {
+    let isCached = false
+    let species = req.body.species
     let json_body = req.body
 
     function get_content_(data) {
@@ -385,7 +398,7 @@ app.post('/youtube_get', async (req, resp) => {
         }
         return result
     }
-    reccheck(function(result) {
+    reccheck(async function(result) {
         if (result) {
             try {
                 youtubedl(`https://www.youtube.com/watch?v=${json_body.video_id}`, {
@@ -398,10 +411,24 @@ app.post('/youtube_get', async (req, resp) => {
                         'user-agent:googlebot'
                     ]
 
-                }).then(output => resp.send({
-                    success: true,
-                    body: get_content_(output.formats)
-                }))
+                }).then(async output => {
+                    const cacheResults = await redisClient.get(species);
+                    if (cacheResults) {
+                        isCached = true;
+                        output = JSON.parse(cacheResults);
+                    } else {
+                        output = await fetchApiData(species);
+                        if (output.length === 0) {
+                            throw "API returned an empty array";
+                        }
+                    }
+
+                    resp.send({
+                        success: true,
+                        is_cached: isCached,
+                        body: get_content_(output.formats)
+                    })
+                })
             } catch (_) {
                 return main_e(resp)
             }
