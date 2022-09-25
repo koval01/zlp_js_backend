@@ -423,12 +423,12 @@ app.post('/youtube_get', async (req, resp) => {
                             'user-agent:googlebot'
                         ]
 
-                    }).then(async output => {
+                    }).then(output => {
                         api_response = get_content_(output.formats)
                         if (output.length === 0) {
                             throw "API returned an empty array"
                         }
-                        await redisClient.set(species, JSON.stringify(api_response))
+                        redisClient.set(species, JSON.stringify(api_response))
                         return resp.send({
                             success: true,
                             is_cached: isCached,
