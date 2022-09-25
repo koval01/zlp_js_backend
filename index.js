@@ -363,6 +363,7 @@ app.post('/youtube_get', (req, resp) => {
                 }
             }
         }
+        return result
     }
     reccheck(function(result) {
         if (result) {
