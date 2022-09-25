@@ -178,7 +178,7 @@ function reccheck(callback, token) {
     )
 }
 
-app.post('/channel_parse', (req, resp) => {
+app.post('/channel_parse', async (req, resp) => {
     let json_body = req.body
     reccheck(function(result) {
         if (result) {
@@ -257,7 +257,7 @@ app.post('/channel_parse', (req, resp) => {
     }, json_body.token)
 })
 
-app.post('/events', (req, resp) => {
+app.post('/events', async (req, resp) => {
     let json_body = req.body
     reccheck(function(result) {
         if (result) {
@@ -330,7 +330,7 @@ app.post('/events', (req, resp) => {
     }, json_body.token)
 })
 
-app.post('/youtube_get', (req, resp) => {
+app.post('/youtube_get', async (req, resp) => {
     let json_body = req.body
 
     function get_content_(data) {
@@ -409,13 +409,13 @@ app.post('/youtube_get', (req, resp) => {
     }, json_body.token)
 })
 
-app.get('/monitoringminecraft.ru', (req, resp) => {
+app.get('/monitoringminecraft.ru', async (req, resp) => {
     // temporary function
     resp.set("Content-Type", "text/html")
     resp.send("7adb86d84714ddd37f4961795e233de2")
 })
 
-app.get('/tmonitoring_promotion', (req, resp) => {
+app.get('/tmonitoring_promotion', async (req, resp) => {
     let body = req.query
     let api_host = "https://tmonitoring.com/api/check/"
     resp.set("Content-Type", "text/html")
@@ -454,7 +454,7 @@ app.get('/tmonitoring_promotion', (req, resp) => {
     
 })
 
-app.post('/promotion', (req, resp) => {
+app.post('/promotion', async (req, resp) => {
     let body = req.body
     resp.set("Content-Type", "text/html")
 
@@ -551,7 +551,7 @@ app.post('/promotion', (req, resp) => {
     )
 })
 
-app.post('/donate/services', (req, resp) => {
+app.post('/donate/services', async (req, resp) => {
     let json_body = req.body
     reccheck(function(result) {
         if (result) {
@@ -610,7 +610,7 @@ app.post('/donate/services', (req, resp) => {
     }, json_body.token)
 })
 
-app.post('/donate/coupon', (req, resp) => {
+app.post('/donate/coupon', async (req, resp) => {
     let json_body = req.body
     reccheck(function(result) {
         if (result) {
@@ -681,7 +681,7 @@ app.post('/donate/coupon', (req, resp) => {
     }, json_body.token)
 })
 
-app.post('/donate/payment_get', (req, resp) => {
+app.post('/donate/payment_get', async (req, resp) => {
     let json_body = req.body
     reccheck(function(result) {
         if (result) {
@@ -751,7 +751,7 @@ app.post('/donate/payment_get', (req, resp) => {
     }, json_body.token)
 })
 
-app.post('/donate/payment/create', (req, resp) => {
+app.post('/donate/payment/create', async (req, resp) => {
     let json_body = req.body
     reccheck(function(result) {
         if (result) {
@@ -806,7 +806,7 @@ app.post('/donate/payment/create', (req, resp) => {
     }, json_body.token)
 })
 
-app.get('/server', (req, resp) => {
+app.get('/server', async (req, resp) => {
     try {
         let options = {
             timeout: 1000 * 3
@@ -830,7 +830,7 @@ app.get('/server', (req, resp) => {
     }
 })
 
-app.get('*', function(req, resp){
+app.get('*', async (req, resp) => {
     return resp.status(404).json({
         success: false,
         message: "This route cannot be found",
