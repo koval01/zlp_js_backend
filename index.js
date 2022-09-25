@@ -879,7 +879,7 @@ app.get('/cachetest', async (req, resp) => {
 
     function generateArary() {
         let result = []
-        for (let i = 0; i < 2*4*6*8*10; i++) {
+        for (let i = 0; i < 2*4*6*8; i++) {
             result.push(getRandomInt(2*4*6*8))
         }
         return result
@@ -901,7 +901,7 @@ app.get('/cachetest', async (req, resp) => {
             })
         }
 
-        resp.send({
+        return resp.send({
             fromCache: isCached,
             data: results,
         })
