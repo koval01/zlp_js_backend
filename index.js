@@ -332,6 +332,36 @@ app.post('/events', (req, resp) => {
 
 app.post('/youtube_get', (req, resp) => {
     let json_body = req.body
+
+    function get_content_(data) {
+        let result = {}
+        let collector = []
+
+        function sort_coll_() {
+            collector.sort(function(a, b) {
+                var keyA = new Date(a.filesize),
+                    keyB = new Date(b.filesize);
+                if (keyA < keyB) return -1;
+                if (keyA > keyB) return 1;
+                return 0;
+            })
+        }
+
+        for (let i = 0; i < data.length; i++) {
+            if (typeof data[i].asr !== 'undefined') {
+                if (data[i].asr == 48000) {
+                    if (data[i].resolution == "audio only") {
+                        collector.push(data[i])
+
+                        sort_coll_()
+                        result.audio = collector[0] 
+                    } else if (["640x360", "1280x720"].includes(data[i].resolution)) {
+                        result.video = data[i]
+                    }
+                }
+            }
+        }
+    }
     reccheck(function(result) {
         if (result) {
             try {
@@ -347,7 +377,7 @@ app.post('/youtube_get', (req, resp) => {
 
                 }).then(output => resp.send({
                     success: true,
-                    body: output.formats
+                    body: get_content_(output.formats)
                 }))
             } catch (_) {
                 return main_e(resp)
