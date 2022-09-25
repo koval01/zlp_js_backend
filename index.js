@@ -403,34 +403,39 @@ app.post('/youtube_get', async (req, resp) => {
     reccheck(async function(result) {
         if (result) {
             try {
-                youtubedl(`https://www.youtube.com/watch?v=${json_body.video_id}`, {
-                    dumpSingleJson: true,
-                    noCheckCertificates: true,
-                    noWarnings: true,
-                    preferFreeFormats: true,
-                    addHeader: [
-                        'referer:youtube.com',
-                        'user-agent:googlebot'
-                    ]
-
-                }).then(async output => {
-                    const cacheResults = await redisClient.get(species);
-                    if (cacheResults) {
-                        isCached = true;
-                        output = JSON.parse(cacheResults);
-                    } else {
-                        if (output.length === 0) {
-                            throw "API returned an empty array";
-                        }
-                        await redisClient.set(species, JSON.stringify(output))
-                    }
-
-                    resp.send({
+                let api_response
+                let cacheResults = await redisClient.get(species)
+                if (cacheResults) {
+                    isCached = true
+                    return resp.send({
                         success: true,
                         is_cached: isCached,
-                        body: get_content_(output.formats)
+                        body: get_content_(JSON.parse(cacheResults))
                     })
-                })
+                } else {
+                    youtubedl(`https://www.youtube.com/watch?v=${json_body.video_id}`, {
+                        dumpSingleJson: true,
+                        noCheckCertificates: true,
+                        noWarnings: true,
+                        preferFreeFormats: true,
+                        addHeader: [
+                            'referer:youtube.com',
+                            'user-agent:googlebot'
+                        ]
+
+                    }).then(async output => {
+                        api_response = get_content_(output.formats)
+                        if (output.length === 0) {
+                            throw "API returned an empty array"
+                        }
+                        await redisClient.set(species, JSON.stringify(api_response))
+                        return resp.send({
+                            success: true,
+                            is_cached: isCached,
+                            body: api_response
+                        })
+                    })
+                }
             } catch (_) {
                 return main_e(resp)
             }
