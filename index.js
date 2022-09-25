@@ -52,24 +52,6 @@ function logError(err, req, res, next) {
 }
 app.use(logError)
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-let redisClient
-
-(async () => {
-    redisClient = redis.createClient({
-        url: process.env.REDIS_URL
-    })
-
-    redisClient.on("error", (error) => logger.error(`Error : ${error}`))
-
-    await redisClient.connect()
-})()
-
-=======
->>>>>>> parent of 55ad0e0 (add redis)
-=======
->>>>>>> parent of 55ad0e0 (add redis)
 const mysql_ = function() {
     return cursor = mysql.createConnection({
         host: process.env.DB_HOSTNAME,
@@ -349,15 +331,7 @@ app.post('/events', async (req, resp) => {
 })
 
 app.post('/youtube_get', async (req, resp) => {
-<<<<<<< HEAD
-<<<<<<< HEAD
-    let isCached = false
-=======
-parent of 55ad0e0 (add redis)
-=======
->>>>>>> parent of 55ad0e0 (add redis)
     let json_body = req.body
-    let species = JSON.stringify(json_body.species)
 
     function get_content_(data) {
         let result = {
@@ -414,46 +388,6 @@ parent of 55ad0e0 (add redis)
     reccheck(function(result) {
         if (result) {
             try {
-<<<<<<< HEAD
-                let api_response
-                let cacheResults = redisClient.get(species)
-                if (cacheResults) {
-                    isCached = true
-                    return resp.send({
-                        success: true,
-                        is_cached: isCached,
-                        body: get_content_(JSON.parse(cacheResults))
-                    })
-                } else {
-                    youtubedl(`https://www.youtube.com/watch?v=${json_body.video_id}`, {
-                        dumpSingleJson: true,
-                        noCheckCertificates: true,
-                        noWarnings: true,
-                        preferFreeFormats: true,
-                        addHeader: [
-                            'referer:youtube.com',
-                            'user-agent:googlebot'
-                        ]
-
-                    }).then(output => {
-                        api_response = get_content_(output.formats)
-                        if (output.length === 0) {
-                            throw "API returned an empty array"
-                        }
-                        redisClient.set(species, JSON.stringify(api_response), {
-                            EX: 300,
-                            NX: true,
-                        })
-                        return resp.send({
-                            success: true,
-                            is_cached: isCached,
-                            body: api_response
-                        })
-                    })
-                }
-            } catch (e) {
-                logger.error(e)
-=======
                 youtubedl(`https://www.youtube.com/watch?v=${json_body.video_id}`, {
                     dumpSingleJson: true,
                     noCheckCertificates: true,
@@ -469,7 +403,6 @@ parent of 55ad0e0 (add redis)
                     body: get_content_(output.formats)
                 }))
             } catch (_) {
->>>>>>> parent of 55ad0e0 (add redis)
                 return main_e(resp)
             }
         }
@@ -892,50 +825,6 @@ app.get('/server', async (req, resp) => {
                 message: 'Server data get error', 
                 exception: error
             }))
-    } catch (_) {
-        return main_e(resp)
-    }
-})
-
-app.get('/cachetest', async (req, resp) => {
-    let species = req.params.species
-    let results
-    let isCached = false
-
-    function getRandomInt(max) {
-        return Math.floor(Math.random() * max)
-    }
-
-    function generateArary() {
-        let result = []
-        for (let i = 0; i < 2*4*6*8; i++) {
-            result.push(getRandomInt(2*4*6*8))
-        }
-        return result
-    }
-
-    try {
-        redisClient.get(species).then(function(cacheResults) {
-            console.log(cacheResults)
-            if (cacheResults) {
-                isCached = true
-                results = JSON.parse(cacheResults)
-            } else {
-                results = generateArary()
-                if (results.length === 0) {
-                    throw "API returned an empty array"
-                }
-                // await redisClient.set(species, JSON.stringify(results), {
-                //     EX: 180,
-                //     NX: true
-                // })
-            }
-
-            return resp.send({
-                fromCache: isCached,
-                data: results,
-            })
-        })
     } catch (_) {
         return main_e(resp)
     }
