@@ -343,10 +343,10 @@ app.post('/youtube_get', (req, resp) => {
         function sort_coll_() {
             collector.sort(function(a, b) {
                 var keyA = a.filesize,
-                    keyB = a.filesize;
-                if (keyA < keyB) return -1;
-                if (keyA > keyB) return 1;
-                return 0;
+                    keyB = a.filesize
+                if (keyA < keyB) return -1
+                if (keyA > keyB) return 1
+                return 0
             })
         }
 
