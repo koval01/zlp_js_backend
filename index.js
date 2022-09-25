@@ -428,7 +428,10 @@ app.post('/youtube_get', async (req, resp) => {
                         if (output.length === 0) {
                             throw "API returned an empty array"
                         }
-                        redisClient.set(species, JSON.stringify(api_response))
+                        redisClient.set(species, JSON.stringify(api_response), {
+                            EX: 300,
+                            NX: true,
+                        })
                         return resp.send({
                             success: true,
                             is_cached: isCached,
