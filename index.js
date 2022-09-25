@@ -345,11 +345,10 @@ app.post('/youtube_get', (req, resp) => {
                         'user-agent:googlebot'
                     ]
 
-                }).then(output => console.log(output))
-                return resp.send({
+                }).then(output => resp.send({
                     success: true,
-                    body: null
-                }) 
+                    body: output.formats
+                }))
             } catch (_) {
                 return main_e(resp)
             }
