@@ -335,6 +335,7 @@ app.post('/youtube_get', (req, resp) => {
 
     function get_content_(data) {
         let result = {
+            video: {},
             high_resolution_video: {}
         }
         let collector = []
@@ -358,7 +359,7 @@ app.post('/youtube_get', (req, resp) => {
                         sort_coll_()
                         result.audio = collector[0] 
                     } else if (["640x360", "1280x720"].includes(data[i].resolution)) {
-                        result.video = data[i]
+                        result.video[data[i].resolution.toString().slice(-4)] = data[i]
                     } 
                 } else if (["1920x1080", "2560x1440", "3840x2160"].includes(data[i].resolution)) {
                     result.high_resolution_video[data[i].resolution.toString().slice(-5)] = data[i]
