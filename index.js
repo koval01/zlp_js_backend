@@ -350,6 +350,23 @@ app.post('/youtube_get', (req, resp) => {
             })
         }
 
+        function builder_(cur, audio=false) {
+            let result = {
+                format: cur.format,
+                url: cur.url
+            }
+            if (audio) {
+                result.acodec = cur.acodec
+                result.ext = cur.ext
+            } else {
+                result.acodec = cur.acodec
+                result.vcodec = cur.vcodec
+                result.video_ext = cur.video_ext
+                result.fps = cur.fps
+            }
+            return result
+        }
+
         for (let i = 0; i < data.length; i++) {
             if (typeof data[i].asr !== 'undefined') {
                 if (data[i].asr) {
@@ -357,12 +374,12 @@ app.post('/youtube_get', (req, resp) => {
                         collector.push(data[i])
 
                         sort_coll_()
-                        result.audio = collector[0] 
+                        result.audio = builder_(collector[0], audio=true)
                     } else if (["640x360", "1280x720"].includes(data[i].resolution)) {
-                        result.video[data[i].resolution.toString().slice(-4)] = data[i]
+                        result.video[data[i].resolution.toString().slice(-4)] = builder_(data[i])
                     } 
                 } else if (["1920x1080", "2560x1440", "3840x2160"].includes(data[i].resolution)) {
-                    result.high_resolution_video[data[i].resolution.toString().slice(-5)] = data[i]
+                    result.high_resolution_video[data[i].resolution.toString().slice(-5)] = builder_(data[i])
                 }
             }
         }
