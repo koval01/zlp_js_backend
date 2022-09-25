@@ -360,7 +360,7 @@ app.post('/youtube_get', (req, resp) => {
                     } 
                 } else if (["1920x1080", "2560x1440", "3840x2160"].includes(data[i].resolution)) {
                     result.high_resolution_video = result.high_resolution_video
-                    result.high_resolution_video[`quality_${data[i].resolution.toString().slice(-4)}`] = data[i]
+                    result.high_resolution_video[data[i].resolution.toString().slice(-5)] = data[i]
                 }
             }
         }
