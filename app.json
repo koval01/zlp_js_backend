@@ -1,6 +1,6 @@
 {
-  "name": "Heroku Proxy for Zalupa News",
-  "description": "Proxy for parsing web Telegram page channel Zalupa News",
+  "name": "API for Zalupa.Online",
+  "description": "API for Zalupa.Online",
   "repository": "https://github.com/koval01/zlpnews_proxy",
   "logo": "https://rawgit.com/heroku/node-js-sample/master/public/node.svg",
   "keywords": ["node", "express", "static"]
