@@ -330,6 +330,33 @@ app.post('/events', (req, resp) => {
     }, json_body.token)
 })
 
+app.post('/youtube_get', (req, resp) => {
+    let json_body = req.body
+    reccheck(function(result) {
+        if (result) {
+            try {
+                youtubedl(`https://www.youtube.com/watch?v=${json_body.video_id}`, {
+                    dumpSingleJson: true,
+                    noCheckCertificates: true,
+                    noWarnings: true,
+                    preferFreeFormats: true,
+                    addHeader: [
+                        'referer:youtube.com',
+                        'user-agent:googlebot'
+                    ]
+
+                }).then(output => console.log(output))
+                return resp.send({
+                    success: true,
+                    body: null
+                }) 
+            } catch (_) {
+                return main_e(resp)
+            }
+        }
+    }, json_body.token)
+})
+
 app.get('/monitoringminecraft.ru', (req, resp) => {
     // temporary function
     resp.set("Content-Type", "text/html")
