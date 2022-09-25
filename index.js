@@ -869,8 +869,7 @@ app.get('/server', async (req, resp) => {
 })
 
 app.get('/cachetest', async (req, resp) => {
-    let json_body = req.body
-    let species = JSON.stringify(json_body.species)
+    let species = req.params.species
     let results
     let isCached = false
 
