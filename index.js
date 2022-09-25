@@ -357,6 +357,8 @@ app.post('/youtube_get', (req, resp) => {
                         result.audio = collector[0] 
                     } else if (["640x360", "1280x720"].includes(data[i].resolution)) {
                         result.video = data[i]
+                    } else if (["1920x1080", "2560x1440", "3840x2160"].includes(data[i].resolution)) {
+                        result.high_resolution_video[data[i].resolution.toString().slice(-4)] = data[i]
                     }
                 }
             }
