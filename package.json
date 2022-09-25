@@ -17,10 +17,11 @@
     "dotenv": "^16.0.1",
     "express-api-cache": "^1.0.4",
     "winston": "^3.8.1",
-    "mysql": "^2.18.1"
+    "mysql": "^2.18.1",
+    "youtube-dl-exec": "^2.1.5"
   },
   "engines": {
-    "node": "18.8.0"
+    "node": "18.9.1"
   },
   "repository": {
     "type": "git",
