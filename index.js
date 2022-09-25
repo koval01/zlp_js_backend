@@ -887,6 +887,7 @@ app.get('/cachetest', async (req, resp) => {
 
     try {
         let cacheResults = await redisClient.get(species)
+        console.log(cacheResults)
         if (cacheResults) {
             isCached = true
             results = JSON.parse(cacheResults)
