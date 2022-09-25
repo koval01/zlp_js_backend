@@ -10,7 +10,6 @@ const winston = require('winston')
 const crypto = require('crypto')
 const mysql = require('mysql')
 const youtubedl = require('youtube-dl-exec')
-const redis = require("redis")
 const { text } = require('body-parser')
 
 const monitorings = [
@@ -53,6 +52,7 @@ function logError(err, req, res, next) {
 }
 app.use(logError)
 
+<<<<<<< HEAD
 let redisClient
 
 (async () => {
@@ -65,6 +65,8 @@ let redisClient
     await redisClient.connect()
 })()
 
+=======
+>>>>>>> parent of 55ad0e0 (add redis)
 const mysql_ = function() {
     return cursor = mysql.createConnection({
         host: process.env.DB_HOSTNAME,
@@ -344,7 +346,10 @@ app.post('/events', async (req, resp) => {
 })
 
 app.post('/youtube_get', async (req, resp) => {
+<<<<<<< HEAD
     let isCached = false
+=======
+>>>>>>> parent of 55ad0e0 (add redis)
     let json_body = req.body
     let species = JSON.stringify(json_body.species)
 
@@ -403,6 +408,7 @@ app.post('/youtube_get', async (req, resp) => {
     reccheck(function(result) {
         if (result) {
             try {
+<<<<<<< HEAD
                 let api_response
                 let cacheResults = redisClient.get(species)
                 if (cacheResults) {
@@ -441,6 +447,23 @@ app.post('/youtube_get', async (req, resp) => {
                 }
             } catch (e) {
                 logger.error(e)
+=======
+                youtubedl(`https://www.youtube.com/watch?v=${json_body.video_id}`, {
+                    dumpSingleJson: true,
+                    noCheckCertificates: true,
+                    noWarnings: true,
+                    preferFreeFormats: true,
+                    addHeader: [
+                        'referer:youtube.com',
+                        'user-agent:googlebot'
+                    ]
+
+                }).then(output => resp.send({
+                    success: true,
+                    body: get_content_(output.formats)
+                }))
+            } catch (_) {
+>>>>>>> parent of 55ad0e0 (add redis)
                 return main_e(resp)
             }
         }
