@@ -349,7 +349,7 @@ app.post('/youtube_get', (req, resp) => {
 
         for (let i = 0; i < data.length; i++) {
             if (typeof data[i].asr !== 'undefined') {
-                if (data[i].asr == 48000) {
+                if (data[i].asr.length > 1) {
                     if (data[i].resolution == "audio only") {
                         collector.push(data[i])
 
@@ -357,9 +357,9 @@ app.post('/youtube_get', (req, resp) => {
                         result.audio = collector[0] 
                     } else if (["640x360", "1280x720"].includes(data[i].resolution)) {
                         result.video = data[i]
-                    } else if (["1920x1080", "2560x1440", "3840x2160"].includes(data[i].resolution)) {
-                        result.high_resolution_video[data[i].resolution.toString().slice(-4)] = data[i]
-                    }
+                    } 
+                } else if (["1920x1080", "2560x1440", "3840x2160"].includes(data[i].resolution)) {
+                    result.high_resolution_video[data[i].resolution.toString().slice(-4)] = data[i]
                 }
             }
         }
