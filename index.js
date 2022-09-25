@@ -56,11 +56,13 @@ app.use(logError)
 let redisClient
 
 (async () => {
-  redisClient = redis.createClient()
+    redisClient = redis.createClient({
+        url: process.env.REDIS_URL
+    })
 
-  redisClient.on("error", (error) => logger.error(`Error : ${error}`))
+    redisClient.on("error", (error) => logger.error(`Error : ${error}`))
 
-  await redisClient.connect()
+    await redisClient.connect()
 })()
 
 const mysql_ = function() {
@@ -417,10 +419,10 @@ app.post('/youtube_get', async (req, resp) => {
                         isCached = true;
                         output = JSON.parse(cacheResults);
                     } else {
-                        output = await fetchApiData(species);
                         if (output.length === 0) {
                             throw "API returned an empty array";
                         }
+                        await redisClient.set(species, JSON.stringify(output))
                     }
 
                     resp.send({
