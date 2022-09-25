@@ -400,11 +400,11 @@ app.post('/youtube_get', async (req, resp) => {
         }
         return result
     }
-    reccheck(async function(result) {
+    reccheck(function(result) {
         if (result) {
             try {
                 let api_response
-                let cacheResults = await redisClient.get(species)
+                let cacheResults = redisClient.get(species)
                 if (cacheResults) {
                     isCached = true
                     return resp.send({
