@@ -345,8 +345,8 @@ app.post('/events', async (req, resp) => {
 
 app.post('/youtube_get', async (req, resp) => {
     let isCached = false
-    let species = req.body.species
     let json_body = req.body
+    let species = JSON.stringify(json_body.species)
 
     function get_content_(data) {
         let result = {
@@ -869,7 +869,8 @@ app.get('/server', async (req, resp) => {
 })
 
 app.get('/cachetest', async (req, resp) => {
-    let species = req.body.species
+    let json_body = req.body
+    let species = JSON.stringify(json_body.species)
     let results
     let isCached = false
 
