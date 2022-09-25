@@ -436,7 +436,8 @@ app.post('/youtube_get', async (req, resp) => {
                         })
                     })
                 }
-            } catch (_) {
+            } catch (e) {
+                logger.error(e)
                 return main_e(resp)
             }
         }
