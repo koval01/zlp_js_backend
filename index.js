@@ -349,8 +349,8 @@ app.post('/youtube_get', (req, resp) => {
 
         for (let i = 0; i < data.length; i++) {
             if (typeof data[i].asr !== 'undefined') {
-                if (data[i].asr.length > 1) {
-                    if (data[i].resolution == "audio only") {
+                if (data[i].asr) {
+                    if (data[i].resolution == "audio only" && data[i].asr == 48000) {
                         collector.push(data[i])
 
                         sort_coll_()
