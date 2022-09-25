@@ -53,6 +53,7 @@ function logError(err, req, res, next) {
 app.use(logError)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 let redisClient
 
 (async () => {
@@ -65,6 +66,8 @@ let redisClient
     await redisClient.connect()
 })()
 
+=======
+>>>>>>> parent of 55ad0e0 (add redis)
 =======
 >>>>>>> parent of 55ad0e0 (add redis)
 const mysql_ = function() {
@@ -347,9 +350,12 @@ app.post('/events', async (req, resp) => {
 
 app.post('/youtube_get', async (req, resp) => {
 <<<<<<< HEAD
+<<<<<<< HEAD
     let isCached = false
 =======
 parent of 55ad0e0 (add redis)
+=======
+>>>>>>> parent of 55ad0e0 (add redis)
     let json_body = req.body
     let species = JSON.stringify(json_body.species)
 
