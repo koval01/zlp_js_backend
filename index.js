@@ -886,25 +886,26 @@ app.get('/cachetest', async (req, resp) => {
     }
 
     try {
-        let cacheResults = redisClient.get(species)
-        console.log(cacheResults)
-        if (cacheResults) {
-            isCached = true
-            results = JSON.parse(cacheResults)
-        } else {
-            results = generateArary()
-            if (results.length === 0) {
-                throw "API returned an empty array"
+        redisClient.get(species).then(function(cacheResults) {
+            console.log(cacheResults)
+            if (cacheResults) {
+                isCached = true
+                results = JSON.parse(cacheResults)
+            } else {
+                results = generateArary()
+                if (results.length === 0) {
+                    throw "API returned an empty array"
+                }
+                // await redisClient.set(species, JSON.stringify(results), {
+                //     EX: 180,
+                //     NX: true
+                // })
             }
-            await redisClient.set(species, JSON.stringify(results), {
-                EX: 180,
-                NX: true
-            })
-        }
 
-        return resp.send({
-            fromCache: isCached,
-            data: results,
+            return resp.send({
+                fromCache: isCached,
+                data: results,
+            })
         })
     } catch (_) {
         return main_e(resp)
