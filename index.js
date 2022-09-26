@@ -298,7 +298,7 @@ app.post('/events', async (req, resp) => {
                                             let to_end = ((time_in_moscow - time_in_moscow) / 1000)
                                             logger.info(to_start)
                                             logger.info(to_end)
-                                            if (to_start < 259200 && to_end < 259200) {
+                                            if (to_start < 259200 && to_end > 259200) {
                                                 result.push({
                                                     title: parsed_[1],
                                                     date_start: defined_date_st.toJSON(),
@@ -809,7 +809,7 @@ app.post('/donate/payment/create', async (req, resp) => {
 app.get('/server', async (req, resp) => {
     try {
         let options = {
-            timeout: 1000 * 3
+            timeout: 1000 * 2
         }
         function result_(data) {
             return {
