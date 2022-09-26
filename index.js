@@ -189,6 +189,7 @@ function reccheck(req, resp, next) {
 }
 
 function crypto_check(req, resp, next) {
+    console.log(req.body)
     // try {
         let decipher = crypto.createDecipheriv("aes-256-cbc", crypto_keys.security_key, crypto_keys.init_vector)
         let decryptedData = decipher.update(req.body.crypto_token, "base64", "utf-8")
