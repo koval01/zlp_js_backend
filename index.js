@@ -286,6 +286,7 @@ app.post('/channel_parse', reccheck, async (req, resp) => {
 })
 
 app.post('/events', reccheck, async (req, resp) => {
+    req.body
     try {
         request(
             {
@@ -818,6 +819,7 @@ app.post('/crypto', reccheck, async (req, resp) => {
 })
 
 app.post('/server', crypto_check, async (req, resp) => {
+    req.body
     try {
         let options = {
             timeout: 1000 * 2
