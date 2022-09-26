@@ -295,8 +295,6 @@ app.post('/events', reccheck, async (req, resp) => {
                                     let defined_date_end = new Date(`20${date_end[3]}`, date_end[2] - 1, date_end[1], date_end[4], date_end[5], '00')
                                     let to_start = ((defined_date_st - time_in_moscow) / 1000)
                                     let to_end = ((time_in_moscow - time_in_moscow) / 1000)
-                                    logger.info(to_start)
-                                    logger.info(to_end)
                                     if (to_start < 259200 && to_end > 259200) {
                                         result.push({
                                             title: parsed_[1],
