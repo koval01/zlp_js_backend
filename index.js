@@ -602,7 +602,7 @@ app.post('/donate/services', reccheck, async (req, resp) => {
     }
 })
 
-app.post('/donate/coupon', async (req, resp) => {
+app.post('/donate/coupon', reccheck, async (req, resp) => {
     let json_body = req.body
     try {
         function response_(data) {
@@ -667,7 +667,7 @@ app.post('/donate/coupon', async (req, resp) => {
     }
 })
 
-app.post('/donate/payment_get', async (req, resp) => {
+app.post('/donate/payment_get', reccheck, async (req, resp) => {
     let json_body = req.body
     try {
         function response_(data) {
@@ -731,7 +731,7 @@ app.post('/donate/payment_get', async (req, resp) => {
     }
 })
 
-app.post('/donate/payment/create', async (req, resp) => {
+app.post('/donate/payment/create', reccheck, async (req, resp) => {
     let json_body = req.body
     try {
         let url = url_builder_(
