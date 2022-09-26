@@ -25,7 +25,10 @@ const monitorings = [
     }
 ]
 const secrets = JSON.parse(process.env.MONITORING_SECRETS)
-
+const crypto_keys = {
+    init_vector: crypto.randomBytes(16),
+    security_key: crypto.randomBytes(32)
+}
 
 const app = express()
 const redis = new Redis(process.env.REDIS_URL)
@@ -776,6 +779,19 @@ app.post('/donate/payment/create', reccheck, async (req, resp) => {
     } catch (_) {
         return main_e(resp)
     }
+})
+
+app.post('/crypto', reccheck, async (req, resp) => {
+    let cipher = crypto.createCipheriv("aes-256-cbc", crypto_keys.security_key, crypto_keys.init_vector)
+    let encryptedData = cipher.update(JSON.stringify({
+        ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
+        timestamp: Math.floor(new Date().getTime() / 1000)
+    }), "utf-8", "base64")
+    encryptedData += cipher.final("base64")
+
+    return resp.send({
+        success: true, body: encryptedData
+    })
 })
 
 app.get('/server', async (req, resp) => {
