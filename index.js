@@ -189,15 +189,14 @@ function reccheck(req, resp, next) {
 }
 
 function crypto_check(req, resp, next) {
-    console.log(req.body)
-    // try {
+    try {
         let decipher = crypto.createDecipheriv("aes-256-cbc", crypto_keys.security_key, crypto_keys.init_vector)
         let decryptedData = decipher.update(req.body.crypto_token, "base64", "utf-8")
 
         decryptedData += decipher.final("utf8")
 
         if (decryptedData) {
-            body = JSON.parse(body)
+            let body = JSON.parse(decryptedData)
             if (body.ip == get_user_ip(req) && (get_current_server_time() - body.timestamp) < 3600) {
                 return next()
             }
@@ -207,9 +206,9 @@ function crypto_check(req, resp, next) {
             message: 'Security error', 
             exception: 'error verify crypto token'
         })
-    // } catch (e) {
-    //     return main_e(resp, e, "crypto check error")
-    // }
+    } catch (e) {
+        return main_e(resp, e, "crypto check error")
+    }
 }
 
 app.post('/channel_parse', reccheck, async (req, resp) => {
