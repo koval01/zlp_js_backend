@@ -783,13 +783,8 @@ app.post('/donate/payment/create', reccheck, async (req, resp) => {
 
 app.post('/crypto', reccheck, async (req, resp) => {
     let cipher = crypto.createCipheriv("aes-256-cbc", crypto_keys.security_key, crypto_keys.init_vector)
-    let ip = req.headers['x-forwarded-for'].split(",\x20")[0].trim() || req.socket.remoteAddress
-    console.log(JSON.stringify({
-        ip: ip,
-        timestamp: Math.floor(new Date().getTime() / 1000)
-    }))
     let encryptedData = cipher.update(JSON.stringify({
-        ip: ip,
+        ip: req.headers['x-forwarded-for'].split(",\x20")[0].trim() || req.socket.remoteAddress,
         timestamp: Math.floor(new Date().getTime() / 1000)
     }), "utf-8", "base64")
     encryptedData += cipher.final("base64")
