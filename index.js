@@ -790,7 +790,7 @@ app.post('/crypto', reccheck, async (req, resp) => {
     encryptedData += cipher.final("base64")
 
     return resp.send({
-        success: true, body: encryptedData
+        success: true, token: encryptedData
     })
 })
 
