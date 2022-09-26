@@ -137,12 +137,12 @@ function input_e(resp, code, error) {
     })
 }
 
-function re_error(resp) {
-    return resp.status(403).json({
-        success: false,
-        message: 'Security error', 
-        exception: 'error verify recaptcha token'
-    })
+function get_user_ip(req) {
+    return req.headers['x-forwarded-for'].split(",\x20")[0].trim() || req.socket.remoteAddress
+}
+
+function get_current_server_time() {
+    return Math.floor(new Date().getTime() / 1000)
 }
 
 function censorWord(str) {
@@ -186,6 +186,29 @@ function reccheck(req, resp, next) {
             })
         }
     )
+}
+
+function crypto_check(req, resp, next) {
+    try {
+        let decipher = crypto.createDecipheriv("aes-256-cbc", crypto_keys.security_key, crypto_keys.init_vector)
+        let decryptedData = decipher.update(req.body.crypto_token, "base64", "utf-8");
+
+        decryptedData += decipher.final("utf8")
+
+        if (decryptedData) {
+            body = JSON.parse(body)
+            if (body.ip == get_user_ip(req) && (get_current_server_time() - body.timestamp) < 3600) {
+                return next()
+            }
+        }
+        return resp.status(403).json({
+            success: false,
+            message: 'Security error', 
+            exception: 'error verify crypto token'
+        })
+    } catch (e) {
+        return main_e(resp, e, "crypto check error")
+    }
 }
 
 app.post('/channel_parse', reccheck, async (req, resp) => {
@@ -784,8 +807,8 @@ app.post('/donate/payment/create', reccheck, async (req, resp) => {
 app.post('/crypto', reccheck, async (req, resp) => {
     let cipher = crypto.createCipheriv("aes-256-cbc", crypto_keys.security_key, crypto_keys.init_vector)
     let encryptedData = cipher.update(JSON.stringify({
-        ip: req.headers['x-forwarded-for'].split(",\x20")[0].trim() || req.socket.remoteAddress,
-        timestamp: Math.floor(new Date().getTime() / 1000)
+        ip: get_user_ip(req),
+        timestamp: get_current_server_time()
     }), "utf-8", "base64")
     encryptedData += cipher.final("base64")
 
@@ -794,7 +817,7 @@ app.post('/crypto', reccheck, async (req, resp) => {
     })
 })
 
-app.get('/server', async (req, resp) => {
+app.post('/server', crypto_check, async (req, resp) => {
     try {
         let options = {
             timeout: 1000 * 2
