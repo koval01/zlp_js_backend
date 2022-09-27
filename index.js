@@ -437,7 +437,7 @@ app.post('/youtube_get', reccheck, async (req, resp) => {
             redis.get(json_body.video_id, (error, result) => {
                 if (error) throw error
                 if (result !== null) {
-                    return response_call(JSON.stringify(result))
+                    return response_call(JSON.parse(result))
                 } else {
                     youtubedl(`https://www.youtube.com/watch?v=${json_body.video_id}`, {
                         dumpSingleJson: true,
@@ -755,33 +755,42 @@ app.post('/donate/payment_get', reccheck, async (req, resp) => {
                 return null
             }
         }
-        request(
-            {
-                uri: `https://easydonate.ru/api/v3/shop/payment/${json_body.payment_id}`,
-                method: 'GET',
-                headers: {
-                    'Shop-Key': process.env.DONATE_API_KEY
-                }
-            },
-            (error, response, body) => {
-                if (!error && response.statusCode == 200) {
-                    body = JSON.parse(body)
-                    if (body.success) {
-                        return resp.send({
-                            success: true,
-                            payment: response_(body.response)
-                        })
+        redis.get(json_body.payment_id, (error, result) => {
+            if (error) throw error
+            if (result !== null) {
+                return response_call(JSON.parse(result))
+            } else {
+                request(
+                    {
+                        uri: `https://easydonate.ru/api/v3/shop/payment/${json_body.payment_id}`,
+                        method: 'GET',
+                        headers: {
+                            'Shop-Key': process.env.DONATE_API_KEY
+                        }
+                    },
+                    (error, response, body) => {
+                        if (!error && response.statusCode == 200) {
+                            body = JSON.parse(body)
+                            if (body.success) {
+                                let result = {
+                                    success: true,
+                                    payment: response_(body.response)
+                                }
+                                redis.set(json_body.payment_id, JSON.stringify(result), "ex", 1000)
+                                return resp.send(result)
+                            }
+                            return resp.status(503).json({
+                                success: false,
+                                message: "Error check response EasyDonate API",
+                                exception: "var success is not true"
+                            })
+                        } else {
+                            return input_e(resp, response.statusCode, error)
+                        }
                     }
-                    return resp.status(503).json({
-                        success: false,
-                        message: "Error check response EasyDonate API",
-                        exception: "var success is not true"
-                    })
-                } else {
-                    return input_e(resp, response.statusCode, error)
-                }
+                )
             }
-        )
+        })
     } catch (_) {
         return main_e(resp)
     }
