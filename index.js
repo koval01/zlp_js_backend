@@ -62,7 +62,11 @@ app.use(logError)
 const apiLimiter = rateLimit({
 	windowMs: 8 * 60 * 1000, // 8 minutes
 	max: 300,
-	standardHeaders: true
+	standardHeaders: true,
+    message: {
+        success: false,
+        error: "too many requests"
+    }
 })
 app.use(apiLimiter)
 
