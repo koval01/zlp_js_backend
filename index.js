@@ -57,7 +57,9 @@ function logError(err, req, res, next) {
     logger.error(err)
     next()
 }
-app.use([logRequest, logMethod, logError])
+app.use(logRequest)
+app.use(logMethod)
+app.use(logError)
 
 const mysql_ = function() {
     return cursor = mysql.createConnection({
