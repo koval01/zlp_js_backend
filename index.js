@@ -399,7 +399,7 @@ app.post('/youtube_get', reccheck, async (req, resp) => {
                     } else if (["640x360", "1280x720"].includes(data[i].resolution)) {
                         result.video[data[i].resolution.toString().slice(-4)] = builder_(data[i])
                     } 
-                } else if (["1920x1080", "2560x1440", "3840x2160"].includes(data[i].resolution)) {
+                } else if (["1920x1080", "2560x1440"].includes(data[i].resolution)) {
                     result.high_resolution_video[data[i].resolution.toString().slice(-5)] = builder_(data[i])
                 }
             }
@@ -409,21 +409,34 @@ app.post('/youtube_get', reccheck, async (req, resp) => {
 
     try {
         if (json_body.video_id) {
-            redis.set(json_body.video_id, JSON.stringify(data), "ex", 60)
-            youtubedl(`https://www.youtube.com/watch?v=${json_body.video_id}`, {
-                dumpSingleJson: true,
-                noCheckCertificates: true,
-                noWarnings: true,
-                preferFreeFormats: true,
-                addHeader: [
-                    'referer:youtube.com',
-                    'user-agent:googlebot'
-                ]
+            function response_call(result) {
+                resp.send({
+                    success: true,
+                    body: result
+                })
+            }
+            redis.get(json_body.video_id, (error, result) => {
+                if (error) throw error
+                if (result !== null) {
+                    return response_call(result)
+                } else {
+                    youtubedl(`https://www.youtube.com/watch?v=${json_body.video_id}`, {
+                        dumpSingleJson: true,
+                        noCheckCertificates: true,
+                        noWarnings: true,
+                        preferFreeFormats: true,
+                        addHeader: [
+                            'referer:youtube.com',
+                            'user-agent:googlebot'
+                        ]
 
-            }).then(output => resp.send({
-                success: true,
-                body: get_content_(output.formats)
-            }))
+                    }).then(output => function() {
+                        let result = get_content_(output.formats)
+                        redis.set(json_body.video_id, JSON.stringify(result), "ex", 120)
+                        return response_call(result)
+                    })
+                }
+            })
         } else {
             return input_e(resp, 400, "video_id: null")
         }
