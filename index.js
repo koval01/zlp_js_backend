@@ -49,17 +49,7 @@ function logRequest(req, res, next) {
     logger.info(`Request URL: ${req.url}`)
     next()
 }
-function logMethod() {
-    logger.info(`Request Type: ${req.method}`)
-    next()
-}
-function logError(err, req, res, next) {
-    logger.error(err)
-    next()
-}
 app.use(logRequest)
-app.use(logMethod)
-app.use(logError)
 
 const mysql_ = function() {
     return cursor = mysql.createConnection({
