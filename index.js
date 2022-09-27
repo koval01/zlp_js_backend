@@ -3,6 +3,7 @@ require('dotenv').config()
 const request = require('request')
 const compression = require('compression')
 const cors = require('cors')
+const rateLimit = require('express-rate-limit')
 const html_parser = require('node-html-parser')
 const express = require('express')
 const mcstatus = require('minecraft-server-util')
@@ -40,6 +41,7 @@ const myWinstonOptions = {
 const logger = new winston.createLogger(myWinstonOptions)
 
 app.set('port', (process.env.PORT || 5000))
+app.set('trust proxy', 1)
 app.use(express.json())
 app.use(express.urlencoded())
 app.use(compression())
@@ -56,6 +58,13 @@ function logError(err, req, res, next) {
     next()
 }
 app.use(logError)
+
+const apiLimiter = rateLimit({
+	windowMs: 1 * 60 * 1000, // 1 minute
+	max: 300,
+	standardHeaders: true
+})
+app.use(apiLimiter)
 
 const mysql_ = function() {
     return cursor = mysql.createConnection({

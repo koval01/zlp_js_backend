@@ -11,6 +11,7 @@
     "compression": "^1.7.4",
     "request": "^2.88.2",
     "cors": "^2.8.5",
+    "express-rate-limit": "^6.6.0",
     "node-html-parser": "^5.4.1",
     "minecraft-server-util": "^5.3.0",
     "minecraft-protocol": "^1.36.0",
