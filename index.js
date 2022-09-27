@@ -756,10 +756,10 @@ app.post('/donate/payment_get', reccheck, async (req, resp) => {
             }
         }
         function response_call(result) {
-            return {
+            return resp.send({
                 success: true,
                 payment: response_(result)
-            }
+            })
         }
         redis.get(json_body.payment_id, (error, result) => {
             if (error) throw error
