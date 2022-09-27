@@ -41,7 +41,7 @@ const myWinstonOptions = {
 const logger = new winston.createLogger(myWinstonOptions)
 
 app.set('port', (process.env.PORT || 5000))
-app.set('trust proxy', 1)
+app.set('trust proxy', 0)
 app.use(express.json())
 app.use(express.urlencoded())
 app.use(compression())
