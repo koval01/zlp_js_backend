@@ -421,11 +421,13 @@ app.post('/youtube_get', reccheck, async (req, resp) => {
                     body: result
                 })
             }
+            console.log(json_body.video_id)
             redis.get(json_body.video_id, (error, result) => {
                 if (error) throw error
                 if (result !== null) {
                     return response_call(result)
                 } else {
+                    console.log(result)
                     youtubedl(`https://www.youtube.com/watch?v=${json_body.video_id}`, {
                         dumpSingleJson: true,
                         noCheckCertificates: true,
