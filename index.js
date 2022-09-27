@@ -224,7 +224,7 @@ function crypto_check(req, resp, next) {
     }
 }
 
-app.get('/ip', (request, response) => response.send(request.ip))
+app.get('/ip', (req, resp) => resp.send({success: true, ip: req.ip}))
 
 app.post('/channel_parse', reccheck, async (req, resp) => {
     try {
