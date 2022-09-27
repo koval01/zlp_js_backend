@@ -224,6 +224,8 @@ function crypto_check(req, resp, next) {
     }
 }
 
+app.get('/ip', (request, response) => response.send(request.ip))
+
 app.post('/channel_parse', reccheck, async (req, resp) => {
     try {
         let choice_ = ['zalupa_history', 'zalupaonline']
