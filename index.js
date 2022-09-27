@@ -60,7 +60,7 @@ function logError(err, req, res, next) {
 app.use(logError)
 
 const apiLimiter = rateLimit({
-	windowMs: 3 * 60 * 1000, // 3 minutes
+	windowMs: 1 * 60 * 1000, // 1 minute
 	max: 100,
 	standardHeaders: true,
     message: {
