@@ -755,6 +755,12 @@ app.post('/donate/payment_get', reccheck, async (req, resp) => {
                 return null
             }
         }
+        function response_call(result) {
+            return {
+                success: true,
+                payment: response_(result)
+            }
+        }
         redis.get(json_body.payment_id, (error, result) => {
             if (error) throw error
             if (result !== null) {
@@ -772,12 +778,9 @@ app.post('/donate/payment_get', reccheck, async (req, resp) => {
                         if (!error && response.statusCode == 200) {
                             body = JSON.parse(body)
                             if (body.success) {
-                                let result = {
-                                    success: true,
-                                    payment: response_(body.response)
-                                }
-                                redis.set(json_body.payment_id, JSON.stringify(result), "ex", 1000)
-                                return resp.send(result)
+                                let payment = response_(body.response)
+                                redis.set(json_body.payment_id, JSON.stringify(payment), "ex", 1000)
+                                return resp.send(response_call(payment))
                             }
                             return resp.status(503).json({
                                 success: false,
