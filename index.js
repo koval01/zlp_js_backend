@@ -46,16 +46,18 @@ app.use(compression())
 app.use(cors())
 
 function logRequest(req, res, next) {
-    logger.info(req.url)
+    logger.info(`Request URL: ${req.url}`)
     next()
 }
-app.use(logRequest)
-
+function logMethod() {
+    logger.info(`Request Type: ${req.method}`)
+    next()
+}
 function logError(err, req, res, next) {
     logger.error(err)
     next()
 }
-app.use(logError)
+app.use([logRequest, logMethod, logError])
 
 const mysql_ = function() {
     return cursor = mysql.createConnection({
