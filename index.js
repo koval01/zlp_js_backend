@@ -61,7 +61,7 @@ app.use(logError)
 
 const apiLimiter = rateLimit({
 	windowMs: 1 * 60 * 1000, // 1 minute
-	max: 100,
+	max: 300,
 	standardHeaders: true,
     message: {
         success: false,
