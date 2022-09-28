@@ -453,7 +453,7 @@ app.post('/youtube_get', reccheck, async (req, resp) => {
 
                     }).then(output => {
                         let result = get_content_(output.formats)
-                        redis.set(json_body.video_id, JSON.stringify(result), "ex", 300)
+                        redis.set(json_body.video_id, JSON.stringify(result), "ex", 900)
                         return response_call(result)
                     })
                 }
