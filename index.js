@@ -656,16 +656,17 @@ app.post('/donate/payment_get', reccheck, async (req, resp) => {
                 return null
             }
         }
-        function response_call(result) {
+        function response_call(result, cache=false) {
             return resp.send({
                 success: true,
+                cache: cache,
                 payment: result
             })
         }
         redis.get(json_body.payment_id, (error, result) => {
             if (error) throw error
             if (result !== null) {
-                return response_call(JSON.parse(result))
+                return response_call(JSON.parse(result), true)
             } else {
                 request(
                     {
