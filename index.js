@@ -41,7 +41,7 @@ app.use(compression())
 app.use(cors())
 
 function logRequest(req, res, next) {
-    console.log(req.url)
+    console.log(`Request: ${req.url}`)
     next()
 }
 app.use(logRequest)
