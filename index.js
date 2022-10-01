@@ -7,11 +7,10 @@ const rateLimit = require('express-rate-limit')
 const html_parser = require('node-html-parser')
 const express = require('express')
 const mcstatus = require('minecraft-server-util')
-const winston = require('winston')
 const crypto = require('crypto')
 const mysql = require('mysql')
 const Redis = require("ioredis")
-const youtubedl = require('youtube-dl-exec')
+
 const { text } = require('body-parser')
 
 const monitorings = [
@@ -34,12 +33,6 @@ const crypto_keys = {
 const app = express()
 const redis = new Redis(process.env.REDIS_URL)
 
-const consoleTransport = new winston.transports.Console()
-const myWinstonOptions = {
-    transports: [consoleTransport]
-}
-const logger = new winston.createLogger(myWinstonOptions)
-
 app.set('port', (process.env.PORT || 5000))
 app.set('trust proxy', (process.env.CLOUDFLARE.toString() === 'true') ? 2 : 1)
 app.use(express.json())
@@ -48,13 +41,13 @@ app.use(compression())
 app.use(cors())
 
 function logRequest(req, res, next) {
-    logger.info(req.url)
+    console.log(req.url)
     next()
 }
 app.use(logRequest)
 
 function logError(err, req, res, next) {
-    logger.error(err)
+    console.error(err)
     next()
 }
 app.use(logError)
@@ -81,7 +74,7 @@ const mysql_ = function() {
 }
 
 function sql_request(callback, query, values = []) {
-    let error = (e) => logger.error(`Database error: ${e}`)
+    let error = (e) => console.error(`Database error: ${e}`)
     let con = mysql_()
     con.query(query, values, 
         function (err, result, _) {
@@ -94,7 +87,7 @@ function sql_request(callback, query, values = []) {
 function monitoring_statistic(monitroing_name, username) {
     let check_in_db = (callback) => {
         sql_request(function(data) {
-            logger.info(`Monitoring statistic select : ${JSON.stringify(data)}`)
+            console.log(`Monitoring statistic select : ${JSON.stringify(data)}`)
             callback(data)
         },
             "SELECT * FROM `monitoring_statistic` WHERE `username` = ? AND `monitoring` = ?", 
@@ -103,7 +96,7 @@ function monitoring_statistic(monitroing_name, username) {
     }
     let update = () => {
         sql_request(function(update_result) {
-            logger.info(`Monitoring statistic update player : ${JSON.stringify(update_result)}`)
+            console.log(`Monitoring statistic update player : ${JSON.stringify(update_result)}`)
             return update_result
         },
             "UPDATE monitoring_statistic SET `votes` = `votes` + 1, `timestep` = NOW() WHERE `username` = ? AND `monitoring` = ?", 
@@ -112,7 +105,7 @@ function monitoring_statistic(monitroing_name, username) {
     }
     let insert = () => {
         sql_request(function(insert_result) {
-            logger.info(`Monitoring statistic add player : ${JSON.stringify(insert_result)}`)
+            console.log(`Monitoring statistic add player : ${JSON.stringify(insert_result)}`)
             return insert_result
         },
             "INSERT monitoring_statistic (username, monitoring, timestep, votes) VALUES (?, ?, NOW(), 1)", 
@@ -127,7 +120,7 @@ function monitoring_statistic(monitroing_name, username) {
 }
 
 app.use(function (err, req, resp, next) {
-    logger.error(err.stack)
+    console.error(err.stack)
     next()
     return resp.status(500).json({
         success: false,
@@ -372,100 +365,6 @@ app.post('/events', reccheck, async (req, resp) => {
     }
 })
 
-app.post('/youtube_get', reccheck, async (req, resp) => {
-    let json_body = req.body
-
-    function get_content_(data) {
-        let result = {
-            video: {},
-            high_resolution_video: {}
-        }
-        let collector = []
-
-        function sort_coll_() {
-            collector.sort(function(a, b) {
-                let keyA = a.filesize,
-                    keyB = a.filesize
-                if (keyA < keyB) return -1
-                if (keyA > keyB) return 1
-                return 0
-            })
-        }
-
-        function builder_(cur, audio=false) {
-            let result = {
-                format: cur.format,
-                url: cur.url
-            }
-            if (audio) {
-                result.acodec = cur.acodec
-                result.ext = cur.ext
-            } else {
-                result.acodec = cur.acodec
-                result.vcodec = cur.vcodec
-                result.video_ext = cur.video_ext
-                result.fps = cur.fps
-            }
-            return result
-        }
-
-        for (let i = 0; i < data.length; i++) {
-            if (typeof data[i].asr !== 'undefined') {
-                if (data[i].asr) {
-                    if (data[i].resolution == "audio only" && data[i].asr == 48000) {
-                        collector.push(data[i])
-
-                        sort_coll_()
-                        result.audio = builder_(collector[0], audio=true)
-                    } else if (["640x360", "1280x720"].includes(data[i].resolution)) {
-                        result.video[data[i].resolution.toString().slice(-4)] = builder_(data[i])
-                    } 
-                } else if (["1920x1080", "2560x1440"].includes(data[i].resolution)) {
-                    result.high_resolution_video[data[i].resolution.toString().slice(-5)] = builder_(data[i])
-                }
-            }
-        }
-        return result
-    }
-
-    try {
-        if (json_body.video_id) {
-            function response_call(result) {
-                return resp.send({
-                    success: true,
-                    body: result
-                })
-            }
-            redis.get(json_body.video_id, (error, result) => {
-                if (error) throw error
-                if (result !== null) {
-                    return response_call(JSON.parse(result))
-                } else {
-                    youtubedl(`https://www.youtube.com/watch?v=${json_body.video_id}`, {
-                        dumpSingleJson: true,
-                        noCheckCertificates: true,
-                        noWarnings: true,
-                        preferFreeFormats: true,
-                        addHeader: [
-                            'referer:youtube.com',
-                            'user-agent:googlebot'
-                        ]
-
-                    }).then(output => {
-                        let result = get_content_(output.formats)
-                        redis.set(json_body.video_id, JSON.stringify(result), "ex", 900)
-                        return response_call(result)
-                    })
-                }
-            })
-        } else {
-            return input_e(resp, 400, "video_id: null")
-        }
-    } catch (_) {
-        return main_e(resp)
-    }
-})
-
 app.get('/monitoringminecraft.ru', async (req, resp) => {
     // temporary function
     resp.set("Content-Type", "text/html")
@@ -565,7 +464,7 @@ app.post('/promotion', async (req, resp) => {
                 sql_request(function(insert_result) {
                     if (insert_result) {
                         stat()
-                        logger.info(`Result insert to luckperms : ${JSON.stringify(insert_result)}`)
+                        console.log(`Result insert to luckperms : ${JSON.stringify(insert_result)}`)
                         return resp.send("ok")
                     }
                     return error
@@ -578,7 +477,7 @@ app.post('/promotion', async (req, resp) => {
                 sql_request(function(update_result) {
                     if (update_result) {
                         stat()
-                        logger.info(`Result update row in luckperms : ${JSON.stringify(update_result)}`)
+                        console.log(`Result update row in luckperms : ${JSON.stringify(update_result)}`)
                         return resp.send("ok")
                     }
                     return error
@@ -896,9 +795,9 @@ app.get('*', async (req, resp) => {
 })
 
 app.listen(app.get('port'), () => {
-    logger.info(`Node app is running at localhost:${app.get('port')}`)
+    console.log(`Node app is running at localhost:${app.get('port')}`)
 })
 
 process.on('uncaughtException', function (exception) {
-    logger.error(`Uncaught exception: ${exception}`)
+    console.error(`Uncaught exception: ${exception}`)
 })

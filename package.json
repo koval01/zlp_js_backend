@@ -1,6 +1,6 @@
 {
   "name": "zlpnews_proxy",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Proxy app",
   "main": "index.js",
   "scripts": {
@@ -14,13 +14,9 @@
     "express-rate-limit": "^6.6.0",
     "node-html-parser": "^5.4.1",
     "minecraft-server-util": "^5.3.0",
-    "minecraft-protocol": "^1.36.0",
     "dotenv": "^16.0.1",
-    "express-api-cache": "^1.0.4",
-    "winston": "^3.8.1",
     "mysql": "^2.18.1",
-    "ioredis": "^5.2.3",
-    "youtube-dl-exec": "^2.1.5"
+    "ioredis": "^5.2.3"
   },
   "engines": {
     "node": "18.9.1"
