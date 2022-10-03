@@ -336,8 +336,7 @@ app.post('/events', reccheck, async (req, resp) => {
                                     let to_start = ((defined_date_st - time_in_moscow) / 1000)
                                     let to_end = ((time_in_moscow - defined_date_end) / 1000)
                                     
-                                    console.log(to_end);
-                                    console.log(to_end <= -1);
+                                    console.log(`${to_start} ${to_end} ${to_end <= -1}`)
                                     if (to_start < 259200 && (!(to_end <= -1) || to_end < 259200)) {
                                         result.push({
                                             title: parsed_[1],
