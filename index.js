@@ -333,7 +333,7 @@ app.post('/events', reccheck, async (req, resp) => {
                                     let date_end = parsed_[3].match(time_regex)
                                     let defined_date_st = time_correction(new Date(`20${date_st[3]}`, date_st[2] - 1, date_st[1], date_st[4], date_st[5], '00'))
                                     let defined_date_end = time_correction(new Date(`20${date_end[3]}`, date_end[2] - 1, date_end[1], date_end[4], date_end[5], '00'))
-                                    let to_start = ((defined_date_st - time_in_moscow) / 1000)
+                                    let to_start = ((time_in_moscow - defined_date_st) / 1000)
                                     let to_end = ((time_in_moscow - defined_date_end) / 1000)
                                     
                                     console.log(`
