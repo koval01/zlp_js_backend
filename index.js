@@ -338,7 +338,7 @@ app.post('/events', reccheck, async (req, resp) => {
                                     
                                     console.log(`
                                         ${i} // ${parsed_[1]} :
-                                        ${defined_date_st} ${time_in_moscow}
+                                        STR: ${defined_date_st} END: ${defined_date_end} MSC: ${time_in_moscow}
                                         S:${to_start} (${to_start > 0 || -(to_start) < 259200} (${to_start > 0} / ${-(to_start) > 259200})) 
                                         E:${to_end} (${-(to_end) > 0 && to_end < 259200} (${-(to_end) > 0} / ${to_end < 259200})) 
                                     `)
