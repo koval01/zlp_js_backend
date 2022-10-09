@@ -34,7 +34,7 @@ const app = express()
 const redis = new Redis(process.env.REDIS_URL)
 
 app.set('port', (process.env.PORT || 5000))
-app.set('trust proxy', (process.env.CLOUDFLARE.toString() === 'true') ? 2 : 1)
+app.set('trust proxy', parseInt(process.env.PROXY_LAYER))
 app.use(express.json())
 app.use(express.urlencoded())
 app.use(compression())
