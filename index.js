@@ -534,33 +534,47 @@ app.post('/donate/services', reccheck, async (req, resp) => {
             }
             return result
         }
-        request(
-            {
-                uri: `https://easydonate.ru/api/v3/shop/products`,
-                method: 'GET',
-                headers: {
-                    'Shop-Key': process.env.DONATE_API_KEY
-                }
-            },
-            (error, response, body) => {
-                if (!error && response.statusCode == 200) {
-                    body = JSON.parse(body)
-                    if (body.success) {
-                        return resp.send({
-                            success: true,
-                            services: response_(body.response)
-                        })
+        redis.get("donate_services", (error, result) => {
+            if (error) throw error
+            if (result !== null) {
+                return resp.send({
+                    cache: true,
+                    success: true,
+                    services: JSON.parse(result)
+                })
+            } else {
+                request(
+                    {
+                        uri: `https://easydonate.ru/api/v3/shop/products`,
+                        method: 'GET',
+                        headers: {
+                            'Shop-Key': process.env.DONATE_API_KEY
+                        }
+                    },
+                    (error, response, body) => {
+                        if (!error && response.statusCode == 200) {
+                            body = JSON.parse(body)
+                            if (body.success) {
+                                let response_data = response_(body.response)
+                                redis.set("donate_services", JSON.stringify(response_data), "ex", 300)
+                                return resp.send({
+                                    cache: false,
+                                    success: true,
+                                    services: response_data
+                                })
+                            }
+                            return resp.status(503).json({
+                                success: false,
+                                message: "Error check response EasyDonate API",
+                                exception: "var success is not true"
+                            })
+                        } else {
+                            return input_e(resp, response.statusCode, error)
+                        }
                     }
-                    return resp.status(503).json({
-                        success: false,
-                        message: "Error check response EasyDonate API",
-                        exception: "var success is not true"
-                    })
-                } else {
-                    return input_e(resp, response.statusCode, error)
-                }
+                )
             }
-        )
+        })
     } catch (_) {
         return main_e(resp)
     }
