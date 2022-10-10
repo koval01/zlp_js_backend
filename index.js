@@ -194,27 +194,39 @@ function reccheck(req, resp, next) {
     )
 }
 
-function crypto_check(req, resp, next) {
+function decryptor(data) {
     try {
         let decipher = crypto.createDecipheriv("aes-256-cbc", crypto_keys.security_key, crypto_keys.init_vector)
-        let decryptedData = decipher.update(req.body.crypto_token, "base64", "utf-8")
+        let decryptedData = decipher.update(data, "base64", "utf-8")
 
         decryptedData += decipher.final("utf8")
 
         if (decryptedData) {
-            let body = JSON.parse(decryptedData)
-            if (body.ip == get_user_ip(req) && (get_current_server_time() - body.timestamp) < 3600) {
-                return next()
-            }
+            return decryptedData
         }
-        return resp.status(403).json({
-            success: false,
-            message: 'Security error', 
-            exception: 'error verify crypto token'
-        })
-    } catch (e) {
-        return main_e(resp, e, "crypto check error")
+    } catch (_) {}
+}
+
+function encryptor(data) {
+    let cipher = crypto.createCipheriv("aes-256-cbc", crypto_keys.security_key, crypto_keys.init_vector)
+    let encryptedData = cipher.update(data, "utf-8", "base64")
+    encryptedData += cipher.final("base64")
+}
+
+function crypto_check(req, resp, next) {
+    decryptedData = decryptor(req.body.crypto_token)
+
+    if (decryptedData) {
+        let body = JSON.parse(decryptedData)
+        if (body.ip == get_user_ip(req) && (get_current_server_time() - body.timestamp) < 1800) {
+            return next()
+        }
     }
+    return resp.status(403).json({
+        success: false,
+        message: 'Security error', 
+        exception: 'error verify crypto token'
+    })
 }
 
 app.get('/ip', (req, resp) => resp.send({success: true, ip: req.ip}))
@@ -752,7 +764,7 @@ app.post('/donate/payment/create', reccheck, async (req, resp) => {
             'https://easydonate.ru/api/v3/shop/payment/create',
             [
                 { "name": "customer", "value": json_body.customer },
-                { "name": "server_id", "value": process.env.SERVER_ID },
+                { "name": "server_id", "value": json_body.server_id },
                 { "name": "products", "value": JSON.stringify(json_body.products) },
                 { "name": "email", "value": json_body.email },
                 { "name": "coupon", "value": json_body.coupon },
@@ -795,15 +807,11 @@ app.post('/donate/payment/create', reccheck, async (req, resp) => {
 })
 
 app.post('/crypto', reccheck, async (req, resp) => {
-    let cipher = crypto.createCipheriv("aes-256-cbc", crypto_keys.security_key, crypto_keys.init_vector)
-    let encryptedData = cipher.update(JSON.stringify({
-        ip: get_user_ip(req),
-        timestamp: get_current_server_time()
-    }), "utf-8", "base64")
-    encryptedData += cipher.final("base64")
-
     return resp.send({
-        success: true, token: encryptedData
+        success: true, token: encryptor(JSON.stringify({
+            ip: get_user_ip(req),
+            timestamp: get_current_server_time()
+        }))
     })
 })
 
