@@ -573,7 +573,7 @@ app.post('/donate/services', reccheck, async (req, resp) => {
                         old_price: data[i].old_price,
                         type: data[i].type,
                         number: data[i].number,
-                        server_id: encryptor(data[i].servers[0].id)
+                        server_id: encryptor((data[i].servers[0].id).toString())
                     })
                 }
             }
@@ -762,8 +762,11 @@ app.post('/donate/payment_get', reccheck, async (req, resp) => {
 app.post('/donate/payment/create', reccheck, async (req, resp) => {
     let json_body = req.body
     let server_id = decryptor(json_body.server_id)
-    if (!(server_id && Number.isInteger(server_id) && 999999 > server_id > 1000)) {
-        return input_e(resp, 400, "server_id error")
+    if (server_id) {
+        server_id = parseInt(server_id)
+        if (!(Number.isInteger(server_id) && 999999 > server_id > 1000)) {
+            return input_e(resp, 400, "server_id error")
+        }
     }
     try {
         let url = url_builder_(
