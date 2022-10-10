@@ -373,12 +373,6 @@ app.post('/events', reccheck, async (req, resp) => {
                                             let to_start = ((time_in_moscow - defined_date_st) / 1000)
                                             let to_end = ((time_in_moscow - defined_date_end) / 1000)
                                             
-                                            console.log(`
-                                                ${i} // ${parsed_[1]} :
-                                                STR: ${defined_date_st / 1000} END: ${defined_date_end / 1000} MSC: ${time_in_moscow / 1000}
-                                                S:${to_start} (${to_start > 0 || -(to_start) < 259200} (${to_start > 0} / ${-(to_start) > 259200})) 
-                                                E:${to_end} (${-(to_end) > 0 && to_end < 259200} (${-(to_end) > 0} / ${to_end < 259200})) 
-                                            `)
                                             if ((to_start > 0 || -(to_start) < 259200) && (-(to_end) > 0 || to_end < 259200)) {
                                                 result.push({
                                                     title: parsed_[1],
@@ -626,14 +620,14 @@ app.post('/donate/coupon', reccheck, async (req, resp) => {
                 let products_list = []
                 for (let i = 0; i < products.length; i++) {
                     products_list.push({
-                        "id": products[i].id,
-                        "name": products[i].name
+                        id: products[i].id,
+                        name: products[i].name
                     })
                 }
                 return {
-                    "code": data.code,
-                    "discount": data.sale,
-                    "products": products_list
+                    code: data.code,
+                    discount: data.sale,
+                    products: products_list
 
                 }
             } else {
@@ -702,13 +696,13 @@ app.post('/donate/payment_get', reccheck, async (req, resp) => {
                 } else { data.enrolled = 0 }
                 data.status = (data.status === 2) ? true : false
                 return {
-                    "id": data.id,
-                    "customer": data.customer,
-                    "email": censorEmail(data.email),
-                    "created_at": data.created_at,
-                    "payment_system": data.payment_system,
-                    "status": data.status,
-                    "enrolled": data.enrolled
+                    id: data.id,
+                    customer: data.customer,
+                    email: censorEmail(data.email),
+                    created_at: data.created_at,
+                    payment_system: data.payment_system,
+                    status: data.status,
+                    enrolled: data.enrolled
                 }
             } else {
                 return null
@@ -772,12 +766,12 @@ app.post('/donate/payment/create', reccheck, async (req, resp) => {
         let url = url_builder_(
             'https://easydonate.ru/api/v3/shop/payment/create',
             [
-                { "name": "customer", "value": json_body.customer },
-                { "name": "server_id", "value": server_id },
-                { "name": "products", "value": JSON.stringify(json_body.products) },
-                { "name": "email", "value": json_body.email },
-                { "name": "coupon", "value": json_body.coupon },
-                { "name": "success_url", "value": json_body.success_url },
+                { name: "customer", value: json_body.customer },
+                { name: "server_id", value: server_id },
+                { name: "products", value: JSON.stringify(json_body.products) },
+                { name: "email", value: json_body.email },
+                { name: "coupon", value: json_body.coupon },
+                { name: "success_url", value: json_body.success_url },
             ]
         )
         request(
@@ -795,8 +789,8 @@ app.post('/donate/payment/create', reccheck, async (req, resp) => {
                         return resp.send({
                             success: true,
                             payment: {
-                                "url": body.response.url,
-                                "bill_id": body.response.payment.id
+                                url: body.response.url,
+                                bill_id: body.response.payment.id
                             } 
                         })
                     }
@@ -831,7 +825,7 @@ app.post('/server', crypto_check, async (req, resp) => {
         }
         function result_(data) {
             return {
-                "online": data.players.online
+                online: data.players.online
             }
         }
         mcstatus.status('zalupa.online', 25565, options)
