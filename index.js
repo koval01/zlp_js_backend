@@ -289,7 +289,7 @@ app.post('/channel_parse', reccheck, async (req, resp) => {
                                 let regex_link = /(https:\/\/t.me\/)([A-z\d_\-]*?\/[\d]*$)/
                                 let org_link = container.querySelector(".tgme_widget_message_date").getAttribute("href")
                                 let link = `https://t.me/s/${org_link.match(regex_link)[2]}`
-                                if (text.length) {
+                                if (text.length && text.toLowerCase() !== "live stream started") {
                                     result.push({
                                         text: text,
                                         name: container.querySelector(".tgme_widget_message_owner_name > span").text,
