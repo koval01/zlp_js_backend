@@ -760,12 +760,16 @@ app.post('/donate/payment_get', reccheck, async (req, resp) => {
 
 app.post('/donate/payment/create', reccheck, async (req, resp) => {
     let json_body = req.body
+    let server_id = decryptor(json_body.server_id)
+    if (!(server_id && Number.isInteger(server_id) && 999999 > server_id > 1000)) {
+        return input_e(resp, 400, "server_id error")
+    }
     try {
         let url = url_builder_(
             'https://easydonate.ru/api/v3/shop/payment/create',
             [
                 { "name": "customer", "value": json_body.customer },
-                { "name": "server_id", "value": json_body.server_id },
+                { "name": "server_id", "value": server_id },
                 { "name": "products", "value": JSON.stringify(json_body.products) },
                 { "name": "email", "value": json_body.email },
                 { "name": "coupon", "value": json_body.coupon },
