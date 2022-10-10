@@ -211,6 +211,7 @@ function encryptor(data) {
     let cipher = crypto.createCipheriv("aes-256-cbc", crypto_keys.security_key, crypto_keys.init_vector)
     let encryptedData = cipher.update(data, "utf-8", "base64")
     encryptedData += cipher.final("base64")
+    return encryptedData
 }
 
 function crypto_check(req, resp, next) {
