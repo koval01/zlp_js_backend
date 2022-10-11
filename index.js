@@ -764,10 +764,8 @@ app.post('/donate/payment/create', reccheck, async (req, resp) => {
         if (!Number.isInteger(server_id)) {
             return error_srv_id
         }
-    } else { 
-        return error_srv_id
     }
-    
+
     console.log(`paymentCreate: server_id=${server_id}`)
     try {
         let url = url_builder_(
