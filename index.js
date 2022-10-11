@@ -758,16 +758,16 @@ app.post('/donate/payment/create', reccheck, async (req, resp) => {
     let json_body = req.body
     let server_id = decryptor(json_body.server_id)
     let error_srv_id = input_e(resp, 400, "server_id error")
-    console.log(server_id)
+
     if (server_id) {
         server_id = parseInt(server_id)
-        console.log(Number.isInteger(server_id))
         if (!Number.isInteger(server_id)) {
             return error_srv_id
         }
     } else { 
         return error_srv_id
     }
+    
     console.log(`paymentCreate: server_id=${server_id}`)
     try {
         let url = url_builder_(
