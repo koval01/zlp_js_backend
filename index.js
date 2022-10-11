@@ -757,6 +757,7 @@ app.post('/donate/payment_get', reccheck, async (req, resp) => {
 app.post('/donate/payment/create', reccheck, async (req, resp) => {
     let json_body = req.body
     let server_id = decryptor(json_body.server_id)
+    console.log(server_id)
     if (server_id) {
         server_id = parseInt(server_id)
         if (!(Number.isInteger(server_id) && 999999 > server_id > 1000)) {
