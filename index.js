@@ -232,7 +232,10 @@ function crypto_check(req, resp, next) {
 
 app.get('/ip', (req, resp) => resp.send({success: true, ip: req.ip}))
 
-app.post('/channel_parse', reccheck, async (req, resp) => {
+app.post('/channel_parse', rateLimit({
+	windowMs: 1 * 60 * 1000,
+	max: 30
+}), reccheck, async (req, resp) => {
     try {
         function response_call(data, cache=false) {
             return resp.send({
@@ -319,7 +322,10 @@ app.post('/channel_parse', reccheck, async (req, resp) => {
     }
 })
 
-app.post('/events', reccheck, async (req, resp) => {
+app.post('/events', rateLimit({
+	windowMs: 1 * 60 * 1000,
+	max: 30
+}), reccheck, async (req, resp) => {
     try {
         function response_call(data, cache=false) {
             return resp.send({
@@ -546,7 +552,10 @@ app.post('/promotion', async (req, resp) => {
     )
 })
 
-app.post('/donate/services', reccheck, async (req, resp) => {
+app.post('/donate/services', rateLimit({
+	windowMs: 1 * 60 * 1000,
+	max: 30
+}), reccheck, async (req, resp) => {
     try {
         function response_call(data, cache=false) {
             return resp.send({
@@ -612,7 +621,10 @@ app.post('/donate/services', reccheck, async (req, resp) => {
     }
 })
 
-app.post('/donate/coupon', reccheck, async (req, resp) => {
+app.post('/donate/coupon', rateLimit({
+	windowMs: 1 * 60 * 1000,
+	max: 15
+}), reccheck, async (req, resp) => {
     let json_body = req.body
     try {
         function response_(data) {
@@ -677,7 +689,10 @@ app.post('/donate/coupon', reccheck, async (req, resp) => {
     }
 })
 
-app.post('/donate/payment_get', reccheck, async (req, resp) => {
+app.post('/donate/payment_get', rateLimit({
+	windowMs: 1 * 60 * 1000,
+	max: 30
+}), reccheck, async (req, resp) => {
     let json_body = req.body
     try {
         function response_(data) {
@@ -754,16 +769,20 @@ app.post('/donate/payment_get', reccheck, async (req, resp) => {
     }
 })
 
-app.post('/donate/payment/create', reccheck, async (req, resp) => {
+app.post('/donate/payment/create', rateLimit({
+	windowMs: 1 * 60 * 1000,
+	max: 15
+}), reccheck, async (req, resp) => {
     let json_body = req.body
     let server_id = decryptor(json_body.server_id)
-    let error_srv_id = input_e(resp, 400, "server_id error")
 
     if (server_id) {
         server_id = parseInt(server_id)
         if (!Number.isInteger(server_id)) {
-            return error_srv_id
+            return input_e(resp, 400, "server_id error")
         }
+    } else {
+        return input_e(resp, 400, "server_id error")
     }
 
     console.log(`paymentCreate: server_id=${server_id}`)
@@ -814,7 +833,10 @@ app.post('/donate/payment/create', reccheck, async (req, resp) => {
     }
 })
 
-app.post('/crypto', reccheck, async (req, resp) => {
+app.post('/crypto', rateLimit({
+	windowMs: 1 * 60 * 1000,
+	max: 50
+}), reccheck, async (req, resp) => {
     return resp.send({
         success: true, token: encryptor(JSON.stringify({
             ip: get_user_ip(req),
@@ -823,7 +845,10 @@ app.post('/crypto', reccheck, async (req, resp) => {
     })
 })
 
-app.post('/server', crypto_check, async (req, resp) => {
+app.post('/server', rateLimit({
+	windowMs: 1 * 60 * 1000,
+	max: 50
+}), crypto_check, async (req, resp) => {
     try {
         let options = {
             timeout: 1000 * 2
