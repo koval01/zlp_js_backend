@@ -568,16 +568,17 @@ app.post('/donate/services', rateLimit({
             let result = []
             for (let i = 0; i < data.length; i++) {
                 if (!data[i].is_hidden) {
+                    let f = data[i]
                     result.push({
-                        id: data[i].id,
-                        name: data[i].name,
-                        description: data[i].description,
-                        image: data[i].image,
-                        price: data[i].price,
-                        old_price: data[i].old_price,
-                        type: data[i].type,
-                        number: data[i].number,
-                        server_id: encryptor((data[i].servers[0].id).toString())
+                        id: f.id,
+                        name: f.name,
+                        description: f.description,
+                        image: f.image,
+                        price: f.price,
+                        old_price: f.old_price,
+                        type: f.type,
+                        number: f.number,
+                        server_id: encryptor((f.servers[0].id).toString())
                     })
                 }
             }
