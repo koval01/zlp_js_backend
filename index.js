@@ -759,6 +759,7 @@ app.post('/donate/payment/create', reccheck, async (req, resp) => {
     let server_id = decryptor(json_body.server_id)
     console.log(server_id)
     if (server_id) {
+        server_id = parseInt(server_id)
         console.log(Number.isInteger(server_id))
         if (!Number.isInteger(server_id)) {
             return input_e(resp, 400, "server_id error")
