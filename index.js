@@ -760,7 +760,8 @@ app.post('/donate/payment/create', reccheck, async (req, resp) => {
     console.log(server_id)
     if (server_id) {
         server_id = parseInt(server_id)
-        if (!(Number.isInteger(server_id) && 999999 > server_id > 1000)) {
+        console.log(Number.isInteger(server_id))
+        if (!Number.isInteger(server_id)) {
             return input_e(resp, 400, "server_id error")
         }
     }
