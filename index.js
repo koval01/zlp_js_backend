@@ -712,6 +712,7 @@ app.post('/donate/payment_get', rateLimit({
                     }
                 } else { data.enrolled = 0 }
                 data.status = (data.status === 2) ? true : false
+                let p = data.products[0]
                 return {
                     id: data.id,
                     customer: data.customer,
@@ -719,7 +720,15 @@ app.post('/donate/payment_get', rateLimit({
                     created_at: data.created_at,
                     payment_system: data.payment_system,
                     status: data.status,
-                    enrolled: data.enrolled
+                    enrolled: data.enrolled,
+                    product: {
+                        name: p.name,
+                        price: p.price,
+                        type: p.type,
+                        number: p.number,
+                        description: p.description,
+                        image: p.image
+                    }
                 }
             } else {
                 return null
