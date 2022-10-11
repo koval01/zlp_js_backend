@@ -798,9 +798,9 @@ app.post('/donate/payment/create', rateLimit({
     console.log(`paymentCreate: server_id=${server_id}`)
     try {
         let products_stringified = JSON.stringify(json_body.products)
-        if (Object.keys(products_stringified).length !== 1) {
-            return input_e(resp, 400, "products error")
-        }
+        // if (Object.keys(products_stringified).length !== 1) {
+        //     return input_e(resp, 400, "products error")
+        // }
         let url = url_builder_(
             'https://easydonate.ru/api/v3/shop/payment/create',
             [
