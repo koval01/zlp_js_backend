@@ -593,7 +593,7 @@ app.post('/donate/services', reccheck, async (req, resp) => {
                             if (body.success) {
                                 let response_data = body.response
                                 redis.set("donate_services", JSON.stringify(response_data), "ex", 600)
-                                return response_call(response_data)
+                                return response_call(response_(response_data))
                             }
                             return resp.status(503).json({
                                 success: false,
