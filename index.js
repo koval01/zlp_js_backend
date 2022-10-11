@@ -763,6 +763,7 @@ app.post('/donate/payment/create', reccheck, async (req, resp) => {
             return input_e(resp, 400, "server_id error")
         }
     }
+    console.log(`paymentCreate: server_id=${server_id}`)
     try {
         let url = url_builder_(
             'https://easydonate.ru/api/v3/shop/payment/create',
