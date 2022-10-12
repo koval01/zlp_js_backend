@@ -1,6 +1,6 @@
 require('dotenv').config()
 
-const request = require('request')
+const axios = require('axios').default
 const compression = require('compression')
 const cors = require('cors')
 const rateLimit = require('express-rate-limit')
@@ -169,29 +169,29 @@ function url_builder_(base_url, submit_data_) {
 }
 
 function reccheck(req, resp, next) {
-    request(
-        {
-            uri: "https://www.google.com/recaptcha/api/siteverify",
-            method: 'POST',
-            form: {
-                'secret': process.env.RE_TOKEN,
-                'response': req.body.token
-            }
-        },
-        (error, response, body) => {
-            if (!error && response.statusCode == 200) {
-                body = JSON.parse(body)
-                if (body.success) {
-                    return next()
-                }
-            }
-            return resp.status(403).json({
-                success: false,
-                message: 'Security error', 
-                exception: 'error verify recaptcha token'
-            })
+    axios.post('https://www.google.com/recaptcha/api/siteverify', {
+        data: {
+            secret: process.env.RE_TOKEN,
+            response: req.body.token
         }
-    )
+      })
+      .then(function (response) {
+        if (response.status == 200) {
+            body = JSON.parse(response.data)
+            if (body.success) {
+                return next()
+            }
+        }
+      })
+      .catch(function (error) {
+        console.log(`ReCaptcha error: ${error}`)
+
+        return resp.status(403).json({
+            success: false,
+            message: 'Security error', 
+            exception: 'error verify recaptcha token'
+        })
+      })
 }
 
 function decryptor(data) {
@@ -873,6 +873,39 @@ app.post('/crypto', rateLimit({
             timestamp: get_current_server_time()
         }))
     })
+})
+
+app.post('/feedback/send', rateLimit({
+	windowMs: 1 * 60 * 1000,
+	max: 10
+}), reccheck, async (req, resp) => {
+    request(
+        {
+            uri: `https://easydonate.ru/api/v3/shop/payment/${json_body.payment_id}`,
+            method: 'GET',
+            transport_method: 'query',
+            params: {
+
+            }
+        },
+        (error, response, body) => {
+            if (!error && response.statusCode == 200) {
+                body = JSON.parse(body)
+                if (body.success) {
+                    let payment = response_(body.response)
+                    redis.set(`payment_${json_body.payment_id}`, JSON.stringify(payment), "ex", 1000)
+                    return resp.send(response_call(payment))
+                }
+                return resp.status(503).json({
+                    success: false,
+                    message: "Error check response EasyDonate API",
+                    exception: "var success is not true"
+                })
+            } else {
+                return input_e(resp, response.statusCode, error)
+            }
+        }
+    )
 })
 
 app.post('/server', rateLimit({
