@@ -672,7 +672,7 @@ app.post('/donate/coupon', rateLimit({
                     if (body.success) {
                         let coupon_str = response_(select_coupon(body.response, json_body.code))
                         return resp.send({
-                            success: coupon_str.length ? true : false,
+                            success: coupon_str ? true : false,
                             coupon: coupon_str
                         })
                     }
