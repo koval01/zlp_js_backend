@@ -670,9 +670,10 @@ app.post('/donate/coupon', rateLimit({
                 if (!error && response.statusCode == 200) {
                     body = JSON.parse(body)
                     if (body.success) {
+                        let coupon_str = response_(select_coupon(body.response, json_body.code))
                         return resp.send({
-                            success: true,
-                            coupon: response_(select_coupon(body.response, json_body.code))
+                            success: coupon_str.length ? true : false,
+                            coupon: coupon_str
                         })
                     }
                     return resp.status(503).json({
@@ -741,7 +742,7 @@ app.post('/donate/payment_get', rateLimit({
                 payment: result
             })
         }
-        redis.get(json_body.payment_id, (error, result) => {
+        redis.get(`payment_${json_body.payment_id}`, (error, result) => {
             if (error) throw error
             if (result !== null) {
                 return response_call(JSON.parse(result), true)
@@ -759,7 +760,7 @@ app.post('/donate/payment_get', rateLimit({
                             body = JSON.parse(body)
                             if (body.success) {
                                 let payment = response_(body.response)
-                                redis.set(json_body.payment_id, JSON.stringify(payment), "ex", 1000)
+                                redis.set(`payment_${json_body.payment_id}`, JSON.stringify(payment), "ex", 1000)
                                 return resp.send(response_call(payment))
                             }
                             return resp.status(503).json({
