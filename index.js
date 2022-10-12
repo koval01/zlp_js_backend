@@ -176,6 +176,7 @@ function reccheck(req, resp, next) {
         }
       })
       .then(function (response) {
+        console.log(response)
         if (response.status == 200) {
             body = JSON.parse(response.data)
             if (body.success) {
