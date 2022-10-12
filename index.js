@@ -627,7 +627,17 @@ app.post('/donate/coupon', rateLimit({
 	max: 15
 }), reccheck, async (req, resp) => {
     let json_body = req.body
+    if (json_body.code.length > 35) {
+        return input_e(resp, 400, "coupon is long")
+    }
     try {
+        function response_call(data, cache=false) {
+            return resp.send({
+                cache: cache,
+                success: data ? true : false,
+                coupon: data
+            })
+        }
         function response_(data) {
             if (data) {
                 let products = data.products
@@ -658,34 +668,39 @@ app.post('/donate/coupon', rateLimit({
             }
             return null
         }
-        request(
-            {
-                uri: `https://easydonate.ru/api/v3/shop/coupons?where_active=true`,
-                method: 'GET',
-                headers: {
-                    'Shop-Key': process.env.DONATE_API_KEY
-                }
-            },
-            (error, response, body) => {
-                if (!error && response.statusCode == 200) {
-                    body = JSON.parse(body)
-                    if (body.success) {
-                        let coupon_str = response_(select_coupon(body.response, json_body.code))
-                        return resp.send({
-                            success: coupon_str.length ? true : false,
-                            coupon: coupon_str
-                        })
+        redis.get(`coupon_${json_body.code}`, (error, result) => {
+            if (error) throw error
+            if (result !== null) {
+                return response_call(JSON.parse(result), true)
+            } else {
+                request(
+                    {
+                        uri: `https://easydonate.ru/api/v3/shop/coupons?where_active=true`,
+                        method: 'GET',
+                        headers: {
+                            'Shop-Key': process.env.DONATE_API_KEY
+                        }
+                    },
+                    (error, response, body) => {
+                        if (!error && response.statusCode == 200) {
+                            body = JSON.parse(body)
+                            if (body.success) {
+                                let coupon_str = response_(select_coupon(body.response, json_body.code))
+                                redis.set(`coupon_${json_body.code}`, JSON.stringify(coupon_str), "ex", 600)
+                                return response_call(coupon_str)
+                            }
+                            return resp.status(503).json({
+                                success: false,
+                                message: "Error check response EasyDonate API",
+                                exception: "var success is not true"
+                            })
+                        } else {
+                            return input_e(resp, response.statusCode, error)
+                        }
                     }
-                    return resp.status(503).json({
-                        success: false,
-                        message: "Error check response EasyDonate API",
-                        exception: "var success is not true"
-                    })
-                } else {
-                    return input_e(resp, response.statusCode, error)
-                }
+                )
             }
-        )
+        })
     } catch (_) {
         return main_e(resp)
     }
