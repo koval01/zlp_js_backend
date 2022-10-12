@@ -1,6 +1,6 @@
 require('dotenv').config()
 
-const axios = require('axios').default
+const axios = require('axios')
 const compression = require('compression')
 const cors = require('cors')
 const rateLimit = require('express-rate-limit')
