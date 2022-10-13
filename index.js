@@ -308,7 +308,7 @@ app.post('/channel_parse', rateLimit({
                                 }
                             }
                             if (result.length) {
-                                redis.set(choice_[req.query.choice], JSON.stringify(result), "ex", 600)
+                                redis.set(choice_[req.query.choice], JSON.stringify(result), "ex", 120)
                                 return response_call(result)
                             } else {
                                 return input_e(resp, 503, "result array is void")
@@ -396,7 +396,7 @@ app.post('/events', rateLimit({
                                 }
                             }
                             if (result.length) {
-                                redis.set("game_events", JSON.stringify(result), "ex", 600)
+                                redis.set("game_events", JSON.stringify(result), "ex", 120)
                                 return response_call(result)
                             } else {
                                 return input_e(resp, 503, "result array is void")
