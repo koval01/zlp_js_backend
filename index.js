@@ -295,6 +295,7 @@ app.post('/channel_parse', rateLimit({
                                 let link = `https://t.me/s/${org_link.match(regex_link)[2]}`
                                 if (text.length > 3 && text.toLowerCase() !== "live stream started" && !text.toLowerCase().includes("pinned a file")) {
                                     text = text.replaceAll(/>(https:|http:)(\/\/www.)/gm, ">")
+                                    console.log(text)
                                     text = text.replaceAll(/">(.*?\..*?)(\/.*?)<\/a>/gm, '">$1</a>')
                                     result.push({
                                         text: text.trim(),
