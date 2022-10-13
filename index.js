@@ -293,7 +293,7 @@ app.post('/channel_parse', rateLimit({
                                 let regex_link = /(https:\/\/t.me\/)([A-z\d_\-]*?\/[\d]*$)/
                                 let org_link = container.querySelector(".tgme_widget_message_date").getAttribute("href")
                                 let link = `https://t.me/s/${org_link.match(regex_link)[2]}`
-                                if (text.length > 3 && text.toLowerCase() !== "live stream started") {
+                                if (text.length > 3 && text.toLowerCase() !== "live stream started" && !text.toLowerCase.includes("pinned a file")) {
                                     text = text.replaceAll(/>(https:|http:)(\/\/www.)/gm, ">")
                                     result.push({
                                         text: text,
