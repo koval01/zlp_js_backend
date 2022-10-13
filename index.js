@@ -249,7 +249,7 @@ app.post('/channel_get', rateLimit({
         if (!req.query.offset) {
             req.query.offset = 0
         }
-        redis.get(choice_[req.query.choice], (error, result) => {
+        redis.get(`channel_get_${choice_[req.query.choice]}`, (error, result) => {
             if (error) throw error
             if (result !== null) {
                 return response_call(JSON.parse(result), true)
@@ -283,7 +283,7 @@ app.post('/channel_get', rateLimit({
                                 }
                             }
                             if (result.length) {
-                                redis.set(choice_[req.query.choice], JSON.stringify(result), "ex", 120)
+                                redis.set(`channel_get_${choice_[req.query.choice]}`, JSON.stringify(result), "ex", 120)
                                 return response_call(result)
                             } else {
                                 return input_e(resp, 503, "result array is void")
@@ -316,7 +316,7 @@ app.post('/channel_parse', rateLimit({
         if (!req.query.offset) {
             req.query.offset = 0
         }
-        redis.get(choice_[req.query.choice], (error, result) => {
+        redis.get(`channel_parse_${choice_[req.query.choice]}`, (error, result) => {
             if (error) throw error
             if (result !== null) {
                 return response_call(JSON.parse(result), true)
@@ -375,7 +375,7 @@ app.post('/channel_parse', rateLimit({
                                 }
                             }
                             if (result.length) {
-                                redis.set(choice_[req.query.choice], JSON.stringify(result), "ex", 120)
+                                redis.set(`channel_parse_${choice_[req.query.choice]}`, JSON.stringify(result), "ex", 120)
                                 return response_call(result)
                             } else {
                                 return input_e(resp, 503, "result array is void")
