@@ -262,7 +262,7 @@ app.post('/channel_parse', rateLimit({
                             Origin: 'https://t.me',
                             Referer: `https://t.me/s/${choice_[req.query.choice]}`,
                             Host: 't.me',
-                            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.2 Safari/605.1.15',
+                            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Safari/605.1.15',
                             'X-Requested-With': 'XMLHttpRequest',
                             Connection: 'keep-alive'
                         }
@@ -349,7 +349,7 @@ app.post('/events', rateLimit({
                             Origin: 'https://t.me',
                             Referer: `https://t.me/s/${process.env.EVENTS_CHANNEL}`,
                             Host: 't.me',
-                            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.2 Safari/605.1.15',
+                            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Safari/605.1.15',
                             'X-Requested-With': 'XMLHttpRequest',
                             Connection: 'keep-alive'
                         }
