@@ -270,7 +270,7 @@ app.post('/channel_get', rateLimit({
                     (error, response, body) => {
                         if (!error && response.statusCode == 200) {
                             body = body.toString().replaceAll("\n", "<br/>").replaceAll(/\\/gm, "")
-                            let messages = html_parser.parse(body).querySelectorAll(".tgme_widget_message")
+                            let messages = html_parser.parse(body).querySelectorAll(".tgme_widget_message_wrap")
                             console.log(messages)
                             if (!req.query.offset) {
                                 req.query.offset = 5
