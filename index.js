@@ -269,8 +269,8 @@ app.post('/channel_get', rateLimit({
                     },
                     (error, response, body) => {
                         if (!error && response.statusCode == 200) {
-                            body = body.toString().replace(/\\/gm, "")
                             console.log(body.toString())
+                            body = body.toString().replace(/\\/gm, "")
                             let messages = html_parser.parse(body).querySelectorAll(".tgme_widget_message_wrap")
                             if (!req.query.offset) {
                                 req.query.offset = 5
@@ -279,7 +279,7 @@ app.post('/channel_get', rateLimit({
                             let result = []
                             for (let i = 0; i < messages.length; i++) {
                                 let text_format = messages[i].toString()
-                                console.log(text_format)
+                                // console.log(text_format)
                                 if (text_format.length) {
                                     result.push(text_format)
                                 }
@@ -364,7 +364,6 @@ app.post('/channel_parse', rateLimit({
                                 let link = `https://t.me/s/${org_link.match(regex_link)[2]}`
                                 if (text.length > 3 && text.toLowerCase() !== "live stream started" && !text.toLowerCase().includes("pinned a file")) {
                                     text = text.replaceAll(/>(https:|http:)(\/\/www.)/gm, ">")
-                                    console.log(text)
                                     text = text.replaceAll(/">(.*?\..*?)(\/.*?)<\/a>/gm, '">$1</a>')
                                     result.push({
                                         text: text.trim(),
