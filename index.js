@@ -1,6 +1,7 @@
 require('dotenv').config()
 
 const request = require('request')
+const qs = require('querystring')
 const compression = require('compression')
 const cors = require('cors')
 const rateLimit = require('express-rate-limit')
@@ -867,35 +868,35 @@ app.post('/feedback/send', rateLimit({
 	windowMs: 1 * 60 * 1000,
 	max: 10
 }), reccheck, async (req, resp) => {
+    let json_body = req.body
     redis.get(`feedback_${req.ip}`, (error, result) => {
         if (error) throw error
         if (result !== null) {
             return input_e(resp, response.statusCode, "need wait")
         } else {
-            request(
-                {
-                    uri: `https://api.telegram.org/bot${process.env.FEEDBACK_BOT_TOKEN}/sendMessage`,
-                    method: 'GET',
-                    transport_method: 'query',
-                    params: {
-
-                    }
-                },
-                (error, response, body) => {
-                    if (!error && response.statusCode == 200) {
-                        body = JSON.parse(body)
-                        if (body.ok) {
-                            redis.set(`feedback_${req.ip}`, "ok", "ex", 60)
-                            return resp.json({
-                                success: true
-                            })
+            let text = json_body.text
+            if (text && text.length > 10) {
+                request(
+                    {
+                        uri: `https://api.telegram.org/bot${process.env.FEEDBACK_BOT_TOKEN}/sendMessage?chat_id=${process.env.FEEDBACK_BOT_CHAT_ID}&${qs.stringify({text: text})}`,
+                        method: 'GET'
+                    },
+                    (error, response, body) => {
+                        if (!error && response.statusCode == 200) {
+                            body = JSON.parse(body)
+                            if (body.ok) {
+                                redis.set(`feedback_${req.ip}`, "ok", "ex", 30)
+                                return resp.json({
+                                    success: true
+                                })
+                            }
+                            return input_e(resp, response.statusCode, "telegramapi error")
+                        } else {
+                            return input_e(resp, response.statusCode, error)
                         }
-                        return input_e(resp, response.statusCode, "telegramapi error")
-                    } else {
-                        return input_e(resp, response.statusCode, error)
                     }
-                }
-            )
+                )
+            }
         }
     })
 })
