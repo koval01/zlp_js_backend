@@ -875,7 +875,11 @@ app.post('/feedback/send', rateLimit({
             return input_e(resp, response.statusCode, "need wait")
         } else {
             let text = json_body.text
-            if (text && 3000 > text.length > 10) {
+            if (text && text.length > 10 && text.length < 3000) {
+                text = text.replaceAll(/<.*?>/gm, "").trim().match(/['!"#$%&()*+,\-.\/:;<=>?@\[\]^_{|}~\w\u0430-\u044f]+/ig).join("\x20").trim()
+                if (text.length <= 10) {
+                    return input_e(resp, 403, "text field check error")
+                }
                 request(
                     {
                         uri: `https://api.telegram.org/bot${process.env.FEEDBACK_BOT_TOKEN}/sendMessage?chat_id=${process.env.FEEDBACK_BOT_CHAT_ID}&${qs.stringify({
@@ -903,6 +907,8 @@ app.post('/feedback/send', rateLimit({
                         }
                     }
                 )
+            } else {
+                input_e(resp, 400, "text not valid")
             }
         }
     })
