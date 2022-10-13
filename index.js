@@ -278,7 +278,7 @@ app.post('/channel_get', rateLimit({
                             let result = []
                             for (let i = 0; i < messages.length; i++) {
                                 let text_format = messages[i].innerHTML.toString()
-                                console.log(messages[i].innerHTML)
+                                console.log(messages[i].toString())
                                 if (text_format.length) {
                                     result.push(text_format)
                                 }
