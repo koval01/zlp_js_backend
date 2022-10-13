@@ -294,7 +294,7 @@ app.post('/channel_parse', rateLimit({
                                 let org_link = container.querySelector(".tgme_widget_message_date").getAttribute("href")
                                 let link = `https://t.me/s/${org_link.match(regex_link)[2]}`
                                 if (text.length > 3 && text.toLowerCase() !== "live stream started" && !text.toLowerCase().includes("pinned a file")) {
-                                    text = text.replaceAll(/>(https:|http:)(\/\/www.)/gm, ">")
+                                    text = text.replaceAll(/>(https:|http:)(\/\/www.)/gm, ">").replaceAll(/">(.*?\..*?)(\/.*?)<\/a>/g, '">$1</a>')
                                     result.push({
                                         text: text,
                                         name: container.querySelector(".tgme_widget_message_owner_name > span").text,
