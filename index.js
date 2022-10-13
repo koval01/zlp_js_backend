@@ -883,8 +883,8 @@ app.post('/feedback/send', rateLimit({
                 request(
                     {
                         uri: `https://api.telegram.org/bot${process.env.FEEDBACK_BOT_TOKEN}/sendMessage?chat_id=${process.env.FEEDBACK_BOT_CHAT_ID}&${qs.stringify({
-                            text: `${text}\n\n_____________\nIP: ${req.ip}`
-                        })}`,
+                            text: `${text}\n\n_____________\n<i>IP:</i>\x20<code>${req.ip}</code>`
+                        })}&parse_mode=HTML`,
                         method: 'GET'
                     },
                     (error, response, body) => {
