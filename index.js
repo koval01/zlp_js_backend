@@ -277,7 +277,7 @@ app.post('/channel_get', rateLimit({
                             messages = messages.slice(parseInt(req.query.limit))
                             let result = []
                             for (let i = 0; i < messages.length; i++) {
-                                let text_format = messages[i].text
+                                let text_format = messages[i].toString()
                                 if (text_format.length) {
                                     result.push(text_format)
                                 }
