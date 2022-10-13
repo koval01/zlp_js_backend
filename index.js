@@ -285,7 +285,7 @@ app.post('/channel_get', rateLimit({
                                 }
                             }
                             if (result.length) {
-                                redis.set(`channel_get_${choice_[req.query.choice]}`, JSON.stringify(result), "ex", 120)
+                                redis.set(`channel_get_${choice_[req.query.choice]}`, JSON.stringify(result), "ex", 5)
                                 return response_call(result)
                             } else {
                                 return input_e(resp, 503, "result array is void")
