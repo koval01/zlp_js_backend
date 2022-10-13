@@ -1,6 +1,7 @@
 require('dotenv').config()
 
 const request = require('request')
+const qs = require('querystring')
 const compression = require('compression')
 const cors = require('cors')
 const rateLimit = require('express-rate-limit')
@@ -261,7 +262,7 @@ app.post('/channel_parse', rateLimit({
                             Origin: 'https://t.me',
                             Referer: `https://t.me/s/${choice_[req.query.choice]}`,
                             Host: 't.me',
-                            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.2 Safari/605.1.15',
+                            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Safari/605.1.15',
                             'X-Requested-With': 'XMLHttpRequest',
                             Connection: 'keep-alive'
                         }
@@ -292,10 +293,12 @@ app.post('/channel_parse', rateLimit({
                                 let regex_link = /(https:\/\/t.me\/)([A-z\d_\-]*?\/[\d]*$)/
                                 let org_link = container.querySelector(".tgme_widget_message_date").getAttribute("href")
                                 let link = `https://t.me/s/${org_link.match(regex_link)[2]}`
-                                if (text.length && text.toLowerCase() !== "live stream started") {
+                                if (text.length > 3 && text.toLowerCase() !== "live stream started" && !text.toLowerCase().includes("pinned a file")) {
                                     text = text.replaceAll(/>(https:|http:)(\/\/www.)/gm, ">")
+                                    console.log(text)
+                                    text = text.replaceAll(/">(.*?\..*?)(\/.*?)<\/a>/gm, '">$1</a>')
                                     result.push({
-                                        text: text,
+                                        text: text.trim(),
                                         name: container.querySelector(".tgme_widget_message_owner_name > span").text,
                                         author: author,
                                         cover: cover,
@@ -347,7 +350,7 @@ app.post('/events', rateLimit({
                             Origin: 'https://t.me',
                             Referer: `https://t.me/s/${process.env.EVENTS_CHANNEL}`,
                             Host: 't.me',
-                            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.2 Safari/605.1.15',
+                            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Safari/605.1.15',
                             'X-Requested-With': 'XMLHttpRequest',
                             Connection: 'keep-alive'
                         }
@@ -861,6 +864,67 @@ app.post('/donate/payment/create', rateLimit({
     } catch (_) {
         return main_e(resp)
     }
+})
+
+app.post('/feedback/send', rateLimit({
+	windowMs: 1 * 60 * 1000,
+	max: 10
+}), reccheck, async (req, resp) => {
+    let json_body = req.body
+    redis.get(`feedback_${req.ip}`, (error, result) => {
+        if (error) throw error
+        if (result !== null) {
+            return input_e(resp, response.statusCode, "need wait")
+        } else {
+            let text = json_body.text
+            if (text && text.length > 10 && text.length < 3000) {
+                text = text.replaceAll(/<.*?>/gm, "").trim().match(/['!"#$%&()*+,\-.\/:;<=>?@\[\]^_{|}~\w\u0430-\u044f]+/ig).join("\x20").trim()
+                if (text.length <= 10) {
+                    return input_e(resp, 403, "text field check error")
+                }
+                request(
+                    {
+                        uri: `https://api.telegram.org/bot${process.env.FEEDBACK_BOT_TOKEN}/sendMessage?chat_id=${process.env.FEEDBACK_BOT_CHAT_ID}&${qs.stringify({
+                            text: `${text}\n\n_____________\nIP:\x20<code>${req.ip}</code>`
+                        })}&parse_mode=HTML`,
+                        method: 'GET'
+                    },
+                    (error, response, body) => {
+                        if (!error && response.statusCode == 200) {
+                            body = JSON.parse(body)
+                            if (body.ok) {
+                                redis.set(`feedback_${req.ip}`, "ok", "ex", 30)
+                                return resp.json({
+                                    success: true
+                                })
+                            }
+                            return input_e(resp, response.statusCode, "telegramapi error")
+                        } else {
+                            return input_e(resp, response.statusCode, error)
+                        }
+                    }
+                )
+            } else {
+                input_e(resp, 400, "text not valid")
+            }
+        }
+    })
+})
+
+app.post('/feedback/check', rateLimit({
+	windowMs: 1 * 60 * 1000,
+	max: 50
+}), reccheck, async (req, resp) => {
+    redis.get(`feedback_${req.ip}`, (error, result) => {
+        if (error) throw error
+        if (result !== null) {
+            return input_e(resp, response.statusCode, "need wait")
+        } else {
+            return resp.json({
+                success: true
+            })
+        }
+    })
 })
 
 app.post('/crypto', rateLimit({
