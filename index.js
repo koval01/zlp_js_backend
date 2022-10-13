@@ -875,10 +875,17 @@ app.post('/feedback/send', rateLimit({
             return input_e(resp, response.statusCode, "need wait")
         } else {
             let text = json_body.text
-            if (text && text.length > 10) {
+            if (text && 3000 > text.length > 10) {
                 request(
                     {
-                        uri: `https://api.telegram.org/bot${process.env.FEEDBACK_BOT_TOKEN}/sendMessage?chat_id=${process.env.FEEDBACK_BOT_CHAT_ID}&${qs.stringify({text: text})}`,
+                        uri: `https://api.telegram.org/bot${process.env.FEEDBACK_BOT_TOKEN}/sendMessage?chat_id=${process.env.FEEDBACK_BOT_CHAT_ID}&${qs.stringify({
+                            text: `
+                                ${text}
+
+                                _____________
+                                IP: ${req.ip}
+                            `
+                        })}`,
                         method: 'GET'
                     },
                     (error, response, body) => {
