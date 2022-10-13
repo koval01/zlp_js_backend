@@ -269,7 +269,7 @@ app.post('/channel_get', rateLimit({
                     },
                     (error, response, body) => {
                         if (!error && response.statusCode == 200) {
-                            body = body.toString().replaceAll(/\\/gm, "")
+                            body = body.toString().replace(/(\r\n|\n|\r)/gm, "").replace(/\\/gm, "")
                             let messages = html_parser.parse(body).querySelectorAll(".tgme_widget_message_wrap")
                             if (!req.query.offset) {
                                 req.query.offset = 5
@@ -278,7 +278,7 @@ app.post('/channel_get', rateLimit({
                             let result = []
                             for (let i = 0; i < messages.length; i++) {
                                 let text_format = messages[i].toString()
-                                console.log(messages[i].toString())
+                                console.log(text_format)
                                 if (text_format.length) {
                                     result.push(text_format)
                                 }
