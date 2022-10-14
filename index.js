@@ -233,6 +233,73 @@ function crypto_check(req, resp, next) {
 
 app.get('/ip', (req, resp) => resp.send({success: true, ip: req.ip}))
 
+app.post('/channel_get', rateLimit({
+	windowMs: 1 * 60 * 1000,
+	max: 30
+}), reccheck, async (req, resp) => {
+    try {
+        function response_call(data, cache=false) {
+            return resp.send({
+                cache: cache,
+                success: true,
+                messages: data
+            })
+        }
+        let choice_ = ['zalupa_history', 'zalupaonline']
+        if (!req.query.offset) {
+            req.query.offset = 0
+        }
+        redis.get(`channel_get_${choice_[req.query.choice]}`, (error, result) => {
+            if (error) throw error
+            if (result !== null) {
+                return response_call(JSON.parse(result), true)
+            } else {
+                request(
+                    {
+                        uri: `https://t.me/s/${choice_[req.query.choice]}?before=${req.query.before}`,
+                        method: 'POST',
+                        headers: {
+                            Origin: 'https://t.me',
+                            Referer: `https://t.me/s/${choice_[req.query.choice]}`,
+                            Host: 't.me',
+                            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Safari/605.1.15',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            Connection: 'keep-alive'
+                        }
+                    },
+                    (error, response, body) => {
+                        if (!error && response.statusCode == 200) {
+                            body = body.toString().replace(/(\\n)/gm, "").replace(/\\/gm, "")
+                            let messages = html_parser.parse(body).querySelectorAll(".tgme_widget_message")
+                            if (!req.query.offset) {
+                                req.query.offset = 5
+                            }
+                            messages = messages.slice(parseInt(req.query.limit))
+                            let result = []
+                            for (let i = 0; i < messages.length; i++) {
+                                let text_format = messages[i].toString()
+                                if (text_format.length) {
+                                    result.push(text_format)
+                                }
+                            }
+                            if (result.length) {
+                                redis.set(`channel_get_${choice_[req.query.choice]}`, JSON.stringify(result), "ex", 5)
+                                return response_call(result)
+                            } else {
+                                return input_e(resp, 503, "result array is void")
+                            }
+                        } else {
+                            return input_e(resp, response.statusCode, error)
+                        }
+                    }
+                )
+            }
+        })
+    } catch (_) {
+        return main_e(resp)
+    }
+})
+
 app.post('/channel_parse', rateLimit({
 	windowMs: 1 * 60 * 1000,
 	max: 30
@@ -249,7 +316,7 @@ app.post('/channel_parse', rateLimit({
         if (!req.query.offset) {
             req.query.offset = 0
         }
-        redis.get(choice_[req.query.choice], (error, result) => {
+        redis.get(`channel_parse_${choice_[req.query.choice]}`, (error, result) => {
             if (error) throw error
             if (result !== null) {
                 return response_call(JSON.parse(result), true)
@@ -295,8 +362,7 @@ app.post('/channel_parse', rateLimit({
                                 let link = `https://t.me/s/${org_link.match(regex_link)[2]}`
                                 if (text.length > 3 && text.toLowerCase() !== "live stream started" && !text.toLowerCase().includes("pinned a file")) {
                                     text = text.replaceAll(/>(https:|http:)(\/\/www.)/gm, ">")
-                                    console.log(text)
-                                    text = text.replaceAll(/">(.*?\..*?)(\/.*?)<\/a>/gm, '">$1</a>')
+                                    text = text.replaceAll(/(<a .*?">)(.*?)(\/.*?)(<\/a>)/gm, '$1$2$4')
                                     result.push({
                                         text: text.trim(),
                                         name: container.querySelector(".tgme_widget_message_owner_name > span").text,
@@ -308,7 +374,7 @@ app.post('/channel_parse', rateLimit({
                                 }
                             }
                             if (result.length) {
-                                redis.set(choice_[req.query.choice], JSON.stringify(result), "ex", 600)
+                                redis.set(`channel_parse_${choice_[req.query.choice]}`, JSON.stringify(result), "ex", 120)
                                 return response_call(result)
                             } else {
                                 return input_e(resp, 503, "result array is void")
@@ -396,7 +462,7 @@ app.post('/events', rateLimit({
                                 }
                             }
                             if (result.length) {
-                                redis.set("game_events", JSON.stringify(result), "ex", 600)
+                                redis.set("game_events", JSON.stringify(result), "ex", 120)
                                 return response_call(result)
                             } else {
                                 return input_e(resp, 503, "result array is void")
