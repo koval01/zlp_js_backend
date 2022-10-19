@@ -943,7 +943,7 @@ app.post('/feedback/send', rateLimit({
             return input_e(resp, response.statusCode, "need wait")
         } else {
             let text = json_body.text
-            if (text && text.length > 10 && text.length < 3000) {
+            if (text && text.length > 10 && text.length <= 3001) {
                 text = text.replaceAll(/<.*?>/gm, "").trim().match(/['!"#$%&()*+,\-.\/:;<=>?@\[\]^_{|}~\w\u0430-\u044f]+/ig).join("\x20").trim()
                 if (text.length < 20) {
                     return input_e(resp, 403, "text field check error")
