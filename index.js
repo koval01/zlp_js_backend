@@ -945,7 +945,7 @@ app.post('/feedback/send', rateLimit({
             let text = json_body.text
             if (text && text.length > 10 && text.length < 3000) {
                 text = text.replaceAll(/<.*?>/gm, "").trim().match(/['!"#$%&()*+,\-.\/:;<=>?@\[\]^_{|}~\w\u0430-\u044f]+/ig).join("\x20").trim()
-                if (text.length <= 10) {
+                if (text.length < 20) {
                     return input_e(resp, 403, "text field check error")
                 }
                 request(
