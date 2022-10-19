@@ -11,6 +11,7 @@ const mcstatus = require('minecraft-server-util')
 const crypto = require('crypto')
 const mysql = require('mysql')
 const Redis = require("ioredis")
+const telegramLogin = require("telegram-bot-auth")
 
 const { text } = require('body-parser')
 
@@ -40,6 +41,32 @@ app.use(express.json())
 app.use(express.urlencoded())
 app.use(compression())
 app.use(cors())
+
+var feed_bot_id = 0;
+var feed_bot_username = "";
+
+function setFeedBOT_data() {
+    while (true) {
+        request(
+            {
+                uri: `https://api.telegram.org/bot${process.env.FEEDBACK_BOT_TOKEN}/getMe`,
+                method: "GET"
+            },
+            (error, response, body) => {
+                if (!error && response.statusCode == 200) {
+                    body = JSON.parse(body)
+                    if (body.ok && body.result) {
+                        feed_bot_id = body.result.id
+                        feed_bot_username = body.result.username
+                        return
+                    }
+                } else {
+                    console.error('Telegram API error, repeat request...')
+                }
+            }
+        )
+    }
+}
 
 function logRequest(req, res, next) {
     console.log(`Request: [${req.method}] ${req.url}`)
