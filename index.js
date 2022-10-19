@@ -11,8 +11,7 @@ const mcstatus = require('minecraft-server-util')
 const crypto = require('crypto')
 const mysql = require('mysql')
 const Redis = require("ioredis")
-
-import telegramLogin from 'telegram-bot-auth'
+const telegramLogin = require("telegram-bot-auth")
 
 const { text } = require('body-parser')
 
