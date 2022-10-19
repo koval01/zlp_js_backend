@@ -951,7 +951,7 @@ app.post('/feedback/send', rateLimit({
                 request(
                     {
                         uri: `https://api.telegram.org/bot${process.env.FEEDBACK_BOT_TOKEN}/sendMessage?chat_id=${process.env.FEEDBACK_BOT_CHAT_ID}&${qs.stringify({
-                            text: `${text}\n\n_____________\nIP:\x20<<tg-spoiler>>${req.ip}</<tg-spoiler>>`
+                            text: `${text}\n\n_____________\nIP:\x20<tg-spoiler>${req.ip}</<tg-spoiler>>`
                         })}&parse_mode=HTML`,
                         method: 'GET'
                     },
