@@ -940,7 +940,7 @@ app.post('/feedback/send', rateLimit({
     redis.get(`feedback_${req.ip}`, (error, result) => {
         if (error) throw error
         if (result !== null) {
-            return input_e(resp, response.statusCode, "need wait")
+            return input_e(resp, resp.statusCode, "need wait")
         } else {
             let text = json_body.text
             if (text && text.length > 10 && text.length <= 3001) {
@@ -984,7 +984,7 @@ app.post('/feedback/check', rateLimit({
     redis.get(`feedback_${req.ip}`, (error, result) => {
         if (error) throw error
         if (result !== null) {
-            return input_e(resp, response.statusCode, "need wait")
+            return input_e(resp, resp.statusCode, "need wait")
         } else {
             return resp.json({
                 success: true
