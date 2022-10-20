@@ -34,7 +34,7 @@ const crypto_keys = {
 const app = express()
 const redis = new Redis(process.env.REDIS_URL)
 
-export const checkTelegramAuthorization = (authData) => {
+function checkTelegramAuthorization(authData) {
     let tgBotToken = process.env.FEEDBACK_BOT_TOKEN
     let hash = authData.hash
     delete authData.hash
@@ -46,7 +46,7 @@ export const checkTelegramAuthorization = (authData) => {
 
     let key = crypto.createHash('sha256').update(tgBotToken).digest()
     let validateHash = crypto.createHmac('sha256', key).update(dataCheckArr).digest('hex')
-    
+
     return hash === validateHash
 }
 
