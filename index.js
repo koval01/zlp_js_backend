@@ -1012,8 +1012,8 @@ app.post('/feedback/send', rateLimit({
                 if (text.length < 20) {
                     return input_e(resp, 403, "text field check error")
                 }
-                let username = (user.username && user.username.length) ? `(@${user.username})` : ""
-                let user_name_builded = `<a href="tg://user?id=${tg_user.id}">${user.first_name} ${user.last_name}</a> ${username}`
+                let username = (tg_user.username && tg_user.username.length) ? `(@${tg_user.username})` : ""
+                let user_name_builded = `<a href="tg://user?id=${tg_user.id}">${tg_user.first_name} ${tg_user.last_name}</a> ${username}`
                 request(
                     {
                         uri: `https://api.telegram.org/bot${process.env.FEEDBACK_BOT_TOKEN}/sendMessage?chat_id=${process.env.FEEDBACK_BOT_CHAT_ID}&${qs.stringify({
