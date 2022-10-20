@@ -54,6 +54,12 @@ function checkTelegramAuthorization(authData) {
     return authData.hash === getTelegramValidateHash(authData)
 }
 
+function getVerifiedTelegramData(authData) {
+    if (checkTelegramAuthorization(authData)) {
+        return authData
+    }
+}
+
 app.set('port', (process.env.PORT || 5000))
 app.set('trust proxy', parseInt(process.env.PROXY_LAYER))
 app.use(express.json())
