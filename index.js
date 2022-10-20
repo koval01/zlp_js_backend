@@ -756,7 +756,7 @@ app.post('/donate/coupon', rateLimit({
         function select_coupon(data, name) {
             if (data) {
                 for (let i = 0; i < data.length; i++) {
-                    if (data[i].code === name) {
+                    if (data[i].code.toLowerCase() === name.toLowerCase()) {
                         return data[i]
                     }
                 }
