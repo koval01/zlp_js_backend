@@ -1046,7 +1046,7 @@ app.post('/feedback/send', rateLimit({
 app.post('/feedback/check', rateLimit({
 	windowMs: 1 * 60 * 1000,
 	max: 50
-}), reccheck, async (req, resp) => {
+}), reccheck, tg_check, async (req, resp) => {
     let tg_user = getVerifiedTelegramData(req.body)
     redis.get(`feedback_${req.ip}_tg${tg_user.id}`, (error, result) => {
         if (error) throw error
