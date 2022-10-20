@@ -1017,7 +1017,7 @@ app.post('/feedback/send', rateLimit({
                 request(
                     {
                         uri: `https://api.telegram.org/bot${process.env.FEEDBACK_BOT_TOKEN}/sendMessage?chat_id=${process.env.FEEDBACK_BOT_CHAT_ID}&${qs.stringify({
-                            text: `${text}\n\n${"_".repeat(10)}\n${user_name_builded}\n\nTG_ID:\x20<tg-spoiler>${tg_user.id}</tg-spoiler>\nIP:\x20<tg-spoiler>${req.ip}</tg-spoiler>`
+                            text: `${text}\n\n${"_".repeat(10)}\n${user_name_builded}\n\nTG_ID:\x20${tg_user.id}\nIP:\x20<tg-spoiler>${req.ip}</tg-spoiler>`
                         })}&parse_mode=HTML`,
                         method: 'GET'
                     },
