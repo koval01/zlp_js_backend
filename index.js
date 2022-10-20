@@ -54,7 +54,13 @@ function checkTelegramAuthorization(authData) {
     return authData.hash === getTelegramValidateHash(authData)
 }
 
-function getVerifiedTelegramData(authData) {
+function getVerifiedTelegramData(json_body) {
+    let authData = json_body.tg_auth_data
+    try {
+        authData = JSON.parse(Buffer.from(authData, 'base64'))
+    } catch(_) {
+        return
+    }
     if (checkTelegramAuthorization(authData)) {
         return authData
     }
@@ -992,9 +998,10 @@ app.post('/donate/payment/create', rateLimit({
 app.post('/feedback/send', rateLimit({
 	windowMs: 1 * 60 * 1000,
 	max: 10
-}), reccheck, async (req, resp) => {
+}), reccheck, tg_check, async (req, resp) => {
     let json_body = req.body
-    redis.get(`feedback_${req.ip}`, (error, result) => {
+    let tg_user = getVerifiedTelegramData(json_body)
+    redis.get(`feedback_${req.ip}_tg${tg_user.id}`, (error, result) => {
         if (error) throw error
         if (result !== null) {
             return input_e(resp, resp.statusCode, "need wait")
@@ -1005,10 +1012,12 @@ app.post('/feedback/send', rateLimit({
                 if (text.length < 20) {
                     return input_e(resp, 403, "text field check error")
                 }
+                let username = (user.username && user.username.length) ? `(@${user.username})` : ""
+                let user_name_builded = `<a href="tg://user?id=${tg_user.id}">${user.first_name} ${user.last_name}</a> ${username}`
                 request(
                     {
                         uri: `https://api.telegram.org/bot${process.env.FEEDBACK_BOT_TOKEN}/sendMessage?chat_id=${process.env.FEEDBACK_BOT_CHAT_ID}&${qs.stringify({
-                            text: `${text}\n\n_____________\nIP:\x20<tg-spoiler>${req.ip}</tg-spoiler>`
+                            text: `${text}\n\n${"_".repeat(10)}\n${user_name_builded}\n\nTG_ID:\x20<tg-spoiler>${tg_user.id}</tg-spoiler>\nIP:\x20<tg-spoiler>${req.ip}</tg-spoiler>`
                         })}&parse_mode=HTML`,
                         method: 'GET'
                     },
@@ -1016,7 +1025,7 @@ app.post('/feedback/send', rateLimit({
                         if (!error && response.statusCode == 200) {
                             body = JSON.parse(body)
                             if (body.ok) {
-                                redis.set(`feedback_${req.ip}`, "ok", "ex", 30)
+                                redis.set(`feedback_${req.ip}_tg${tg_user.id}`, "ok", "ex", 60)
                                 return resp.json({
                                     success: true
                                 })
@@ -1028,7 +1037,7 @@ app.post('/feedback/send', rateLimit({
                     }
                 )
             } else {
-                input_e(resp, 400, "text not valid")
+                return input_e(resp, 400, "text not valid")
             }
         }
     })
