@@ -34,20 +34,24 @@ const crypto_keys = {
 const app = express()
 const redis = new Redis(process.env.REDIS_URL)
 
-function checkTelegramAuthorization(authData) {
+function getTelegramValidateHash(authData) {
     let tgBotToken = process.env.FEEDBACK_BOT_TOKEN
-    let hash = authData.hash
     delete authData.hash
 
+    let key = crypto.createHash('sha256').update(tgBotToken).digest()
     let dataCheckArr = Object.keys(authData)
         .map((key) => `${key}=${authData[key]}`)
         .sort()
         .join("\n")
 
-    let key = crypto.createHash('sha256').update(tgBotToken).digest()
-    let validateHash = crypto.createHmac('sha256', key).update(dataCheckArr).digest('hex')
+    return crypto.createHmac(
+        'sha256', key)
+            .update(dataCheckArr)
+            .digest('hex')
+}
 
-    return hash === validateHash
+function checkTelegramAuthorization(authData) {
+    return authData.hash === getTelegramValidateHash(authData)
 }
 
 app.set('port', (process.env.PORT || 5000))
