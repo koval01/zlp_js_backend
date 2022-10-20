@@ -1047,7 +1047,8 @@ app.post('/feedback/check', rateLimit({
 	windowMs: 1 * 60 * 1000,
 	max: 50
 }), reccheck, async (req, resp) => {
-    redis.get(`feedback_${req.ip}`, (error, result) => {
+    let tg_user = getVerifiedTelegramData(json_body)
+    redis.get(`feedback_${req.ip}_tg${tg_user.id}`, (error, result) => {
         if (error) throw error
         if (result !== null) {
             return input_e(resp, resp.statusCode, "need wait")
