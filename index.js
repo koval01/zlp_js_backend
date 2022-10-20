@@ -67,6 +67,9 @@ function setFeedBOT_data() {
     }
 }
 
+// default call
+setFeedBOT_data()
+
 function logRequest(req, res, next) {
     console.log(`Request: [${req.method}] ${req.url}`)
     next()
