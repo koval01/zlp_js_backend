@@ -221,7 +221,10 @@ function tg_check(req, resp, next) {
             exception: 'need field tg_auth_data'
         })
     }
-    if (!typeof auth_data != "object") {
+
+    try {
+        auth_data = JSON.parse(Buffer.from(auth_data, 'base64'))
+    } catch(_) {
         return resp.status(503).json({
             success: false,
             message: errro_msg, 
