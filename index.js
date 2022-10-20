@@ -221,7 +221,7 @@ function tg_check(req, resp, next) {
             exception: 'need field tg_auth_data'
         })
     }
-    if (!(typeof auth_data).toString() !== "object") {
+    if (!typeof auth_data != "object") {
         return resp.status(503).json({
             success: false,
             message: errro_msg, 
