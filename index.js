@@ -1013,6 +1013,7 @@ app.post('/feedback/send', rateLimit({
                     return input_e(resp, 403, "text field check error")
                 }
                 let username = (tg_user.username && tg_user.username.length) ? `(@${tg_user.username})` : ""
+                tg_user.last_name ? tg_user.last_name : ""
                 let user_name_builded = `<a href="tg://user?id=${tg_user.id}">${tg_user.first_name} ${tg_user.last_name}</a> ${username}`
                 request(
                     {
@@ -1030,7 +1031,7 @@ app.post('/feedback/send', rateLimit({
                                     success: true
                                 })
                             }
-                            return input_e(resp, response.statusCode, "telegramapi error")
+                            return input_e(resp, response.statusCode, "telegram api error")
                         } else {
                             return input_e(resp, response.statusCode, error)
                         }
