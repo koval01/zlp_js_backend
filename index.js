@@ -41,6 +41,32 @@ app.use(express.urlencoded())
 app.use(compression())
 app.use(cors())
 
+var feed_bot_id = 0;
+var feed_bot_username = "";
+
+function setFeedBOT_data() {
+    while (true) {
+        request(
+            {
+                uri: `https://api.telegram.org/bot${process.env.FEEDBACK_BOT_TOKEN}/getMe`,
+                method: "GET"
+            },
+            (error, response, body) => {
+                if (!error && response.statusCode == 200) {
+                    body = JSON.parse(body)
+                    if (body.ok && body.result) {
+                        feed_bot_id = body.result.id
+                        feed_bot_username = body.result.username
+                        return
+                    }
+                } else {
+                    console.error('Telegram API error, repeat request...')
+                }
+            }
+        )
+    }
+}
+
 function logRequest(req, res, next) {
     console.log(`Request: [${req.method}] ${req.url}`)
     next()
@@ -730,7 +756,7 @@ app.post('/donate/coupon', rateLimit({
         function select_coupon(data, name) {
             if (data) {
                 for (let i = 0; i < data.length; i++) {
-                    if (data[i].code === name) {
+                    if (data[i].code.toLowerCase() === name.toLowerCase()) {
                         return data[i]
                     }
                 }
@@ -940,18 +966,18 @@ app.post('/feedback/send', rateLimit({
     redis.get(`feedback_${req.ip}`, (error, result) => {
         if (error) throw error
         if (result !== null) {
-            return input_e(resp, response.statusCode, "need wait")
+            return input_e(resp, resp.statusCode, "need wait")
         } else {
             let text = json_body.text
-            if (text && text.length > 10 && text.length < 3000) {
+            if (text && text.length > 10 && text.length <= 3001) {
                 text = text.replaceAll(/<.*?>/gm, "").trim().match(/['!"#$%&()*+,\-.\/:;<=>?@\[\]^_{|}~\w\u0430-\u044f]+/ig).join("\x20").trim()
-                if (text.length <= 10) {
+                if (text.length < 20) {
                     return input_e(resp, 403, "text field check error")
                 }
                 request(
                     {
                         uri: `https://api.telegram.org/bot${process.env.FEEDBACK_BOT_TOKEN}/sendMessage?chat_id=${process.env.FEEDBACK_BOT_CHAT_ID}&${qs.stringify({
-                            text: `${text}\n\n_____________\nIP:\x20<code>${req.ip}</code>`
+                            text: `${text}\n\n_____________\nIP:\x20<tg-spoiler>${req.ip}</tg-spoiler>`
                         })}&parse_mode=HTML`,
                         method: 'GET'
                     },
@@ -984,7 +1010,7 @@ app.post('/feedback/check', rateLimit({
     redis.get(`feedback_${req.ip}`, (error, result) => {
         if (error) throw error
         if (result !== null) {
-            return input_e(resp, response.statusCode, "need wait")
+            return input_e(resp, resp.statusCode, "need wait")
         } else {
             return resp.json({
                 success: true
