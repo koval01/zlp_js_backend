@@ -211,6 +211,35 @@ function reccheck(req, resp, next) {
     )
 }
 
+function tg_check(req, resp, next) {
+    let auth_data = req.body.tg_auth_data
+    let errro_msg = 'Telegram auth verification error'
+    if (!auth_data) {
+        return resp.status(400).json({
+            success: false,
+            message: errro_msg, 
+            exception: 'need field tg_auth_data'
+        })
+    }
+    try {
+        auth_data = JSON.parse(auth_data)
+    } catch (e) {
+        return resp.status(503).json({
+            success: false,
+            message: errro_msg, 
+            exception: 'field tg_auth_data not valid'
+        })
+    }
+    if (checkTelegramAuthorization(auth_data)) {
+        return next()
+    }
+    return resp.status(403).json({
+        success: false,
+        message: 'Security error', 
+        exception: 'error verify Telegram auth data'
+    })
+}
+
 function decryptor(data) {
     try {
         let decipher = crypto.createDecipheriv("aes-256-cbc", crypto_keys.security_key, crypto_keys.init_vector)
@@ -1019,6 +1048,13 @@ app.post('/crypto', rateLimit({
             timestamp: get_current_server_time()
         }))
     })
+})
+
+app.post('/telegram/auth/check', rateLimit({
+	windowMs: 1 * 60 * 1000,
+	max: 50
+}), tg_check, async (req, resp) => {
+    return resp.send({success: true})
 })
 
 app.post('/server', rateLimit({
