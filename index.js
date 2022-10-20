@@ -1,5 +1,8 @@
 require('dotenv').config()
 
+import sha256 from "crypto-js/sha256";
+import hmacSha256 from "crypto-js/hmac-sha256";
+
 const request = require('request')
 const qs = require('querystring')
 const compression = require('compression')
@@ -33,6 +36,24 @@ const crypto_keys = {
 
 const app = express()
 const redis = new Redis(process.env.REDIS_URL)
+
+export const checkTelegramAuthorization = (authData) => {
+    let tgBotToken = process.env.FEEDBACK_BOT_TOKEN;
+    let _authData = { ...authData }
+    let { hash: checkHash } = authData
+  
+    delete _authData.hash
+  
+    let dataCheckArr = Object.keys(_authData)
+      .map((key) => `${key}=${_authData[key]}`)
+      .sort()
+      .join("\n")
+  
+    let secretKey = sha256(tgBotToken)
+    let hash = String(hmacSha256(dataCheckArr, secretKey))
+  
+    return hash === checkHash
+}
 
 app.set('port', (process.env.PORT || 5000))
 app.set('trust proxy', parseInt(process.env.PROXY_LAYER))
