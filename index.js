@@ -973,6 +973,18 @@ app.post('/feedback/send', rateLimit({
 }), reccheck, tg_check, async (req, resp) => {
     let json_body = req.body
     let tg_user = getVerifiedTelegramData(json_body)
+    const remove_repeats = (text) => {
+        let arr = string.split("\x20")
+        let newArr = []
+        let last = null
+        for (let i = 0; i < arr.length; i++) {
+            if (arr[i] !== last) {
+                newArr.push(arr[i])
+            }
+            last = arr[i]
+        }
+        return newArr.join("\x20")
+    }
     redis.get(`feedback_${req.ip}_tg${tg_user.id}`, (error, result) => {
         if (error) throw error
         if (result !== null) {
@@ -981,6 +993,7 @@ app.post('/feedback/send', rateLimit({
             let text = json_body.text
             if (text && text.length > 10 && text.length <= 3001) {
                 text = text.replaceAll(/<.*?>/gm, "").trim().match(/['!"#$%&()*+,\-.\/:;<=>?@\[\]^_{|}~\w\u0430-\u044f]+/ig).join("\x20").trim()
+                text = remove_repeats(text)
                 if (text.length < 20) {
                     return input_e(resp, 403, "text field check error")
                 }
