@@ -1,7 +1,7 @@
-const axios = require("axios");
-const Jimp = require("jimp");
-const bodyParts = require("./bodySection");
-const MinecraftSkin = require("./3dRender");
+const axios = require("axios")
+const Jimp = require("jimp")
+const bodyParts = require("./bodySection")
+const MinecraftSkin = require("./3dRender")
 
 const steveDefault = {
     time: 0,
@@ -14,15 +14,15 @@ const steveDefault = {
             slim: false,
         },
     },
-};
+}
 
 async function getBase64FromURL(url) {
-    const binary = (await axios.get(url, { responseType: "arraybuffer" })).data;
-    return Buffer.from(binary, "binary").toString("base64");
+    const binary = (await axios.get(url, { responseType: "arraybuffer" })).data
+    return Buffer.from(binary, "binary").toString("base64")
 }
 
 async function _getProfile(texture) {
-    const mojangTextures = `https://textures.minecraft.net/texture/${texture}`;
+    const mojangTextures = `https://textures.minecraft.net/texture/${texture}`
 
     let newProfile = {
         uuid: 0,
@@ -35,137 +35,137 @@ async function _getProfile(texture) {
                 slim: false,
             },
         },
-    };
+    }
 
-    return newProfile;
+    return newProfile
 }
 
 async function getProfile(texture) {
-    const newProfile = await _getProfile(texture);
-    return newProfile;
+    const newProfile = await _getProfile(texture)
+    return newProfile
 }
 
 function useSecondLayer(skin) {
-    const newFormat = skin.bitmap.height === 64;
-    const secondLayer = skin.hasAlpha();
+    const newFormat = skin.bitmap.height === 64
+    const secondLayer = skin.hasAlpha()
 
-    return newFormat && secondLayer;
+    return newFormat && secondLayer
 }
 
 async function getSkin64(texture) {
-    const profile = await getProfile(texture);
-    return profile.assets.skin.base64;
+    const profile = await getProfile(texture)
+    return profile.assets.skin.base64
 }
 
 async function renderHead64(skinBuffer, width, height, overlay = true) {
-    const bottom = await Jimp.read(skinBuffer);
-    const applySecondLayer = useSecondLayer(bottom);
+    const bottom = await Jimp.read(skinBuffer)
+    const applySecondLayer = useSecondLayer(bottom)
 
-    bottom.crop(...bodyParts.firstLayer.head.front);
+    bottom.crop(...bodyParts.firstLayer.head.front)
 
     if (overlay && applySecondLayer) {
-        const top = await Jimp.read(skinBuffer);
-        top.crop(...bodyParts.secondLayer.head.front);
-        bottom.composite(top, 0, 0);
+        const top = await Jimp.read(skinBuffer)
+        top.crop(...bodyParts.secondLayer.head.front)
+        bottom.composite(top, 0, 0)
     }
 
-    bottom.resize(width, height, Jimp.RESIZE_NEAREST_NEIGHBOR);
+    bottom.resize(width, height, Jimp.RESIZE_NEAREST_NEIGHBOR)
 
-    return bottom.getBase64Async(Jimp.MIME_PNG);
+    return bottom.getBase64Async(Jimp.MIME_PNG)
 }
 
 async function getHead64(texture, width, height, overlay = true) {
-    const skinBuffer = new Buffer.from(await getSkin64(texture), "base64");
-    return renderHead64(skinBuffer, width, height, overlay);
+    const skinBuffer = new Buffer.from(await getSkin64(texture), "base64")
+    return renderHead64(skinBuffer, width, height, overlay)
 }
 
 async function renderBody64(skinBuffer, width = 160, height = 320, isSlim = false, overlay = true) {
-    const skin = await Jimp.read(skinBuffer);
-    const applySecondLayer = useSecondLayer(skin);
+    const skin = await Jimp.read(skinBuffer)
+    const applySecondLayer = useSecondLayer(skin)
 
-    const base = new Jimp(16, 32);
-    const head = skin.clone();
-    const torso = skin.clone();
-    const lArm = skin.clone();
-    const rArm = skin.clone();
-    const lLeg = skin.clone();
-    const rLeg = skin.clone();
+    const base = new Jimp(16, 32)
+    const head = skin.clone()
+    const torso = skin.clone()
+    const lArm = skin.clone()
+    const rArm = skin.clone()
+    const lLeg = skin.clone()
+    const rLeg = skin.clone()
 
-    head.crop(...bodyParts.firstLayer.head.front);
-    torso.crop(...bodyParts.firstLayer.torso.front);
+    head.crop(...bodyParts.firstLayer.head.front)
+    torso.crop(...bodyParts.firstLayer.torso.front)
 
     const lArmPoints = applySecondLayer
         ? [...bodyParts.firstLayer.arms.left.front]
-        : [...bodyParts.firstLayer.arms.right.front];
+        : [...bodyParts.firstLayer.arms.right.front]
     const lLegPoints = applySecondLayer
         ? [...bodyParts.firstLayer.legs.left.front]
-        : [...bodyParts.firstLayer.legs.right.front];
+        : [...bodyParts.firstLayer.legs.right.front]
 
-    const rArmPoints = [...bodyParts.firstLayer.arms.right.front];
+    const rArmPoints = [...bodyParts.firstLayer.arms.right.front]
 
     if (isSlim) {
-        lArmPoints[2] = lArmPoints[2] - 1;
-        rArmPoints[2] = rArmPoints[2] - 1;
+        lArmPoints[2] = lArmPoints[2] - 1
+        rArmPoints[2] = rArmPoints[2] - 1
     }
 
-    lArm.crop(...lArmPoints);
-    rArm.crop(...rArmPoints);
-    lLeg.crop(...lLegPoints);
-    rLeg.crop(...bodyParts.firstLayer.legs.right.front);
+    lArm.crop(...lArmPoints)
+    rArm.crop(...rArmPoints)
+    lLeg.crop(...lLegPoints)
+    rLeg.crop(...bodyParts.firstLayer.legs.right.front)
 
-    !applySecondLayer && lArm.flip(true, false) && lLeg.flip(true, false);
+    !applySecondLayer && lArm.flip(true, false) && lLeg.flip(true, false)
 
-    base.composite(head, 4, 0);
-    base.composite(torso, 4, 8);
-    base.composite(lArm, 12, 8);
-    base.composite(rArm, isSlim ? 1 : 0, 8);
-    base.composite(lLeg, 8, 20);
-    base.composite(rLeg, 4, 20);
+    base.composite(head, 4, 0)
+    base.composite(torso, 4, 8)
+    base.composite(lArm, 12, 8)
+    base.composite(rArm, isSlim ? 1 : 0, 8)
+    base.composite(lLeg, 8, 20)
+    base.composite(rLeg, 4, 20)
 
     if (overlay && applySecondLayer) {
         try {
-            const head2 = skin.clone();
-            const torso2 = skin.clone();
-            const lArm2 = skin.clone();
-            const rArm2 = skin.clone();
-            const lLeg2 = skin.clone();
-            const rLeg2 = skin.clone();
+            const head2 = skin.clone()
+            const torso2 = skin.clone()
+            const lArm2 = skin.clone()
+            const rArm2 = skin.clone()
+            const lLeg2 = skin.clone()
+            const rLeg2 = skin.clone()
 
-            const lArmPoints2 = [...bodyParts.secondLayer.arms.left.front];
-            const rArmPoints2 = [...bodyParts.secondLayer.arms.right.front];
+            const lArmPoints2 = [...bodyParts.secondLayer.arms.left.front]
+            const rArmPoints2 = [...bodyParts.secondLayer.arms.right.front]
 
             if (isSlim) {
-                lArmPoints2[2] = lArmPoints2[2] - 1;
-                rArmPoints2[2] = rArmPoints2[2] - 1;
+                lArmPoints2[2] = lArmPoints2[2] - 1
+                rArmPoints2[2] = rArmPoints2[2] - 1
             }
 
-            head2.crop(...bodyParts.secondLayer.head.front);
-            torso2.crop(...bodyParts.secondLayer.torso.front);
-            lArm2.crop(...lArmPoints2);
-            rArm2.crop(...rArmPoints2);
-            lLeg2.crop(...bodyParts.secondLayer.legs.left.front);
-            rLeg2.crop(...bodyParts.secondLayer.legs.right.front);
+            head2.crop(...bodyParts.secondLayer.head.front)
+            torso2.crop(...bodyParts.secondLayer.torso.front)
+            lArm2.crop(...lArmPoints2)
+            rArm2.crop(...rArmPoints2)
+            lLeg2.crop(...bodyParts.secondLayer.legs.left.front)
+            rLeg2.crop(...bodyParts.secondLayer.legs.right.front)
 
-            base.composite(head2, 4, 0);
-            base.composite(torso2, 4, 8);
-            base.composite(lArm2, 12, 8);
-            base.composite(rArm2, isSlim ? 1 : 0, 8);
-            base.composite(lLeg2, 4, 20);
-            base.composite(rLeg2, 8, 20);
+            base.composite(head2, 4, 0)
+            base.composite(torso2, 4, 8)
+            base.composite(lArm2, 12, 8)
+            base.composite(rArm2, isSlim ? 1 : 0, 8)
+            base.composite(lLeg2, 4, 20)
+            base.composite(rLeg2, 8, 20)
         } catch (e) {
-            log.debug(`2D Render - ${uuid} had no second layer.`);
+            log.debug(`2D Render - ${uuid} had no second layer.`)
         }
     }
 
-    base.resize(width, height, Jimp.RESIZE_NEAREST_NEIGHBOR);
+    base.resize(width, height, Jimp.RESIZE_NEAREST_NEIGHBOR)
 
-    return base.getBase64Async(Jimp.MIME_PNG);
+    return base.getBase64Async(Jimp.MIME_PNG)
 }
 
-async function get3DHead(name) {
-    const skinB64 = await getSkin64(name);
-    const skin = new MinecraftSkin(Buffer.from(skinB64, "base64"), false, 120);
-    return skin.getHead();
+async function get3DHead(texture) {
+    const skinB64 = await getSkin64(texture)
+    const skin = new MinecraftSkin(Buffer.from(skinB64, "base64"), false, 255)
+    return skin.getHead()
 }
 
 module.exports = {
@@ -176,4 +176,4 @@ module.exports = {
     get3DHead,
     renderHead64,
     renderBody64,
-};
+}
