@@ -12,7 +12,8 @@ const crypto = require('crypto')
 const mysql = require('mysql')
 const Redis = require("ioredis")
 
-const { getHead64 } = require("./helpers/profile")
+const catchAsync = require("./helpers/catchAsync")
+const controller = require("./controller/v1/head")
 
 const monitorings = [
     {
@@ -1090,12 +1091,10 @@ app.get('/profile/avatar', rateLimit({
 	max: 120
 }), async (req, resp) => {
     const tg_user = getVerifiedTelegramData(req.params.tg_auth, custom_var=true)
-    const texture_hash = req.params.texture_hash
-    if (!tg_user || !texture_hash) {
+    if (!tg_user) {
         return resp.status(400)
     }
-    const head = await getHead64(texture_hash)
-    return resp.send(head)
+    return catchAsync(controller.getHead)
 })
 
 app.post('/server', rateLimit({
