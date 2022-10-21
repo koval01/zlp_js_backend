@@ -13,7 +13,8 @@ const mysql = require('mysql')
 const Redis = require("ioredis")
 
 const catchAsync = require("./skin_renderer/helpers/catchAsync")
-const controller = require("./skin_renderer/controller/head")
+const { getHead } = require("./skin_renderer/controller/head")
+const { get3dBody, get3dHead } = require("./skin_renderer/controller/profile")
 
 const { checkTelegramAuthorization, getVerifiedTelegramData } = require("./telegram")
 
@@ -1068,8 +1069,18 @@ app.post('/telegram/auth/check', rateLimit({
 
 app.get('/profile/avatar', rateLimit({
 	windowMs: 1 * 60 * 1000,
-	max: 120
-}), catchAsync(controller.getHead))
+	max: 100
+}), catchAsync(getHead))
+
+app.get('/profile/head', rateLimit({
+	windowMs: 1 * 60 * 1000,
+	max: 100
+}), catchAsync(get3dHead))
+
+app.get('/profile/body', rateLimit({
+	windowMs: 1 * 60 * 1000,
+	max: 20
+}), catchAsync(get3dBody))
 
 app.post('/server', rateLimit({
 	windowMs: 1 * 60 * 1000,

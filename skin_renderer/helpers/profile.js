@@ -162,6 +162,12 @@ async function renderBody64(skinBuffer, width = 160, height = 320, isSlim = fals
     return base.getBase64Async(Jimp.MIME_PNG)
 }
 
+async function get3DSkin(texture) {
+    const skinB64 = await getSkin64(texture);
+    const skin = new MinecraftSkin(Buffer.from(skinB64, "base64"), false, 120);
+    return skin.getRender();
+}
+
 async function get3DHead(texture) {
     const skinB64 = await getSkin64(texture)
     const skin = new MinecraftSkin(Buffer.from(skinB64, "base64"), false, 255)
@@ -174,6 +180,7 @@ module.exports = {
     getSkin64,
     getHead64,
     get3DHead,
+    get3DSkin,
     renderHead64,
     renderBody64,
 }
