@@ -3,16 +3,16 @@ const Numbers = require("../helpers/numbers")
 const { getVerifiedTelegramData } = require("../../telegram")
 
 module.exports.getHead = async (req, res) => {
-    // const tg_user = getVerifiedTelegramData(req.query.tg_auth, custom_var=true)
-    // if (!tg_user) {
-    //     return res.status(400)
-    // }
+    const tg_user = getVerifiedTelegramData(req.query.tg_auth, custom_var=true)
+    if (!tg_user) {
+        return res.status(400)
+    }
 
     const texture = req.query.texture_hash
     const width = Numbers.getPositive(req.query.width, 80);
     const height = Numbers.getPositive(req.query.height, 80);
 
-    if (width > 250 || height > 250) {
+    if (width > 150 || height > 150) {
         return res.status(400)
     }
 
