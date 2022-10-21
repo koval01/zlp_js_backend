@@ -36,7 +36,6 @@ const crypto_keys = {
 }
 
 const app = express()
-const router = express.Router()
 const redis = new Redis(process.env.REDIS_URL)
 
 app.set('port', (process.env.PORT || 5000))
