@@ -314,7 +314,7 @@ app.post('/events', rateLimit({
     }
 })
 
-app.get('/monitoringminecraft.ru', catchAsync(static_view.monitoring_minecraft_ru()))
+app.get('/monitoringminecraft.ru', static_view.monitoring_minecraft_ru)
 
 app.get('/tmonitoring_promotion', async (req, resp) => {
     let body = req.query
@@ -794,7 +794,7 @@ app.post('/feedback/check', rateLimit({
 app.post('/crypto', rateLimit({
     windowMs: 60 * 1000,
     max: 50
-}), re_check, catchAsync(crypto_view))
+}), re_check, crypto_view)
 
 app.post('/telegram/auth/check', rateLimit({
     windowMs: 60 * 1000,
@@ -818,10 +818,10 @@ app.get('/profile/body', rateLimit({
     max: 20
 }), catchAsync(get3dBody))
 
-// app.post('/server', rateLimit({
-//     windowMs: 60 * 1000,
-//     max: 50
-// }), crypto_check, catchAsync(mc_status_view))
+app.post('/server', rateLimit({
+    windowMs: 60 * 1000,
+    max: 50
+}), crypto_check, mc_status_view)
 
 app.get('*', async (_, resp) => {
     return resp.status(404).json({
