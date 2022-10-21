@@ -1100,7 +1100,7 @@ app.post('/server', rateLimit({
     }
 })
 
-app.get('*', async (req, resp) => {
+app.get('*', async (_, resp) => {
     return resp.status(404).json({
         success: false,
         message: "This route cannot be found",
