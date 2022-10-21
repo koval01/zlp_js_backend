@@ -18,7 +18,7 @@
     "dotenv": "^16.0.3",
     "mysql": "^2.18.1",
     "ioredis": "^5.2.3",
-    "canvas": "^2.8.0",
+    "canvas": "^2.10.1",
     "jimp": "^0.16.1",
     "colors": "^1.4.0",
     "rotating-file-stream": "^2.1.6"
