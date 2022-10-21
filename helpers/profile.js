@@ -61,10 +61,8 @@ async function renderHead64(skinBuffer, width, height, overlay = true) {
     const bottom = await Jimp.read(skinBuffer);
     const applySecondLayer = useSecondLayer(bottom);
 
-    // Crop the image to only the head.
     bottom.crop(...bodyParts.firstLayer.head.front);
 
-    // Add second lay of skin
     if (overlay && applySecondLayer) {
         const top = await Jimp.read(skinBuffer);
         top.crop(...bodyParts.secondLayer.head.front);
@@ -96,7 +94,6 @@ async function renderBody64(skinBuffer, width = 160, height = 320, isSlim = fals
     head.crop(...bodyParts.firstLayer.head.front);
     torso.crop(...bodyParts.firstLayer.torso.front);
 
-    // See comment in useSecondLayer function
     const lArmPoints = applySecondLayer
         ? [...bodyParts.firstLayer.arms.left.front]
         : [...bodyParts.firstLayer.arms.right.front];
@@ -106,7 +103,6 @@ async function renderBody64(skinBuffer, width = 160, height = 320, isSlim = fals
 
     const rArmPoints = [...bodyParts.firstLayer.arms.right.front];
 
-    // Correction for slim skin arms;
     if (isSlim) {
         lArmPoints[2] = lArmPoints[2] - 1;
         rArmPoints[2] = rArmPoints[2] - 1;
