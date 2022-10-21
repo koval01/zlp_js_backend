@@ -9,152 +9,36 @@ const html_parser = require('node-html-parser')
 const express = require('express')
 const mcstatus = require('minecraft-server-util')
 const crypto = require('crypto')
-const mysql = require('mysql')
 const Redis = require("ioredis")
 
-const { text } = require('body-parser')
+const log = require("./helpers/log")
+const { monitorings, secrets, crypto_keys } = require("./vars")
 
-const monitorings = [
-    {
-        name: "minecraftrating.ru",
-        permission: "monitoring_1",
+const catchAsync = require("./skin_renderer/helpers/catchAsync")
+const { getHead } = require("./skin_renderer/controller/head")
+const { get3dBody, get3dHead } = require("./skin_renderer/controller/render")
 
-    },
-    {
-        name: "monitoringminecraft.ru",
-        permission: "monitoring_2",
-    }
-]
-const secrets = JSON.parse(process.env.MONITORING_SECRETS)
-const crypto_keys = {
-    init_vector: crypto.randomBytes(16),
-    security_key: crypto.randomBytes(32)
-}
+const { checkTelegramAuthorization, getVerifiedTelegramData } = require("./helpers/telegram")
+const { apiLimiter } = require("./helpers/limiters")
+const { global_error } = require("./helpers/other_middle")
+const { monitoring_statistic } = require("./database/functions/monitoring")
 
 const app = express()
 const redis = new Redis(process.env.REDIS_URL)
 
 app.set('port', (process.env.PORT || 5000))
 app.set('trust proxy', parseInt(process.env.PROXY_LAYER))
+
 app.use(express.json())
 app.use(express.urlencoded())
 app.use(compression())
 app.use(cors())
 
-var feed_bot_id = 0;
-var feed_bot_username = "";
+app.use(log.logRequest)
+app.use(log.logError)
 
-function setFeedBOT_data() {
-    while (true) {
-        request(
-            {
-                uri: `https://api.telegram.org/bot${process.env.FEEDBACK_BOT_TOKEN}/getMe`,
-                method: "GET"
-            },
-            (error, response, body) => {
-                if (!error && response.statusCode == 200) {
-                    body = JSON.parse(body)
-                    if (body.ok && body.result) {
-                        feed_bot_id = body.result.id
-                        feed_bot_username = body.result.username
-                        return
-                    }
-                } else {
-                    console.error('Telegram API error, repeat request...')
-                }
-            }
-        )
-    }
-}
-
-function logRequest(req, res, next) {
-    console.log(`Request: [${req.method}] ${req.url}`)
-    next()
-}
-app.use(logRequest)
-
-function logError(err, req, res, next) {
-    console.error(err)
-    next()
-}
-app.use(logError)
-
-const apiLimiter = rateLimit({
-	windowMs: 1 * 60 * 1000, // 1 minute
-	max: 250,
-	standardHeaders: true,
-    message: {
-        success: false,
-        error: "too many requests"
-    }
-})
 app.use(apiLimiter)
-
-const mysql_ = function() {
-    return cursor = mysql.createConnection({
-        host: process.env.DB_HOSTNAME,
-        user: process.env.DB_USERNAME,
-        password: process.env.DB_PASSWORD,
-        database: process.env.DB_DATABASE,
-        ssl: false
-    })
-}
-
-function sql_request(callback, query, values = []) {
-    let error = (e) => console.error(`Database error: ${e}`)
-    let con = mysql_()
-    con.query(query, values, 
-        function (err, result, _) {
-            if (err) error(err)
-            callback(result)
-            con.end()
-    })
-}
-
-function monitoring_statistic(monitroing_name, username) {
-    let check_in_db = (callback) => {
-        sql_request(function(data) {
-            console.log(`Monitoring statistic select : ${JSON.stringify(data)}`)
-            callback(data)
-        },
-            "SELECT * FROM `monitoring_statistic` WHERE `username` = ? AND `monitoring` = ?", 
-            [username, monitroing_name]
-        )
-    }
-    let update = () => {
-        sql_request(function(update_result) {
-            console.log(`Monitoring statistic update player : ${JSON.stringify(update_result)}`)
-            return update_result
-        },
-            "UPDATE monitoring_statistic SET `votes` = `votes` + 1, `timestep` = NOW() WHERE `username` = ? AND `monitoring` = ?", 
-            [username, monitroing_name]
-        )
-    }
-    let insert = () => {
-        sql_request(function(insert_result) {
-            console.log(`Monitoring statistic add player : ${JSON.stringify(insert_result)}`)
-            return insert_result
-        },
-            "INSERT monitoring_statistic (username, monitoring, timestep, votes) VALUES (?, ?, NOW(), 1)", 
-            [username, monitroing_name]
-        )
-    }
-    check_in_db(function(data) {
-        if (data.length) {
-            return update()
-        } else { return insert() }
-    })
-}
-
-app.use(function (err, req, resp, next) {
-    console.error(err.stack)
-    next()
-    return resp.status(500).json({
-        success: false,
-        message: "Internal server error",
-        exception: "server error"
-    })
-})
+app.use(global_error)
 
 function main_e(resp, error = "", message = "Main function error") {
     return resp.status(503).json({
@@ -183,7 +67,7 @@ function censorWord(str) {
 }
  
 function censorEmail(email){
-    let arr = email.split("@");
+    const arr = email.split("@");
     return censorWord(arr[0]) + "@" + arr[1];
 }
 
@@ -219,6 +103,37 @@ function reccheck(req, resp, next) {
             })
         }
     )
+}
+
+function tg_check(req, resp, next) {
+    let auth_data = req.body.tg_auth_data
+    let errro_msg = 'Telegram auth verification error'
+    if (!auth_data) {
+        return resp.status(400).json({
+            success: false,
+            message: errro_msg, 
+            exception: 'need field tg_auth_data'
+        })
+    }
+
+    try {
+        auth_data = JSON.parse(Buffer.from(auth_data, 'base64'))
+    } catch(_) {
+        return resp.status(503).json({
+            success: false,
+            message: errro_msg, 
+            exception: 'field tg_auth_data not valid'
+        })
+    }
+
+    if (checkTelegramAuthorization(auth_data)) {
+        return next()
+    }
+    return resp.status(403).json({
+        success: false,
+        message: 'Security error', 
+        exception: 'error verify Telegram auth data'
+    })
 }
 
 function decryptor(data) {
@@ -961,23 +876,41 @@ app.post('/donate/payment/create', rateLimit({
 app.post('/feedback/send', rateLimit({
 	windowMs: 1 * 60 * 1000,
 	max: 10
-}), reccheck, async (req, resp) => {
+}), reccheck, tg_check, async (req, resp) => {
     let json_body = req.body
-    redis.get(`feedback_${req.ip}`, (error, result) => {
+    let tg_user = getVerifiedTelegramData(json_body)
+    const remove_repeats = (text) => {
+        let arr = string.split("\x20")
+        let newArr = []
+        let last = null
+        for (let i = 0; i < arr.length; i++) {
+            if (arr[i] !== last) {
+                newArr.push(arr[i])
+            }
+            last = arr[i]
+        }
+        return newArr.join("\x20")
+    }
+    redis.get(`feedback_${req.ip}_tg${tg_user.id}`, (error, result) => {
         if (error) throw error
         if (result !== null) {
             return input_e(resp, resp.statusCode, "need wait")
         } else {
             let text = json_body.text
+            const text_c = text
             if (text && text.length > 10 && text.length <= 3001) {
                 text = text.replaceAll(/<.*?>/gm, "").trim().match(/['!"#$%&()*+,\-.\/:;<=>?@\[\]^_{|}~\w\u0430-\u044f]+/ig).join("\x20").trim()
-                if (text.length < 20) {
+                text = remove_repeats(text)
+                if (text.length !== text_c.length) {
                     return input_e(resp, 403, "text field check error")
                 }
+                let username = (tg_user.username && tg_user.username.length) ? `(@${tg_user.username})` : ""
+                tg_user.last_name ? tg_user.last_name : ""
+                let user_name_builded = `<a href="tg://user?id=${tg_user.id}">${tg_user.first_name} ${tg_user.last_name}</a> ${username}`
                 request(
                     {
                         uri: `https://api.telegram.org/bot${process.env.FEEDBACK_BOT_TOKEN}/sendMessage?chat_id=${process.env.FEEDBACK_BOT_CHAT_ID}&${qs.stringify({
-                            text: `${text}\n\n_____________\nIP:\x20<tg-spoiler>${req.ip}</tg-spoiler>`
+                            text: `${text}\n\n${"_".repeat(10)}\n${user_name_builded}\n\nTG_ID:\x20${tg_user.id}\nIP:\x20<tg-spoiler>${req.ip}</tg-spoiler>`
                         })}&parse_mode=HTML`,
                         method: 'GET'
                     },
@@ -985,19 +918,19 @@ app.post('/feedback/send', rateLimit({
                         if (!error && response.statusCode == 200) {
                             body = JSON.parse(body)
                             if (body.ok) {
-                                redis.set(`feedback_${req.ip}`, "ok", "ex", 30)
+                                redis.set(`feedback_${req.ip}_tg${tg_user.id}`, "ok", "ex", 60)
                                 return resp.json({
                                     success: true
                                 })
                             }
-                            return input_e(resp, response.statusCode, "telegramapi error")
+                            return input_e(resp, response.statusCode, "telegram api error")
                         } else {
                             return input_e(resp, response.statusCode, error)
                         }
                     }
                 )
             } else {
-                input_e(resp, 400, "text not valid")
+                return input_e(resp, 400, "text not valid")
             }
         }
     })
@@ -1006,8 +939,9 @@ app.post('/feedback/send', rateLimit({
 app.post('/feedback/check', rateLimit({
 	windowMs: 1 * 60 * 1000,
 	max: 50
-}), reccheck, async (req, resp) => {
-    redis.get(`feedback_${req.ip}`, (error, result) => {
+}), reccheck, tg_check, async (req, resp) => {
+    let tg_user = getVerifiedTelegramData(req.body)
+    redis.get(`feedback_${req.ip}_tg${tg_user.id}`, (error, result) => {
         if (error) throw error
         if (result !== null) {
             return input_e(resp, resp.statusCode, "need wait")
@@ -1031,12 +965,34 @@ app.post('/crypto', rateLimit({
     })
 })
 
+app.post('/telegram/auth/check', rateLimit({
+	windowMs: 1 * 60 * 1000,
+	max: 50
+}), tg_check, async (req, resp) => {
+    return resp.send({success: true})
+})
+
+app.get('/profile/avatar', rateLimit({
+	windowMs: 1 * 60 * 1000,
+	max: 100
+}), catchAsync(getHead))
+
+app.get('/profile/head', rateLimit({
+	windowMs: 1 * 60 * 1000,
+	max: 100
+}), catchAsync(get3dHead))
+
+app.get('/profile/body', rateLimit({
+	windowMs: 1 * 60 * 1000,
+	max: 20
+}), catchAsync(get3dBody))
+
 app.post('/server', rateLimit({
 	windowMs: 1 * 60 * 1000,
 	max: 50
 }), crypto_check, async (req, resp) => {
     try {
-        let options = {
+        const options = {
             timeout: 1000 * 2
         }
         function result_(data) {
@@ -1058,7 +1014,7 @@ app.post('/server', rateLimit({
     }
 })
 
-app.get('*', async (req, resp) => {
+app.get('*', async (_, resp) => {
     return resp.status(404).json({
         success: false,
         message: "This route cannot be found",
