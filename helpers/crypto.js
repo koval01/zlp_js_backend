@@ -70,7 +70,5 @@ module.exports.crypto_view = async (req, resp) => {
 }
 
 module.exports = {
-    crypto_check_logic,
-    decrypt,
-    encryptor
+    crypto_check_logic
 }
