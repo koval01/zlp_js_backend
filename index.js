@@ -72,6 +72,8 @@ function getVerifiedTelegramData(json_body, custom_var=false) {
     }
 }
 
+module.exports.getVerifiedTelegramData = getVerifiedTelegramData
+
 app.set('port', (process.env.PORT || 5000))
 app.set('trust proxy', parseInt(process.env.PROXY_LAYER))
 app.use(express.json())
