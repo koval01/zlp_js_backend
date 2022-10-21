@@ -35,8 +35,12 @@ function crypto_check_logic(token, req) {
     return false
 }
 
-module.exports.crypto_check = (req, resp, next) => {
-    const check = crypto_check_logic(req.body.crypto_token, req)
+function crypto_check_raw(req, resp, next, mode="POST") {
+    let token = req.body.crypto_token
+    if (mode === "GET") {
+        token = req.query.crypto_token
+    }
+    const check = crypto_check_logic(token, req)
     if (check) {
         return next()
     }
@@ -45,6 +49,14 @@ module.exports.crypto_check = (req, resp, next) => {
         message: 'Security error',
         exception: 'error verify crypto token'
     })
+}
+
+module.exports.crypto_check = (req, resp, next) => {
+    return crypto_check_raw(req, resp, next)
+}
+
+module.exports.crypto_check_get = (req, resp, next) => {
+    return crypto_check_raw(req, resp, next, "GET")
 }
 
 module.exports.crypto_view = async (req, resp) => {

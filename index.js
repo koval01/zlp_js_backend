@@ -28,7 +28,7 @@ const {monitoring_statistic} = require("./database/functions/monitoring")
 const {promotions_sql} = require("./database/functions/promotion")
 
 const static_view = require("./static")
-const {crypto_view, crypto_check} = require("./helpers/crypto")
+const {crypto_view, crypto_check_get} = require("./helpers/crypto")
 const {sql_request} = require("./database/mysql")
 const {mc_status_view} = require("./helpers/server_status")
 
@@ -794,7 +794,9 @@ app.post('/feedback/check', rateLimit({
 app.post('/crypto', rateLimit({
     windowMs: 60 * 1000,
     max: 50
-}), re_check, crypto_view)
+}), re_check, async (req, resp) => {
+    return crypto_view(req, resp)
+})
 
 app.post('/telegram/auth/check', rateLimit({
     windowMs: 60 * 1000,
@@ -818,10 +820,10 @@ app.get('/profile/body', rateLimit({
     max: 20
 }), catchAsync(get3dBody))
 
-// app.post('/server', rateLimit({
-//     windowMs: 60 * 1000,
-//     max: 50
-// }), crypto_check, catchAsync(mc_status_view))
+app.get('/server', rateLimit({
+    windowMs: 60 * 1000,
+    max: 50
+}), crypto_check_get, catchAsync(mc_status_view))
 
 app.get('*', async (_, resp) => {
     return resp.status(404).json({
