@@ -48,6 +48,50 @@ class Render3d {
         this._ctx.imageSmoothingEnabled = true
     }
 
+    static getHeadImageDimensions(side) {
+        return [side * 2.175, side * 2.175]
+    }
+
+    static getRenderImageDimensions(side) {
+        return [side * 2.5, side * 5.1]
+    }
+
+    static generateToScaleImage = (side, image) => {
+        const minWidth = side * 8
+        let newWidth = image.width
+        let newHeight = image.height
+
+        while (newWidth < minWidth) {
+            newWidth *= 2
+            newHeight *= 2
+        }
+
+        let tmpCanvas = canvas.createCanvas(newWidth, newHeight)
+        let tmpCtx = tmpCanvas.getContext("2d")
+
+        tmpCanvas.width = newWidth
+        tmpCanvas.height = newHeight
+
+        tmpCtx.mozImageSmoothingEnabled = false
+        tmpCtx.webkitImageSmoothingEnabled = false
+        tmpCtx.msImageSmoothingEnabled = false
+        tmpCtx.imageSmoothingEnabled = false
+
+        tmpCtx.drawImage(image, 0, 0, tmpCanvas.width, tmpCanvas.height)
+
+        let tmpImg = new Image()
+        tmpImg.src = tmpCanvas.toBuffer()
+        return tmpImg
+    }
+
+    static getSideForRender(imageWidth) {
+        return Math.floor(imageWidth / 2.5)
+    }
+
+    static getSideForHead(imageWidth) {
+        return Math.floor(imageWidth / 2.05)
+    }
+
     getRender = () => {
         const ctx = this._ctx
         const canvas = this._canvas
@@ -111,7 +155,7 @@ class Render3d {
     _internalGetRender = () => {
         if (this.img === null) this._makeScaledImage()
 
-        const { side, blockSize, img } = this
+        const {side, blockSize, img} = this
         const [rectWidth, rectHeight] = Render3d.getRenderImageDimensions(side)
 
         let tmpCanvas = canvas.createCanvas(rectWidth, rectHeight)
@@ -436,7 +480,7 @@ class Render3d {
     _internalGetHead = () => {
         if (this.img === null) this._makeScaledImage()
 
-        const { side, blockSize, img } = this
+        const {side, blockSize, img} = this
         const [rectWidth, rectHeight] = Render3d.getHeadImageDimensions(side)
 
         let tmpCanvas = canvas.createCanvas(rectWidth, rectHeight)
@@ -502,48 +546,6 @@ class Render3d {
         let tmpImg = new Image()
         tmpImg.src = tmpCanvas.toBuffer()
         return tmpImg
-    }
-
-    static getHeadImageDimensions(side) {
-        return [side * 2.175, side * 2.175]
-    }
-    static getRenderImageDimensions(side) {
-        return [side * 2.5, side * 5.1]
-    }
-
-    static generateToScaleImage = (side, image) => {
-        const minWidth = side * 8
-        let newWidth = image.width
-        let newHeight = image.height
-
-        while (newWidth < minWidth) {
-            newWidth *= 2
-            newHeight *= 2
-        }
-
-        let tmpCanvas = canvas.createCanvas(newWidth, newHeight)
-        let tmpCtx = tmpCanvas.getContext("2d")
-
-        tmpCanvas.width = newWidth
-        tmpCanvas.height = newHeight
-
-        tmpCtx.mozImageSmoothingEnabled = false
-        tmpCtx.webkitImageSmoothingEnabled = false
-        tmpCtx.msImageSmoothingEnabled = false
-        tmpCtx.imageSmoothingEnabled = false
-
-        tmpCtx.drawImage(image, 0, 0, tmpCanvas.width, tmpCanvas.height)
-
-        let tmpImg = new Image()
-        tmpImg.src = tmpCanvas.toBuffer()
-        return tmpImg
-    }
-
-    static getSideForRender(imageWidth) {
-        return Math.floor(imageWidth / 2.5)
-    }
-    static getSideForHead(imageWidth) {
-        return Math.floor(imageWidth / 2.05)
     }
 }
 

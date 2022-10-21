@@ -12,15 +12,15 @@ function getTelegramValidateHash(authData) {
 
     return crypto.createHmac(
         'sha256', key)
-            .update(dataCheckArr)
-            .digest('hex')
+        .update(dataCheckArr)
+        .digest('hex')
 }
 
 function checkTelegramAuthorization(authData) {
     return authData.hash === getTelegramValidateHash(authData)
 }
 
-function getVerifiedTelegramData(json_body, custom_var=false) {
+function getVerifiedTelegramData(json_body, custom_var = false) {
     let authData
     if (custom_var) {
         authData = json_body
@@ -29,7 +29,7 @@ function getVerifiedTelegramData(json_body, custom_var=false) {
     }
     try {
         authData = JSON.parse(Buffer.from(authData, 'base64'))
-    } catch(_) {
+    } catch (_) {
         return
     }
     if (checkTelegramAuthorization(authData)) {

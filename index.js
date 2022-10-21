@@ -12,16 +12,24 @@ const crypto = require('crypto')
 const Redis = require("ioredis")
 
 const log = require("./helpers/log")
-const { monitorings, secrets, crypto_keys } = require("./vars")
+const {secrets} = require("./vars")
+const {censorEmail, url_builder_} = require("./helpers/methods")
 
 const catchAsync = require("./skin_renderer/helpers/catchAsync")
-const { getHead } = require("./skin_renderer/controller/head")
-const { get3dBody, get3dHead } = require("./skin_renderer/controller/render")
+const {getHead} = require("./skin_renderer/controller/head")
+const {get3dBody, get3dHead} = require("./skin_renderer/controller/render")
 
-const { checkTelegramAuthorization, getVerifiedTelegramData } = require("./helpers/telegram")
-const { apiLimiter } = require("./helpers/limiters")
-const { global_error } = require("./helpers/other_middle")
-const { monitoring_statistic } = require("./database/functions/monitoring")
+const {getVerifiedTelegramData} = require("./helpers/telegram")
+const {apiLimiter} = require("./helpers/limiters")
+const {global_error} = require("./middleware/other_middle")
+const {re_check, tg_check} = require("./middleware/security_middle")
+const {input_e, main_e} = require("./helpers/errors")
+const {monitoring_statistic} = require("./database/functions/monitoring")
+
+const static_view = require("./static")
+const {crypto_view, crypto_check} = require("./helpers/crypto")
+const {sql_request} = require("./database/mysql")
+const {mc_status_view} = require("./helpers/server_status")
 
 const app = express()
 const redis = new Redis(process.env.REDIS_URL)
@@ -40,152 +48,21 @@ app.use(log.logError)
 app.use(apiLimiter)
 app.use(global_error)
 
-function main_e(resp, error = "", message = "Main function error") {
-    return resp.status(503).json({
-        success: false,
-        message: message, 
-        exception: error
-    })
-}
-
-function input_e(resp, code, error) {
-    return resp.status(code).json({ 
-        success: false, message: "Input function error", exception: error 
-    })
-}
-
-function get_user_ip(req) {
-    return req.headers['x-forwarded-for'].split(",\x20")[0].trim() || req.socket.remoteAddress
-}
-
-function get_current_server_time() {
-    return Math.floor(new Date().getTime() / 1000)
-}
-
-function censorWord(str) {
-    return str[0] + "*".repeat(3) + str.slice(-1);
-}
- 
-function censorEmail(email){
-    const arr = email.split("@");
-    return censorWord(arr[0]) + "@" + arr[1];
-}
-
-function url_builder_(base_url, submit_data_) {
-    let url = new URL(base_url)
-    for (let i = 0; i < submit_data_.length; i++) {
-        url.searchParams.set(submit_data_[i].name, submit_data_[i].value)
-    }
-    return url.href
-}
-
-function reccheck(req, resp, next) {
-    request(
-        {
-            uri: "https://www.google.com/recaptcha/api/siteverify",
-            method: 'POST',
-            form: {
-                'secret': process.env.RE_TOKEN,
-                'response': req.body.token
-            }
-        },
-        (error, response, body) => {
-            if (!error && response.statusCode == 200) {
-                body = JSON.parse(body)
-                if (body.success) {
-                    return next()
-                }
-            }
-            return resp.status(403).json({
-                success: false,
-                message: 'Security error', 
-                exception: 'error verify recaptcha token'
-            })
-        }
-    )
-}
-
-function tg_check(req, resp, next) {
-    let auth_data = req.body.tg_auth_data
-    let errro_msg = 'Telegram auth verification error'
-    if (!auth_data) {
-        return resp.status(400).json({
-            success: false,
-            message: errro_msg, 
-            exception: 'need field tg_auth_data'
-        })
-    }
-
-    try {
-        auth_data = JSON.parse(Buffer.from(auth_data, 'base64'))
-    } catch(_) {
-        return resp.status(503).json({
-            success: false,
-            message: errro_msg, 
-            exception: 'field tg_auth_data not valid'
-        })
-    }
-
-    if (checkTelegramAuthorization(auth_data)) {
-        return next()
-    }
-    return resp.status(403).json({
-        success: false,
-        message: 'Security error', 
-        exception: 'error verify Telegram auth data'
-    })
-}
-
-function decryptor(data) {
-    try {
-        let decipher = crypto.createDecipheriv("aes-256-cbc", crypto_keys.security_key, crypto_keys.init_vector)
-        let decryptedData = decipher.update(data, "base64", "utf-8")
-
-        decryptedData += decipher.final("utf8")
-
-        if (decryptedData) {
-            return decryptedData
-        }
-    } catch (_) {}
-}
-
-function encryptor(data) {
-    let cipher = crypto.createCipheriv("aes-256-cbc", crypto_keys.security_key, crypto_keys.init_vector)
-    let encryptedData = cipher.update(data, "utf-8", "base64")
-    encryptedData += cipher.final("base64")
-    return encryptedData
-}
-
-function crypto_check(req, resp, next) {
-    decryptedData = decryptor(req.body.crypto_token)
-
-    if (decryptedData) {
-        let body = JSON.parse(decryptedData)
-        if (body.ip == get_user_ip(req) && (get_current_server_time() - body.timestamp) < 900) {
-            return next()
-        }
-    }
-    return resp.status(403).json({
-        success: false,
-        message: 'Security error', 
-        exception: 'error verify crypto token'
-    })
-}
-
 app.get('/ip', (req, resp) => resp.send({success: true, ip: req.ip}))
 
 app.post('/channel_get', rateLimit({
-	windowMs: 1 * 60 * 1000,
-	max: 30
-}), reccheck, async (req, resp) => {
+    windowMs: 60 * 1000,
+    max: 30
+}), re_check, async (req, resp) => {
     try {
-        function response_call(data, cache=false) {
+        function response_call(data, cache = false) {
             return resp.send({
                 cache: cache,
                 success: true,
                 messages: data
             })
         }
+
         let choice_ = ['zalupa_history', 'zalupaonline']
         if (!req.query.offset) {
             req.query.offset = 0
@@ -209,7 +86,7 @@ app.post('/channel_get', rateLimit({
                         }
                     },
                     (error, response, body) => {
-                        if (!error && response.statusCode == 200) {
+                        if (!error && response.statusCode === 200) {
                             body = body.toString().replace(/(\\n)/gm, "").replace(/\\/gm, "")
                             let messages = html_parser.parse(body).querySelectorAll(".tgme_widget_message")
                             if (!req.query.offset) {
@@ -242,17 +119,18 @@ app.post('/channel_get', rateLimit({
 })
 
 app.post('/channel_parse', rateLimit({
-	windowMs: 1 * 60 * 1000,
-	max: 30
-}), reccheck, async (req, resp) => {
+    windowMs: 60 * 1000,
+    max: 30
+}), re_check, async (req, resp) => {
     try {
-        function response_call(data, cache=false) {
+        function response_call(data, cache = false) {
             return resp.send({
                 cache: cache,
                 success: true,
                 messages: data
             })
         }
+
         let choice_ = ['zalupa_history', 'zalupaonline']
         if (!req.query.offset) {
             req.query.offset = 0
@@ -276,7 +154,7 @@ app.post('/channel_parse', rateLimit({
                         }
                     },
                     (error, response, body) => {
-                        if (!error && response.statusCode == 200) {
+                        if (!error && response.statusCode === 200) {
                             let cover_regex = /background-image:url\('(.*?)'\)/
                             body = body.toString().replace(/\\/gm, "")
                             let messages = html_parser.parse(body).querySelectorAll(".tgme_widget_message")
@@ -290,13 +168,27 @@ app.post('/channel_parse', rateLimit({
                                 let text = ""
                                 let author = ""
                                 let cover = ""
-                                try { text = container.querySelector(".tgme_widget_message_text").innerHTML } catch (_) {}
-                                try { author = container.querySelector(".tgme_widget_message_from_author").text } catch (_) {}
-                                try { cover = container.querySelector(".tgme_widget_message_photo_wrap").getAttribute("style") } catch (_) {
-                                    try { cover = container.querySelector(".tgme_widget_message_video_thumb").getAttribute("style") } catch (_) {}
+                                try {
+                                    text = container.querySelector(".tgme_widget_message_text").innerHTML
+                                } catch (_) {
+                                }
+                                try {
+                                    author = container.querySelector(".tgme_widget_message_from_author").text
+                                } catch (_) {
+                                }
+                                try {
+                                    cover = container.querySelector(".tgme_widget_message_photo_wrap").getAttribute("style")
+                                } catch (_) {
+                                    try {
+                                        cover = container.querySelector(".tgme_widget_message_video_thumb").getAttribute("style")
+                                    } catch (_) {
+                                    }
                                 }
                                 if (cover) {
-                                    try { cover = cover.match(cover_regex)[1] } catch (_) { }
+                                    try {
+                                        cover = cover.match(cover_regex)[1]
+                                    } catch (_) {
+                                    }
                                 }
                                 let regex_link = /(https:\/\/t.me\/)([A-z\d_\-]*?\/[\d]*$)/
                                 let org_link = container.querySelector(".tgme_widget_message_date").getAttribute("href")
@@ -333,17 +225,18 @@ app.post('/channel_parse', rateLimit({
 })
 
 app.post('/events', rateLimit({
-	windowMs: 1 * 60 * 1000,
-	max: 30
-}), reccheck, async (req, resp) => {
+    windowMs: 60 * 1000,
+    max: 30
+}), re_check, async (req, resp) => {
     try {
-        function response_call(data, cache=false) {
+        function response_call(data, cache = false) {
             return resp.send({
                 cache: cache,
                 success: true,
                 events: data
             })
         }
+
         redis.get("game_events", (error, result) => {
             if (error) throw error
             if (result !== null) {
@@ -363,7 +256,7 @@ app.post('/events', rateLimit({
                         }
                     },
                     (error, response, body) => {
-                        if (!error && response.statusCode == 200) {
+                        if (!error && response.statusCode === 200) {
                             body = body.toString().replace(/\\/gm, "")
                             let time_in_moscow = new Date(new Date().toLocaleString("en-US", {timeZone: "Europe/Moscow"}))
                             let message_regex = /([\s\S]+)<br>(\d\d.\d\d.\d\d-\d\d:\d\d)\/(\d\d.\d\d.\d\d-\d\d:\d\d)<br>&#33;<br>([\s\S]+)/gm
@@ -371,7 +264,7 @@ app.post('/events', rateLimit({
                             let messages = html_parser.parse(body).querySelectorAll(".tgme_widget_message_wrap")
                             let result = []
 
-                            let time_correction = function(date) {
+                            let time_correction = function (date) {
                                 let userTimezoneOffset = date.getTimezoneOffset() * 60000
                                 return new Date(date.getTime() - userTimezoneOffset)
                             }
@@ -389,7 +282,7 @@ app.post('/events', rateLimit({
                                             let defined_date_end = time_correction(new Date(`20${date_end[3]}`, date_end[2] - 1, date_end[1], date_end[4], date_end[5], '00'))
                                             let to_start = ((time_in_moscow - defined_date_st) / 1000)
                                             let to_end = ((time_in_moscow - defined_date_end) / 1000)
-                                            
+
                                             if ((to_start > 0 || -(to_start) < 259200) && (-(to_end) > 0 || to_end < 259200)) {
                                                 result.push({
                                                     title: parsed_[1],
@@ -420,11 +313,7 @@ app.post('/events', rateLimit({
     }
 })
 
-app.get('/monitoringminecraft.ru', async (req, resp) => {
-    // temporary function
-    resp.set("Content-Type", "text/html")
-    resp.send("7adb86d84714ddd37f4961795e233de2")
-})
+app.get('/monitoringminecraft.ru', catchAsync(static_view.monitoring_minecraft_ru()))
 
 app.get('/tmonitoring_promotion', async (req, resp) => {
     let body = req.query
@@ -438,7 +327,7 @@ app.get('/tmonitoring_promotion', async (req, resp) => {
                 method: "GET",
             },
             (error, response, body) => {
-                if (!error && response.statusCode == 200) {
+                if (!error && response.statusCode === 200) {
                     body = JSON.parse(body)
                     callback(body)
                 } else {
@@ -448,21 +337,17 @@ app.get('/tmonitoring_promotion', async (req, resp) => {
         )
     }
 
-    let stat = () => {
-        monitoring_statistic(get_mon_()["name"], body.username)
-    }
-
-    let api_resp = get_data()
-    if (api_resp) {
-        if (api_resp.hash != 32 || body.hash != 32 || api_resp.hash != body.hash) {
-            resp.send("Invalid hash")
+    get_data(function (api_resp) {
+        if (api_resp) {
+            if (api_resp.hash !== 32 || body.hash !== 32 || api_resp.hash !== body.hash) {
+                resp.send("Invalid hash")
+            }
+            body.username = api_resp.username
+            // give award
+            return resp.send("ok")
         }
-        body.username = api_resp.username
-        // give award
-        return resp.send("ok")
-    }
-    return resp.send("Error")
-    
+        return resp.send("Error")
+    })
 })
 
 app.post('/promotion', async (req, resp) => {
@@ -474,7 +359,7 @@ app.post('/promotion', async (req, resp) => {
     }
 
     let get_mon_ = () => {
-        for (i=0; i < monitorings.length; i++) {
+        for (i = 0; i < monitorings.length; i++) {
             if (req.query.monitoring === monitorings[i].name) {
                 return monitorings[i]
             }
@@ -494,7 +379,7 @@ app.post('/promotion', async (req, resp) => {
     shasum.update(body.username + body.timestamp + secrets[get_mon_()["name"]])
     let signature = shasum.digest('hex')
 
-    if (body.signature != signature) {
+    if (body.signature !== signature) {
         return resp.send("Неверная подпись / секретный ключ")
     }
 
@@ -502,78 +387,76 @@ app.post('/promotion', async (req, resp) => {
         monitoring_statistic(get_mon_()["name"], body.username)
     }
 
-    sql_request(function(result) {
-        let error = () => resp.send("Ошибка базы данных")
-        let no_player = () => resp.send("Игрок не найден")
-        if (!result) {
-            return error()
-        }
-        else if (!result.length) {
-            return no_player()
-        }
-        else if (!result[0].uuid) {
-            return no_player()
-        }
-        else {
-            let add_permission = () => {
-                sql_request(function(insert_result) {
-                    if (insert_result) {
-                        stat()
-                        console.log(`Result insert to luckperms : ${JSON.stringify(insert_result)}`)
-                        return resp.send("ok")
-                    }
-                    return error
-                },
-                    "INSERT luckperms_user_permissions (uuid, permission, value, server, world, expiry, contexts) VALUES (?, ?, 1, 'global', 'global', '0', '{}')", 
-                    [result[0].uuid, permission_ident]
-                )
-            }
-            let update_permission = () => {
-                sql_request(function(update_result) {
-                    if (update_result) {
-                        stat()
-                        console.log(`Result update row in luckperms : ${JSON.stringify(update_result)}`)
-                        return resp.send("ok")
-                    }
-                    return error
-                },
-                    "UPDATE luckperms_user_permissions SET `value` = 1 WHERE `uuid` = ? AND `permission` = ? ORDER BY id DESC LIMIT 1", 
-                    [result[0].uuid, permission_ident]
-                )
-            }
-            sql_request(function(permission) {
-                if (!permission.length) {
-                    return add_permission()
-                } else if (parseInt(permission[0].value) !== 1) {
-                    return update_permission()
-                } else if (parseInt(permission[0].value) === 1) {
-                    return resp.send("Право уже выдано")
+    sql_request(function (result) {
+            let error = () => resp.send("Ошибка базы данных")
+            let no_player = () => resp.send("Игрок не найден")
+            if (!result) {
+                return error()
+            } else if (!result.length) {
+                return no_player()
+            } else if (!result[0].uuid) {
+                return no_player()
+            } else {
+                let add_permission = () => {
+                    sql_request(function (insert_result) {
+                            if (insert_result) {
+                                stat()
+                                console.log(`Result insert to luckperms : ${JSON.stringify(insert_result)}`)
+                                return resp.send("ok")
+                            }
+                            return error
+                        },
+                        "INSERT luckperms_user_permissions (uuid, permission, value, server, world, expiry, contexts) VALUES (?, ?, 1, 'global', 'global', '0', '{}')",
+                        [result[0].uuid, permission_ident]
+                    )
                 }
-                return resp.send("Неизвестная ошибка")
-            }, 
-                "SELECT `uuid`, `permission`, `value` FROM luckperms_user_permissions WHERE `uuid` = ? AND `permission` = ? ORDER BY id DESC LIMIT 1", 
-                [result[0].uuid, permission_ident]
-            )
-        }
-        return error
-    }, 
-        "SELECT `uuid` FROM `luckperms_players` WHERE `username` = ?", 
+                let update_permission = () => {
+                    sql_request(function (update_result) {
+                            if (update_result) {
+                                stat()
+                                console.log(`Result update row in luckperms : ${JSON.stringify(update_result)}`)
+                                return resp.send("ok")
+                            }
+                            return error
+                        },
+                        "UPDATE luckperms_user_permissions SET `value` = 1 WHERE `uuid` = ? AND `permission` = ? ORDER BY id DESC LIMIT 1",
+                        [result[0].uuid, permission_ident]
+                    )
+                }
+                sql_request(function (permission) {
+                        if (!permission.length) {
+                            return add_permission()
+                        } else if (parseInt(permission[0].value) !== 1) {
+                            return update_permission()
+                        } else if (parseInt(permission[0].value) === 1) {
+                            return resp.send("Право уже выдано")
+                        }
+                        return resp.send("Неизвестная ошибка")
+                    },
+                    "SELECT `uuid`, `permission`, `value` FROM luckperms_user_permissions WHERE `uuid` = ? AND `permission` = ? ORDER BY id DESC LIMIT 1",
+                    [result[0].uuid, permission_ident]
+                )
+            }
+            return error
+        },
+        "SELECT `uuid` FROM `luckperms_players` WHERE `username` = ?",
         [body.username]
     )
 })
 
 app.post('/donate/services', rateLimit({
-	windowMs: 1 * 60 * 1000,
-	max: 30
-}), reccheck, async (req, resp) => {
+    windowMs: 60 * 1000,
+    max: 30
+}), re_check, async (req, resp) => {
     try {
-        function response_call(data, cache=false) {
+        function response_call(data, cache = false) {
             return resp.send({
                 cache: cache,
                 success: true,
                 services: data
             })
         }
+
         function response_(data) {
             let result = []
             for (let i = 0; i < data.length; i++) {
@@ -594,6 +477,7 @@ app.post('/donate/services', rateLimit({
             }
             return result
         }
+
         redis.get("donate_services", (error, result) => {
             if (error) throw error
             if (result !== null) {
@@ -608,7 +492,7 @@ app.post('/donate/services', rateLimit({
                         }
                     },
                     (error, response, body) => {
-                        if (!error && response.statusCode == 200) {
+                        if (!error && response.statusCode === 200) {
                             body = JSON.parse(body)
                             if (body.success) {
                                 let response_data = body.response
@@ -633,21 +517,22 @@ app.post('/donate/services', rateLimit({
 })
 
 app.post('/donate/coupon', rateLimit({
-	windowMs: 1 * 60 * 1000,
-	max: 15
-}), reccheck, async (req, resp) => {
+    windowMs: 60 * 1000,
+    max: 15
+}), re_check, async (req, resp) => {
     let json_body = req.body
     if (json_body.code.length > 35) {
         return input_e(resp, 400, "coupon is long")
     }
     try {
-        function response_call(data, cache=false) {
+        function response_call(data, cache = false) {
             return resp.send({
                 cache: cache,
-                success: data ? true : false,
+                success: !!data,
                 coupon: data
             })
         }
+
         function response_(data) {
             if (data) {
                 let products = data.products
@@ -668,6 +553,7 @@ app.post('/donate/coupon', rateLimit({
                 return null
             }
         }
+
         function select_coupon(data, name) {
             if (data) {
                 for (let i = 0; i < data.length; i++) {
@@ -678,6 +564,7 @@ app.post('/donate/coupon', rateLimit({
             }
             return null
         }
+
         redis.get(`coupon_${json_body.code}`, (error, result) => {
             if (error) throw error
             if (result !== null) {
@@ -692,7 +579,7 @@ app.post('/donate/coupon', rateLimit({
                         }
                     },
                     (error, response, body) => {
-                        if (!error && response.statusCode == 200) {
+                        if (!error && response.statusCode === 200) {
                             body = JSON.parse(body)
                             if (body.success) {
                                 let coupon_str = response_(select_coupon(body.response, json_body.code))
@@ -717,9 +604,9 @@ app.post('/donate/coupon', rateLimit({
 })
 
 app.post('/donate/payment_get', rateLimit({
-	windowMs: 1 * 60 * 1000,
-	max: 30
-}), reccheck, async (req, resp) => {
+    windowMs: 60 * 1000,
+    max: 30
+}), re_check, async (req, resp) => {
     let json_body = req.body
     try {
         function response_(data) {
@@ -728,16 +615,18 @@ app.post('/donate/payment_get', rateLimit({
                     let pattern = data.products[0].commands[0]
                     let exc_com = data.sent_commands[0].command
 
-                    let splitted_pattern = pattern.split("\x20")
-                    let splitted_exc_com = exc_com.split("\x20")
+                    let split_pattern = pattern.split("\x20")
+                    let split_exc_com = exc_com.split("\x20")
 
-                    for (let i = 0; i < splitted_pattern.length; i++) {
-                        if (splitted_pattern[i] === "{amount}") {
-                            data.enrolled = parseInt(splitted_exc_com[i])
+                    for (let i = 0; i < split_pattern.length; i++) {
+                        if (split_pattern[i] === "{amount}") {
+                            data.enrolled = parseInt(split_exc_com[i])
                         }
                     }
-                } else { data.enrolled = 0 }
-                data.status = (data.status === 2) ? true : false
+                } else {
+                    data.enrolled = 0
+                }
+                data.status = (data.status === 2)
                 let p = data.products[0]
                 return {
                     id: data.id,
@@ -760,13 +649,15 @@ app.post('/donate/payment_get', rateLimit({
                 return null
             }
         }
-        function response_call(result, cache=false) {
+
+        function response_call(result, cache = false) {
             return resp.send({
                 success: true,
                 cache: cache,
                 payment: result
             })
         }
+
         redis.get(`payment_${json_body.payment_id}`, (error, result) => {
             if (error) throw error
             if (result !== null) {
@@ -781,7 +672,7 @@ app.post('/donate/payment_get', rateLimit({
                         }
                     },
                     (error, response, body) => {
-                        if (!error && response.statusCode == 200) {
+                        if (!error && response.statusCode === 200) {
                             body = JSON.parse(body)
                             if (body.success) {
                                 let payment = response_(body.response)
@@ -806,9 +697,9 @@ app.post('/donate/payment_get', rateLimit({
 })
 
 app.post('/donate/payment/create', rateLimit({
-	windowMs: 1 * 60 * 1000,
-	max: 15
-}), reccheck, async (req, resp) => {
+    windowMs: 60 * 1000,
+    max: 15
+}), re_check, async (req, resp) => {
     let json_body = req.body
     let server_id = decryptor(json_body.server_id)
 
@@ -830,12 +721,12 @@ app.post('/donate/payment/create', rateLimit({
         let url = url_builder_(
             'https://easydonate.ru/api/v3/shop/payment/create',
             [
-                { name: "customer", value: json_body.customer },
-                { name: "server_id", value: server_id },
-                { name: "products", value: products_stringified },
-                { name: "email", value: json_body.email },
-                { name: "coupon", value: json_body.coupon },
-                { name: "success_url", value: json_body.success_url },
+                {name: "customer", value: json_body.customer},
+                {name: "server_id", value: server_id},
+                {name: "products", value: products_stringified},
+                {name: "email", value: json_body.email},
+                {name: "coupon", value: json_body.coupon},
+                {name: "success_url", value: json_body.success_url},
             ]
         )
         request(
@@ -847,7 +738,7 @@ app.post('/donate/payment/create', rateLimit({
                 }
             },
             (error, response, body) => {
-                if (!error && response.statusCode == 200) {
+                if (!error && response.statusCode === 200) {
                     body = JSON.parse(body)
                     if (body.success) {
                         return resp.send({
@@ -855,7 +746,7 @@ app.post('/donate/payment/create', rateLimit({
                             payment: {
                                 url: body.response.url,
                                 bill_id: body.response.payment.id
-                            } 
+                            }
                         })
                     }
                     return resp.status(503).json({
@@ -874,13 +765,13 @@ app.post('/donate/payment/create', rateLimit({
 })
 
 app.post('/feedback/send', rateLimit({
-	windowMs: 1 * 60 * 1000,
-	max: 10
-}), reccheck, tg_check, async (req, resp) => {
+    windowMs: 60 * 1000,
+    max: 10
+}), re_check, tg_check, async (req, resp) => {
     let json_body = req.body
     let tg_user = getVerifiedTelegramData(json_body)
     const remove_repeats = (text) => {
-        let arr = string.split("\x20")
+        let arr = text.split("\x20")
         let newArr = []
         let last = null
         for (let i = 0; i < arr.length; i++) {
@@ -915,7 +806,7 @@ app.post('/feedback/send', rateLimit({
                         method: 'GET'
                     },
                     (error, response, body) => {
-                        if (!error && response.statusCode == 200) {
+                        if (!error && response.statusCode === 200) {
                             body = JSON.parse(body)
                             if (body.ok) {
                                 redis.set(`feedback_${req.ip}_tg${tg_user.id}`, "ok", "ex", 60)
@@ -937,9 +828,9 @@ app.post('/feedback/send', rateLimit({
 })
 
 app.post('/feedback/check', rateLimit({
-	windowMs: 1 * 60 * 1000,
-	max: 50
-}), reccheck, tg_check, async (req, resp) => {
+    windowMs: 60 * 1000,
+    max: 50
+}), re_check, tg_check, async (req, resp) => {
     let tg_user = getVerifiedTelegramData(req.body)
     redis.get(`feedback_${req.ip}_tg${tg_user.id}`, (error, result) => {
         if (error) throw error
@@ -954,65 +845,36 @@ app.post('/feedback/check', rateLimit({
 })
 
 app.post('/crypto', rateLimit({
-	windowMs: 1 * 60 * 1000,
-	max: 50
-}), reccheck, async (req, resp) => {
-    return resp.send({
-        success: true, token: encryptor(JSON.stringify({
-            ip: get_user_ip(req),
-            timestamp: get_current_server_time()
-        }))
-    })
-})
+    windowMs: 60 * 1000,
+    max: 50
+}), re_check, crypto_view)
 
 app.post('/telegram/auth/check', rateLimit({
-	windowMs: 1 * 60 * 1000,
-	max: 50
-}), tg_check, async (req, resp) => {
+    windowMs: 60 * 1000,
+    max: 50
+}), tg_check, async (_, resp) => {
     return resp.send({success: true})
 })
 
 app.get('/profile/avatar', rateLimit({
-	windowMs: 1 * 60 * 1000,
-	max: 100
+    windowMs: 60 * 1000,
+    max: 100
 }), catchAsync(getHead))
 
 app.get('/profile/head', rateLimit({
-	windowMs: 1 * 60 * 1000,
-	max: 100
+    windowMs: 60 * 1000,
+    max: 100
 }), catchAsync(get3dHead))
 
 app.get('/profile/body', rateLimit({
-	windowMs: 1 * 60 * 1000,
-	max: 20
+    windowMs: 60 * 1000,
+    max: 20
 }), catchAsync(get3dBody))
 
 app.post('/server', rateLimit({
-	windowMs: 1 * 60 * 1000,
-	max: 50
-}), crypto_check, async (req, resp) => {
-    try {
-        const options = {
-            timeout: 1000 * 2
-        }
-        function result_(data) {
-            return {
-                online: data.players.online
-            }
-        }
-        mcstatus.status('zalupa.online', 25565, options)
-            .then((result) => resp.send({
-                success: true, body: result_(result)
-            }))
-            .catch((error) => resp.status(503).json({
-                success: false,
-                message: 'Server data get error', 
-                exception: error
-            }))
-    } catch (_) {
-        return main_e(resp)
-    }
-})
+    windowMs: 60 * 1000,
+    max: 50
+}), crypto_check, mc_status_view)
 
 app.get('*', async (_, resp) => {
     return resp.status(404).json({

@@ -1,9 +1,9 @@
-const { getHead64 } = require("../helpers/profile")
+const {getHead64} = require("../helpers/profile")
 const Numbers = require("../helpers/numbers")
-const { getVerifiedTelegramData } = require("../../helpers/telegram")
+const {getVerifiedTelegramData} = require("../../helpers/telegram")
 
 module.exports.getHead = async (req, res) => {
-    const tg_user = getVerifiedTelegramData(req.query.tg_auth, custom_var=true)
+    const tg_user = getVerifiedTelegramData(req.query.tg_auth, custom_var = true)
     if (!tg_user) {
         return res.status(400).send(null)
     }

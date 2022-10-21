@@ -17,7 +17,7 @@ const steveDefault = {
 }
 
 async function getBase64FromURL(url) {
-    const binary = (await axios.get(url, { responseType: "arraybuffer" })).data
+    const binary = (await axios.get(url, {responseType: "arraybuffer"})).data
     return Buffer.from(binary, "binary").toString("base64")
 }
 
