@@ -1,3 +1,5 @@
+const crypto = require('crypto')
+
 const monitorings = [
     {
         name: "minecraftrating.ru",
