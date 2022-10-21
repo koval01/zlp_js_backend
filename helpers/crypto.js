@@ -1,6 +1,6 @@
-import crypto from "crypto";
-import {crypto_keys} from "../vars";
-import {get_current_server_time, get_user_ip} from "./methods";
+const crypto = require("crypto")
+import {crypto_keys} from "../vars"
+import {get_current_server_time, get_user_ip} from "./methods"
 
 function decrypt(data) {
     try {
