@@ -12,8 +12,8 @@ module.exports.getHead = async (req, res) => {
     console.log("pos 2")
     // const texture = req.params.texture_hash;
     const texture = "c7acd6b5a7a61bb25892225d160138b4e97fa02cc33fbecb559deae4cb485f" // for test
-    const width = Numbers.getPositive(req.options.width, 80);
-    const height = Numbers.getPositive(req.options.height, 80);
+    const width = Numbers.getPositive(req.params.width, 80);
+    const height = Numbers.getPositive(req.params.height, 80);
 
     if (width > 250 || height > 250) {
         return res.status(400)
