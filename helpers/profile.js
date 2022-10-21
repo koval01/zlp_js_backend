@@ -2,8 +2,6 @@ const axios = require("axios");
 const Jimp = require("jimp");
 const bodyParts = require("./bodySection");
 const MinecraftSkin = require("./3dRender");
-const mojangApi = "https://api.mojang.com/users/profiles/minecraft/";
-const sessionApi = "https://sessionserver.mojang.com/session/minecraft/profile/";
 
 const steveDefault = {
     time: 0,
@@ -23,11 +21,6 @@ async function getBase64FromURL(url) {
     return Buffer.from(binary, "binary").toString("base64");
 }
 
-/**
- * Internal function to get and construct a profile. Ignores cache and doesnt save to cache.
- * @param {string} texture hash of the player
- * @returns {Promise<object>} Players profile
- */
 async function _getProfile(texture) {
     const mojangTextures = `https://textures.minecraft.net/texture/${texture}`;
 
@@ -47,11 +40,6 @@ async function _getProfile(texture) {
     return newProfile;
 }
 
-/**
- * Function to get a players profile by UUID.
- * @param {string} texture hash of the player
- * @returns {Promise<object>} Player profile
- */
 async function getProfile(texture) {
     const newProfile = await _getProfile(texture);
     return newProfile;
@@ -69,14 +57,6 @@ async function getSkin64(texture) {
     return profile.assets.skin.base64;
 }
 
-// TODO: Optimize the performance of these 2d renders, they are slow.
-/**
- * Internal method to render a head.
- * @param {*} skinBuffer
- * @param {*} width
- * @param {*} height
- * @param {*} overlay
- */
 async function renderHead64(skinBuffer, width, height, overlay = true) {
     const bottom = await Jimp.read(skinBuffer);
     const applySecondLayer = useSecondLayer(bottom);
@@ -186,41 +166,18 @@ async function renderBody64(skinBuffer, width = 160, height = 320, isSlim = fals
     return base.getBase64Async(Jimp.MIME_PNG);
 }
 
-async function getBody64(uuid, width = 160, height = 320, overlay = true) {
-    const profile = await getProfile(uuid);
-    const skinBuffer = new Buffer.from(profile.assets.skin.base64, "base64");
-    const isSlim = profile.assets.skin.slim;
-    return renderBody64(skinBuffer, width, height, isSlim, overlay);
-}
-
-async function get3DSkin(name) {
-    const skinB64 = await getSkin64(name);
-    const skin = new MinecraftSkin(Buffer.from(skinB64, "base64"), false, 120);
-    return skin.getRender();
-}
-
 async function get3DHead(name) {
     const skinB64 = await getSkin64(name);
     const skin = new MinecraftSkin(Buffer.from(skinB64, "base64"), false, 120);
     return skin.getHead();
 }
 
-async function getCape64(uuid) {
-    if (!isUUID(uuid)) throw new ApiError(400, "Invalid UUID");
-    const profile = await getProfile(uuid);
-    return profile.assets.cape.base64;
-}
-
 module.exports = {
     steveDefault,
     getProfile,
-    getUUID,
     getSkin64,
     getHead64,
-    getBody64,
-    get3DSkin,
     get3DHead,
-    getCape64,
     renderHead64,
     renderBody64,
 };
