@@ -1,5 +1,6 @@
 const {get3DHead, get3DSkin} = require("../helpers/profile")
 const {getVerifiedTelegramData} = require("../../helpers/telegram")
+const {crypto_check_logic} = require("../../helpers/crypto")
 
 module.exports.get3dHead = async (req, res) => {
     const texture = req.query.texture_hash
@@ -14,6 +15,10 @@ module.exports.get3dHead = async (req, res) => {
 }
 
 module.exports.get3dBody = async (req, res) => {
+    if (!crypto_check_logic(req.query.c_token, req)) {
+        return res.status(400).send(null)
+    }
+
     const tg_user = getVerifiedTelegramData(req.query.tg_auth, true)
     if (!tg_user) {
         return res.status(400).send(null)

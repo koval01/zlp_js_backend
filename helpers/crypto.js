@@ -28,7 +28,7 @@ function crypto_check_logic(token, req) {
 
     if (decryptedData) {
         let body = JSON.parse(decryptedData)
-        if (body.ip === get_user_ip(req) && (get_current_server_time() - body.timestamp) < 900) {
+        if (body.ip === get_user_ip(req) && (get_current_server_time() - body.timestamp) < 600) {
             return true
         }
     }
@@ -54,4 +54,8 @@ module.exports.crypto_view = async (req, resp) => {
             timestamp: get_current_server_time()
         }))
     })
+}
+
+module.exports = {
+    crypto_check_logic
 }
