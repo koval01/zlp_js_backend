@@ -21,13 +21,13 @@ module.exports.getHead = async (req, res) => {
 
     console.log("pos 3")
 
-    let head64 = await getHead64(texture, width, height, req.options.overlay);
+    let head64 = await getHead64(texture, width, height, req.params.overlay);
 
     console.log("pos 4")
     head64 = head64.substr(head64.indexOf(",") + 1);
 
     console.log("pos 5")
-    if (req.options.base64) {
+    if (req.params.base64) {
         return res.send(head64);
     }
 
