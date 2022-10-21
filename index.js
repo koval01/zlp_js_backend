@@ -12,7 +12,7 @@ const crypto = require('crypto')
 const mysql = require('mysql')
 const Redis = require("ioredis")
 
-const { text } = require('body-parser')
+const { getHead64 } = require("./helpers/profile")
 
 const monitorings = [
     {
@@ -35,7 +35,7 @@ const app = express()
 const redis = new Redis(process.env.REDIS_URL)
 
 function getTelegramValidateHash(authData) {
-    let tgBotToken = process.env.FEEDBACK_BOT_TOKEN
+    const tgBotToken = process.env.FEEDBACK_BOT_TOKEN
     delete authData.hash
 
     let key = crypto.createHash('sha256').update(tgBotToken).digest()
@@ -54,8 +54,11 @@ function checkTelegramAuthorization(authData) {
     return authData.hash === getTelegramValidateHash(authData)
 }
 
-function getVerifiedTelegramData(json_body) {
+function getVerifiedTelegramData(json_body, custom_var=false) {
     let authData = json_body.tg_auth_data
+    if (custom_var) {
+        authData = json_body
+    }
     try {
         authData = JSON.parse(Buffer.from(authData, 'base64'))
     } catch(_) {
@@ -107,7 +110,7 @@ const mysql_ = function() {
 }
 
 function sql_request(callback, query, values = []) {
-    let error = (e) => console.error(`Database error: ${e}`)
+    const error = (e) => console.error(`Database error: ${e}`)
     let con = mysql_()
     con.query(query, values, 
         function (err, result, _) {
@@ -127,7 +130,7 @@ function monitoring_statistic(monitroing_name, username) {
             [username, monitroing_name]
         )
     }
-    let update = () => {
+    const update = () => {
         sql_request(function(update_result) {
             console.log(`Monitoring statistic update player : ${JSON.stringify(update_result)}`)
             return update_result
@@ -136,7 +139,7 @@ function monitoring_statistic(monitroing_name, username) {
             [username, monitroing_name]
         )
     }
-    let insert = () => {
+    const insert = () => {
         sql_request(function(insert_result) {
             console.log(`Monitoring statistic add player : ${JSON.stringify(insert_result)}`)
             return insert_result
@@ -189,7 +192,7 @@ function censorWord(str) {
 }
  
 function censorEmail(email){
-    let arr = email.split("@");
+    const arr = email.split("@");
     return censorWord(arr[0]) + "@" + arr[1];
 }
 
@@ -1080,12 +1083,25 @@ app.post('/telegram/auth/check', rateLimit({
     return resp.send({success: true})
 })
 
+app.get('/profile/avatar', rateLimit({
+	windowMs: 1 * 60 * 1000,
+	max: 120
+}), async (req, resp) => {
+    const tg_user = getVerifiedTelegramData(req.params.tg_auth)
+    const texture_hash = req.params.texture_hash
+    if (!tg_user || !texture_hash) {
+        return resp.status(400)
+    }
+    const head = await getHead64(texture_hash)
+    return resp.send(head)
+})
+
 app.post('/server', rateLimit({
 	windowMs: 1 * 60 * 1000,
 	max: 50
 }), crypto_check, async (req, resp) => {
     try {
-        let options = {
+        const options = {
             timeout: 1000 * 2
         }
         function result_(data) {
