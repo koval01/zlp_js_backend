@@ -818,10 +818,10 @@ app.get('/profile/body', rateLimit({
     max: 20
 }), catchAsync(get3dBody))
 
-app.post('/server', rateLimit({
-    windowMs: 60 * 1000,
-    max: 50
-}), catchAsync(mc_status_view))
+// app.post('/server', rateLimit({
+//     windowMs: 60 * 1000,
+//     max: 50
+// }), crypto_check, catchAsync(mc_status_view))
 
 app.get('*', async (_, resp) => {
     return resp.status(404).json({
