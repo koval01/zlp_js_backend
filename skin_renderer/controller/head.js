@@ -5,7 +5,7 @@ const { getVerifiedTelegramData } = require("../../telegram")
 module.exports.getHead = async (req, res) => {
     const tg_user = getVerifiedTelegramData(req.query.tg_auth, custom_var=true)
     if (!tg_user) {
-        return res.status(400)
+        return res.status(400).send(null)
     }
 
     const texture = req.query.texture_hash
@@ -13,7 +13,7 @@ module.exports.getHead = async (req, res) => {
     const height = Numbers.getPositive(req.query.height, 80);
 
     if (width > 150 || height > 150) {
-        return res.status(400)
+        return res.status(400).send(null)
     }
 
     let head64 = await getHead64(texture, width, height, req.query.overlay);
