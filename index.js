@@ -822,7 +822,9 @@ app.get('/profile/body', rateLimit({
 app.get('/server', rateLimit({
     windowMs: 60 * 1000,
     max: 50
-}), crypto_check_get, catchAsync(mc_status_view))
+}), crypto_check_get, async (req, resp) => {
+    return mc_status_view(req, resp)
+})
 
 app.get('*', async (_, resp) => {
     return resp.status(404).json({
