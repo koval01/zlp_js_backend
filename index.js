@@ -1052,13 +1052,12 @@ app.post('/telegram/auth/check', rateLimit({
     return resp.send({success: true})
 })
 
-// app.get('/profile/avatar', rateLimit({
-// 	windowMs: 1 * 60 * 1000,
-// 	max: 120
-// }), catchAsync(controller.getHead))
-
-router.use("/profile/avatar", 
-    router.get("/:tg_auth", catchAsync(controller.getHead)));
+app.get('/profile/avatar', rateLimit({
+	windowMs: 1 * 60 * 1000,
+	max: 120
+}), (req, resp) => {
+    return controller.getHead(req, resp)
+})
 
 app.post('/server', rateLimit({
 	windowMs: 1 * 60 * 1000,
