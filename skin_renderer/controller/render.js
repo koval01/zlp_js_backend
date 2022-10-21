@@ -1,4 +1,4 @@
-const { get3DHead, get3DSkin } = require("../../helpers/profile")
+const { get3DHead, get3DSkin } = require("../helpers/profile")
 const { getVerifiedTelegramData } = require("../../telegram")
 
 module.exports.get3dHead = async (req, res) => {
