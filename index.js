@@ -35,6 +35,7 @@ const crypto_keys = {
 }
 
 const app = express()
+const router = express.Router()
 const redis = new Redis(process.env.REDIS_URL)
 
 app.set('port', (process.env.PORT || 5000))
@@ -1051,10 +1052,13 @@ app.post('/telegram/auth/check', rateLimit({
     return resp.send({success: true})
 })
 
-app.get('/profile/avatar', rateLimit({
-	windowMs: 1 * 60 * 1000,
-	max: 120
-}), catchAsync(controller.getHead))
+// app.get('/profile/avatar', rateLimit({
+// 	windowMs: 1 * 60 * 1000,
+// 	max: 120
+// }), catchAsync(controller.getHead))
+
+router.use("/profile/avatar", 
+    router.get("/:tg_auth", catchAsync(controller.getHead)));
 
 app.post('/server', rateLimit({
 	windowMs: 1 * 60 * 1000,
