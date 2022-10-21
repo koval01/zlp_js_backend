@@ -23,14 +23,22 @@ function encryptor(data) {
     return encryptedData
 }
 
-function crypto_check(req, resp, next) {
-    let decryptedData = decrypt(req.body.crypto_token)
+function crypto_check_logic(token, req) {
+    let decryptedData = decrypt(token)
 
     if (decryptedData) {
         let body = JSON.parse(decryptedData)
         if (body.ip === get_user_ip(req) && (get_current_server_time() - body.timestamp) < 900) {
-            return next()
+            return true
         }
+    }
+    return false
+}
+
+module.exports.crypto_check = (req, resp, next) => {
+    const check = crypto_check_logic(req.body.crypto_token, req)
+    if (check) {
+        return next()
     }
     return resp.status(403).json({
         success: false,
