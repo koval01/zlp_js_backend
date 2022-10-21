@@ -25,4 +25,5 @@ module.exports.mc_status_view = async (req, resp) => {
     } catch (_) {
         return main_e(resp)
     }
+    return resp.status(503).send(null)
 }
