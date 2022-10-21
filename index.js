@@ -9,7 +9,6 @@ const html_parser = require('node-html-parser')
 const express = require('express')
 const mcstatus = require('minecraft-server-util')
 const crypto = require('crypto')
-const mysql = require('mysql')
 const Redis = require("ioredis")
 
 const log = require("./helpers/log")
@@ -21,6 +20,8 @@ const { get3dBody, get3dHead } = require("./skin_renderer/controller/render")
 
 const { checkTelegramAuthorization, getVerifiedTelegramData } = require("./helpers/telegram")
 const { apiLimiter } = require("./helpers/limiters")
+const { global_error } = require("./helpers/other_middle")
+const { monitoring_statistic } = require("./database/functions/monitoring")
 
 const app = express()
 const redis = new Redis(process.env.REDIS_URL)
@@ -37,72 +38,7 @@ app.use(log.logRequest)
 app.use(log.logError)
 
 app.use(apiLimiter)
-
-const mysql_ = function() {
-    return cursor = mysql.createConnection({
-        host: process.env.DB_HOSTNAME,
-        user: process.env.DB_USERNAME,
-        password: process.env.DB_PASSWORD,
-        database: process.env.DB_DATABASE,
-        ssl: false
-    })
-}
-
-function sql_request(callback, query, values = []) {
-    const error = (e) => console.error(`Database error: ${e}`)
-    let con = mysql_()
-    con.query(query, values, 
-        function (err, result, _) {
-            if (err) error(err)
-            callback(result)
-            con.end()
-    })
-}
-
-function monitoring_statistic(monitroing_name, username) {
-    let check_in_db = (callback) => {
-        sql_request(function(data) {
-            console.log(`Monitoring statistic select : ${JSON.stringify(data)}`)
-            callback(data)
-        },
-            "SELECT * FROM `monitoring_statistic` WHERE `username` = ? AND `monitoring` = ?", 
-            [username, monitroing_name]
-        )
-    }
-    const update = () => {
-        sql_request(function(update_result) {
-            console.log(`Monitoring statistic update player : ${JSON.stringify(update_result)}`)
-            return update_result
-        },
-            "UPDATE monitoring_statistic SET `votes` = `votes` + 1, `timestep` = NOW() WHERE `username` = ? AND `monitoring` = ?", 
-            [username, monitroing_name]
-        )
-    }
-    const insert = () => {
-        sql_request(function(insert_result) {
-            console.log(`Monitoring statistic add player : ${JSON.stringify(insert_result)}`)
-            return insert_result
-        },
-            "INSERT monitoring_statistic (username, monitoring, timestep, votes) VALUES (?, ?, NOW(), 1)", 
-            [username, monitroing_name]
-        )
-    }
-    check_in_db(function(data) {
-        if (data.length) {
-            return update()
-        } else { return insert() }
-    })
-}
-
-app.use(function (err, req, resp, next) {
-    console.error(err.stack)
-    next()
-    return resp.status(500).json({
-        success: false,
-        message: "Internal server error",
-        exception: "server error"
-    })
-})
+app.use(global_error)
 
 function main_e(resp, error = "", message = "Main function error") {
     return resp.status(503).json({
