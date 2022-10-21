@@ -19,12 +19,12 @@
     "mysql": "^2.18.1",
     "ioredis": "^5.2.3",
     "canvas": "^2.10.1",
-    "jimp": "^0.16.1",
+    "jimp": "^0.16.2",
     "colors": "^1.4.0",
     "rotating-file-stream": "^2.1.6"
   },
   "engines": {
-    "node": "18.10.0"
+    "node": "16.18.0"
   },
   "repository": {
     "type": "git",
