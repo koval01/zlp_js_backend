@@ -7,7 +7,8 @@ module.exports.getHead = async (req, res) => {
         return res.status(400)
     }
 
-    const texture = req.params.texture_hash;
+    // const texture = req.params.texture_hash;
+    const texture = "c7acd6b5a7a61bb25892225d160138b4e97fa02cc33fbecb559deae4cb485f" // for test
     const width = Numbers.getPositive(req.options.width, 80);
     const height = Numbers.getPositive(req.options.height, 80);
 
