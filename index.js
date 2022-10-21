@@ -7,7 +7,6 @@ const cors = require('cors')
 const rateLimit = require('express-rate-limit')
 const html_parser = require('node-html-parser')
 const express = require('express')
-const mcstatus = require('minecraft-server-util')
 const crypto = require('crypto')
 const Redis = require("ioredis")
 
@@ -823,9 +822,7 @@ app.get('/profile/body', rateLimit({
 app.get('/server', rateLimit({
     windowMs: 60 * 1000,
     max: 50
-}), crypto_check_get, async (req, resp) => {
-    return mc_status_view(req, resp)
-})
+}), crypto_check_get, catchAsync(mc_status_view))
 
 app.get('*', async (_, resp) => {
     return resp.status(404).json({
