@@ -794,7 +794,7 @@ app.post('/feedback/check', rateLimit({
 app.post('/crypto', rateLimit({
     windowMs: 60 * 1000,
     max: 50
-}), re_check, catchAsync(crypto_view))
+}), re_check, crypto_view)
 
 app.post('/telegram/auth/check', rateLimit({
     windowMs: 60 * 1000,

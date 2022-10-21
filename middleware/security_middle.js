@@ -12,7 +12,7 @@ function re_check(req, resp, next) {
             }
         },
         (error, response, body) => {
-            if (!error && response.statusCode == 200) {
+            if (!error && response.statusCode === 200) {
                 body = JSON.parse(body)
                 if (body.success) {
                     return next()

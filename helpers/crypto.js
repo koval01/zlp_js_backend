@@ -51,7 +51,8 @@ module.exports.crypto_view = async (req, resp) => {
     return resp.send({
         success: true, token: encryptor(JSON.stringify({
             ip: get_user_ip(req),
-            timestamp: get_current_server_time()
+            timestamp: get_current_server_time(),
+            salt: crypto.randomBytes(32)
         }))
     })
 }
