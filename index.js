@@ -27,8 +27,7 @@ const {monitoring_statistic} = require("./database/functions/monitoring")
 const {promotions_sql} = require("./database/functions/promotion")
 
 const static_view = require("./static")
-const {crypto_view, crypto_check_get} = require("./helpers/crypto")
-const {sql_request} = require("./database/mysql")
+const {crypto_view} = require("./helpers/crypto")
 const {mc_status_view} = require("./helpers/server_status")
 
 const app = express()
@@ -822,9 +821,7 @@ app.get('/profile/body', rateLimit({
 app.get('/server', rateLimit({
     windowMs: 60 * 1000,
     max: 50
-}), crypto_check_get, async (req, resp) => {
-    return mc_status_view(req, resp)
-})
+}), catchAsync(mc_status_view))
 
 app.get('*', async (_, resp) => {
     return resp.status(404).json({
