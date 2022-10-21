@@ -13,7 +13,7 @@ const mysql = require('mysql')
 const Redis = require("ioredis")
 
 const catchAsync = require("./helpers/catchAsync")
-const controller = require("./controller/v1/head")
+const controller = require("./controller/head")
 
 const monitorings = [
     {
