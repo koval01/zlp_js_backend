@@ -5,7 +5,7 @@ module.exports.get3dHead = async (req, res) => {
     const texture = req.query.texture_hash
 
     const render = new Buffer(await get3DHead(texture))
-    if (req.options.base64) {
+    if (req.query.base64) {
         res.send(render.toString("base64"))
         return
     }
@@ -22,7 +22,7 @@ module.exports.get3dBody = async (req, res) => {
     const texture = req.query.texture_hash
 
     const render = new Buffer(await get3DSkin(texture))
-    if (req.options.base64) {
+    if (req.query.base64) {
         res.send(render.toString("base64"))
         return
     }
