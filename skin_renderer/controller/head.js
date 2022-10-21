@@ -3,10 +3,10 @@ const { getVerifiedTelegramData } = require("../../telegram")
 
 module.exports.getHead = async (req, res) => {
     console.log("pos 1")
-    const tg_user = getVerifiedTelegramData(req.params.tg_auth, custom_var=true)
-    if (!tg_user) {
-        return res.status(400)
-    }
+    // const tg_user = getVerifiedTelegramData(req.params.tg_auth, custom_var=true)
+    // if (!tg_user) {
+    //     return res.status(400)
+    // }
 
     console.log("pos 2")
     // const texture = req.params.texture_hash;
