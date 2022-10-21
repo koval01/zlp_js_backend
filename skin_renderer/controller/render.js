@@ -1,5 +1,5 @@
 const { get3DHead, get3DSkin } = require("../helpers/profile")
-const { getVerifiedTelegramData } = require("../../telegram")
+const { getVerifiedTelegramData } = require("../../helpers/telegram")
 
 module.exports.get3dHead = async (req, res) => {
     const texture = req.params.texture_hash
