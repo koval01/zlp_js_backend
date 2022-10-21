@@ -1,6 +1,11 @@
 const { getHead64 } = require("../helpers/profile");
 
 module.exports.getHead = async (req, res) => {
+    const tg_user = getVerifiedTelegramData(req.params.tg_auth, custom_var=true)
+    if (!tg_user) {
+        return res.status(400)
+    }
+
     const texture = req.params.texture_hash;
     const width = Numbers.getPositive(req.options.width, 80);
     const height = Numbers.getPositive(req.options.height, 80);

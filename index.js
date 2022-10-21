@@ -12,8 +12,8 @@ const crypto = require('crypto')
 const mysql = require('mysql')
 const Redis = require("ioredis")
 
-const catchAsync = require("./helpers/catchAsync")
-const controller = require("./controller/head")
+const catchAsync = require("./skin_renderer/helpers/catchAsync")
+const controller = require("./skin_renderer/controller/head")
 
 const monitorings = [
     {
@@ -1089,13 +1089,7 @@ app.post('/telegram/auth/check', rateLimit({
 app.get('/profile/avatar', rateLimit({
 	windowMs: 1 * 60 * 1000,
 	max: 120
-}), async (req, resp) => {
-    const tg_user = getVerifiedTelegramData(req.params.tg_auth, custom_var=true)
-    if (!tg_user) {
-        return resp.status(400)
-    }
-    return catchAsync(controller.getHead)
-})
+}), catchAsync(controller.getHead))
 
 app.post('/server', rateLimit({
 	windowMs: 1 * 60 * 1000,
