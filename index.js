@@ -15,6 +15,8 @@ const Redis = require("ioredis")
 const catchAsync = require("./skin_renderer/helpers/catchAsync")
 const controller = require("./skin_renderer/controller/head")
 
+const { checkTelegramAuthorization, getVerifiedTelegramData } = require("./telegram")
+
 const monitorings = [
     {
         name: "minecraftrating.ru",
@@ -34,45 +36,6 @@ const crypto_keys = {
 
 const app = express()
 const redis = new Redis(process.env.REDIS_URL)
-
-function getTelegramValidateHash(authData) {
-    const tgBotToken = process.env.FEEDBACK_BOT_TOKEN
-    delete authData.hash
-
-    let key = crypto.createHash('sha256').update(tgBotToken).digest()
-    let dataCheckArr = Object.keys(authData)
-        .map((key) => `${key}=${authData[key]}`)
-        .sort()
-        .join("\n")
-
-    return crypto.createHmac(
-        'sha256', key)
-            .update(dataCheckArr)
-            .digest('hex')
-}
-
-function checkTelegramAuthorization(authData) {
-    return authData.hash === getTelegramValidateHash(authData)
-}
-
-function getVerifiedTelegramData(json_body, custom_var=false) {
-    let authData
-    if (custom_var) {
-        authData = json_body
-    } else {
-        json_body.tg_auth_data
-    }
-    try {
-        authData = JSON.parse(Buffer.from(authData, 'base64'))
-    } catch(_) {
-        return
-    }
-    if (checkTelegramAuthorization(authData)) {
-        return authData
-    }
-}
-
-module.exports.getVerifiedTelegramData = getVerifiedTelegramData
 
 app.set('port', (process.env.PORT || 5000))
 app.set('trust proxy', parseInt(process.env.PROXY_LAYER))
