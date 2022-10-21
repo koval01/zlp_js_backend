@@ -14,7 +14,7 @@ const Redis = require("ioredis")
 
 const catchAsync = require("./skin_renderer/helpers/catchAsync")
 const { getHead } = require("./skin_renderer/controller/head")
-const { get3dBody, get3dHead } = require("./skin_renderer/controller/profile")
+const { get3dBody, get3dHead } = require("./skin_renderer/controller/render")
 
 const { checkTelegramAuthorization, getVerifiedTelegramData } = require("./telegram")
 
