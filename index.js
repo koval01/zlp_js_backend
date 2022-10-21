@@ -12,60 +12,30 @@ const crypto = require('crypto')
 const mysql = require('mysql')
 const Redis = require("ioredis")
 
+const log = require("./helpers/log")
+const { monitorings, secrets, crypto_keys } = require("./vars")
+
 const catchAsync = require("./skin_renderer/helpers/catchAsync")
 const { getHead } = require("./skin_renderer/controller/head")
 const { get3dBody, get3dHead } = require("./skin_renderer/controller/render")
 
 const { checkTelegramAuthorization, getVerifiedTelegramData } = require("./helpers/telegram")
-
-const monitorings = [
-    {
-        name: "minecraftrating.ru",
-        permission: "monitoring_1",
-
-    },
-    {
-        name: "monitoringminecraft.ru",
-        permission: "monitoring_2",
-    }
-]
-const secrets = JSON.parse(process.env.MONITORING_SECRETS)
-const crypto_keys = {
-    init_vector: crypto.randomBytes(16),
-    security_key: crypto.randomBytes(32)
-}
+const { apiLimiter } = require("./helpers/limiters")
 
 const app = express()
 const redis = new Redis(process.env.REDIS_URL)
 
 app.set('port', (process.env.PORT || 5000))
 app.set('trust proxy', parseInt(process.env.PROXY_LAYER))
+
 app.use(express.json())
 app.use(express.urlencoded())
 app.use(compression())
 app.use(cors())
 
-function logRequest(req, res, next) {
-    console.log(`Request: [${req.method}] ${req.url}`)
-    next()
-}
-app.use(logRequest)
+app.use(log.logRequest)
+app.use(log.logError)
 
-function logError(err, req, res, next) {
-    console.error(err)
-    next()
-}
-app.use(logError)
-
-const apiLimiter = rateLimit({
-	windowMs: 1 * 60 * 1000, // 1 minute
-	max: 250,
-	standardHeaders: true,
-    message: {
-        success: false,
-        error: "too many requests"
-    }
-})
 app.use(apiLimiter)
 
 const mysql_ = function() {

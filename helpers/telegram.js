@@ -37,6 +37,8 @@ function getVerifiedTelegramData(json_body, custom_var=false) {
     }
 }
 
-module.exports.getTelegramValidateHash = getTelegramValidateHash
-module.exports.checkTelegramAuthorization = checkTelegramAuthorization
-module.exports.getVerifiedTelegramData = getVerifiedTelegramData
+module.exports = {
+    getTelegramValidateHash,
+    checkTelegramAuthorization,
+    getVerifiedTelegramData
+}
