@@ -1055,8 +1055,8 @@ app.post('/telegram/auth/check', rateLimit({
 app.get('/profile/avatar', rateLimit({
 	windowMs: 1 * 60 * 1000,
 	max: 120
-}), (req, resp) => {
-    return controller.getHead(req, resp)
+}), async (req, resp) => {
+    return await controller.getHead(req, resp)
 })
 
 app.post('/server', rateLimit({
