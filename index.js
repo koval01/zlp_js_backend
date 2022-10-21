@@ -1089,7 +1089,7 @@ app.get('/profile/avatar', rateLimit({
 	windowMs: 1 * 60 * 1000,
 	max: 120
 }), async (req, resp) => {
-    const tg_user = getVerifiedTelegramData(req.params.tg_auth)
+    const tg_user = getVerifiedTelegramData(req.params.tg_auth, custom_var=true)
     const texture_hash = req.params.texture_hash
     if (!tg_user || !texture_hash) {
         return resp.status(400)
