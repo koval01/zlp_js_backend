@@ -822,11 +822,7 @@ app.get('/server', rateLimit({
 }), catchAsync(mc_status_view))
 
 app.get('*', async (_, resp) => {
-    return resp.status(404).json({
-        success: false,
-        message: "This route cannot be found",
-        exception: "error route"
-    })
+    return main_e(resp, "error route", "This route cannot be found")
 })
 
 app.listen(app.get('port'), () => {
