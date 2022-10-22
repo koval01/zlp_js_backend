@@ -4,7 +4,6 @@ const request = require('request')
 const qs = require('querystring')
 const compression = require('compression')
 const cors = require('cors')
-const rateLimit = require('express-rate-limit')
 const html_parser = require('node-html-parser')
 const express = require('express')
 const crypto = require('crypto')
@@ -19,7 +18,7 @@ const {getHead} = require("./skin_renderer/controller/head")
 const {get3dBody, get3dHead} = require("./skin_renderer/controller/render")
 
 const {getVerifiedTelegramData} = require("./helpers/telegram")
-const {apiLimiter} = require("./helpers/limiters")
+const {apiLimiter, methodLimiter} = require("./helpers/limiters")
 const {global_error} = require("./middleware/other_middle")
 const {re_check, tg_check} = require("./middleware/security_middle")
 const {input_e, main_e} = require("./helpers/errors")
@@ -49,10 +48,7 @@ app.use(global_error)
 
 app.get('/ip', (req, resp) => resp.send({success: true, ip: req.ip}))
 
-app.post('/channel_get', rateLimit({
-    windowMs: 60 * 1000,
-    max: 30
-}), re_check, async (req, resp) => {
+app.post('/channel_get', methodLimiter, re_check, async (req, resp) => {
     try {
         function response_call(data, cache = false) {
             return resp.send({
@@ -117,10 +113,7 @@ app.post('/channel_get', rateLimit({
     }
 })
 
-app.post('/channel_parse', rateLimit({
-    windowMs: 60 * 1000,
-    max: 30
-}), re_check, async (req, resp) => {
+app.post('/channel_parse', methodLimiter, re_check, async (req, resp) => {
     try {
         function response_call(data, cache = false) {
             return resp.send({
@@ -223,10 +216,7 @@ app.post('/channel_parse', rateLimit({
     }
 })
 
-app.post('/events', rateLimit({
-    windowMs: 60 * 1000,
-    max: 30
-}), re_check, async (req, resp) => {
+app.post('/events', methodLimiter, re_check, async (req, resp) => {
     try {
         function response_call(data, cache = false) {
             return resp.send({
@@ -389,10 +379,7 @@ app.post('/promotion', async (req, resp) => {
     promotions_sql(resp, body, stat(), permission_ident)
 })
 
-app.post('/donate/services', rateLimit({
-    windowMs: 60 * 1000,
-    max: 30
-}), re_check, async (req, resp) => {
+app.post('/donate/services', methodLimiter, re_check, async (req, resp) => {
     try {
         function response_call(data, cache = false) {
             return resp.send({
@@ -461,10 +448,7 @@ app.post('/donate/services', rateLimit({
     }
 })
 
-app.post('/donate/coupon', rateLimit({
-    windowMs: 60 * 1000,
-    max: 15
-}), re_check, async (req, resp) => {
+app.post('/donate/coupon', methodLimiter, re_check, async (req, resp) => {
     let json_body = req.body
     if (json_body.code.length > 35) {
         return input_e(resp, 400, "coupon is long")
@@ -548,10 +532,7 @@ app.post('/donate/coupon', rateLimit({
     }
 })
 
-app.post('/donate/payment_get', rateLimit({
-    windowMs: 60 * 1000,
-    max: 30
-}), re_check, async (req, resp) => {
+app.post('/donate/payment_get', methodLimiter, re_check, async (req, resp) => {
     let json_body = req.body
     try {
         function response_(data) {
@@ -641,10 +622,7 @@ app.post('/donate/payment_get', rateLimit({
     }
 })
 
-app.post('/donate/payment/create', rateLimit({
-    windowMs: 60 * 1000,
-    max: 15
-}), re_check, async (req, resp) => {
+app.post('/donate/payment/create', methodLimiter, re_check, async (req, resp) => {
     let json_body = req.body
     let server_id = decryptor(json_body.server_id)
 
@@ -709,10 +687,7 @@ app.post('/donate/payment/create', rateLimit({
     }
 })
 
-app.post('/feedback/send', rateLimit({
-    windowMs: 60 * 1000,
-    max: 10
-}), re_check, tg_check, async (req, resp) => {
+app.post('/feedback/send', methodLimiter, re_check, tg_check, async (req, resp) => {
     let json_body = req.body
     let tg_user = getVerifiedTelegramData(json_body)
     const remove_repeats = (text) => {
@@ -772,10 +747,7 @@ app.post('/feedback/send', rateLimit({
     })
 })
 
-app.post('/feedback/check', rateLimit({
-    windowMs: 60 * 1000,
-    max: 50
-}), re_check, tg_check, async (req, resp) => {
+app.post('/feedback/check', methodLimiter, re_check, tg_check, async (req, resp) => {
     let tg_user = getVerifiedTelegramData(req.body)
     redis.get(`feedback_${req.ip}_tg${tg_user.id}`, (error, result) => {
         if (error) throw error
@@ -789,37 +761,19 @@ app.post('/feedback/check', rateLimit({
     })
 })
 
-app.post('/crypto', rateLimit({
-    windowMs: 60 * 1000,
-    max: 50
-}), re_check, catchAsync(crypto_view_))
+app.post('/crypto', methodLimiter, re_check, catchAsync(crypto_view_))
 
-app.post('/telegram/auth/check', rateLimit({
-    windowMs: 60 * 1000,
-    max: 50
-}), tg_check, async (_, resp) => {
+app.post('/telegram/auth/check', methodLimiter, tg_check, async (_, resp) => {
     return resp.send({success: true})
 })
 
-app.get('/profile/avatar', rateLimit({
-    windowMs: 60 * 1000,
-    max: 100
-}), catchAsync(getHead))
+app.get('/profile/avatar', methodLimiter, catchAsync(getHead))
 
-app.get('/profile/head', rateLimit({
-    windowMs: 60 * 1000,
-    max: 100
-}), catchAsync(get3dHead))
+app.get('/profile/head', methodLimiter, catchAsync(get3dHead))
 
-app.get('/profile/body', rateLimit({
-    windowMs: 60 * 1000,
-    max: 20
-}), catchAsync(get3dBody))
+app.get('/profile/body', methodLimiter, catchAsync(get3dBody))
 
-app.get('/server', rateLimit({
-    windowMs: 60 * 1000,
-    max: 50
-}), catchAsync(mc_status_view))
+app.get('/server', methodLimiter, catchAsync(mc_status_view))
 
 app.get('*', async (_, resp) => {
     return main_e(resp, "error route", "This route cannot be found")
