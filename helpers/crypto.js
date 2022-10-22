@@ -24,15 +24,19 @@ const encryptor = (data) => {
 }
 
 const crypto_check_logic = (token, req) => {
-    let decryptedData = decrypt(token)
+    try {
+        let decryptedData = decrypt(token)
 
-    if (decryptedData) {
-        let body = JSON.parse(decryptedData)
-        if (body.ip === get_user_ip(req) && (get_current_server_time() - body.timestamp) < 600) {
-            return true
+        if (decryptedData) {
+            let body = JSON.parse(decryptedData)
+            if (body.ip === get_user_ip(req) && (get_current_server_time() - body.timestamp) < 600) {
+                return true
+            }
         }
+        return false
+    } catch (_) {
+        return false
     }
-    return false
 }
 
 const crypto_check_raw = (req, resp, next, mode="POST") => {
