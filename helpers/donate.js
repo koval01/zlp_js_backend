@@ -1,6 +1,6 @@
 const {input_e, main_e} = require("./errors")
 const {url_builder_, censorEmail} = require("./methods")
-const {encryptor} = require("./crypto")
+const {encryptor, decrypt} = require("./crypto")
 const request = require("request")
 const Redis = require("ioredis")
 
@@ -8,7 +8,7 @@ const redis = new Redis(process.env.REDIS_URL)
 
 const payment_create = async (req, resp) => {
     let json_body = req.body
-    let server_id = decryptor(json_body.server_id)
+    let server_id = decrypt(json_body.server_id)
 
     if (server_id) {
         server_id = parseInt(server_id)
@@ -25,6 +25,7 @@ const payment_create = async (req, resp) => {
         // if (Object.keys(products_stringified).length !== 1) {
         //     return input_e(resp, 400, "products error")
         // }
+        console.log(json_body.products)
         let url = url_builder_(
             'https://easydonate.ru/api/v3/shop/payment/create',
             [
