@@ -70,5 +70,6 @@ module.exports.crypto_view_ = async (req, resp) => {
 }
 
 module.exports = {
-    crypto_check_logic
+    crypto_check_logic,
+    encryptor
 }

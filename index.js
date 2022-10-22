@@ -12,7 +12,7 @@ const Redis = require("ioredis")
 
 const log = require("./helpers/log")
 const {secrets} = require("./vars")
-const {censorEmail, url_builder_} = require("./helpers/methods")
+const {censorEmail, url_builder_, get_user_ip, get_current_server_time} = require("./helpers/methods")
 
 const catchAsync = require("./skin_renderer/helpers/catchAsync")
 const {getHead} = require("./skin_renderer/controller/head")
@@ -27,7 +27,7 @@ const {monitoring_statistic} = require("./database/functions/monitoring")
 const {promotions_sql} = require("./database/functions/promotion")
 
 const static_view = require("./static")
-const {crypto_view_} = require("./helpers/crypto")
+const {encryptor} = require("./helpers/crypto")
 const {mc_status_view} = require("./helpers/server_status")
 
 const app = express()
@@ -792,7 +792,15 @@ app.post('/feedback/check', rateLimit({
 app.post('/crypto', rateLimit({
     windowMs: 60 * 1000,
     max: 50
-}), re_check, crypto_view_)
+}), re_check, async (req, resp) => {
+    return resp.send({
+        success: true, token: encryptor(JSON.stringify({
+            ip: get_user_ip(req),
+            timestamp: get_current_server_time(),
+            salt: crypto.randomBytes(32)
+        }))
+    })
+})
 
 app.post('/telegram/auth/check', rateLimit({
     windowMs: 60 * 1000,
