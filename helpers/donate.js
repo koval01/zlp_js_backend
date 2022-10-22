@@ -1,6 +1,9 @@
 const {input_e, main_e} = require("./errors")
 const {url_builder_, censorEmail} = require("./methods")
 const request = require("request")
+const Redis = require("ioredis")
+
+const redis = new Redis(process.env.REDIS_URL)
 
 const payment_create = async (req, resp) => {
     let json_body = req.body
