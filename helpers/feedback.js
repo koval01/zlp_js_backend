@@ -1,4 +1,4 @@
-const {getVerifiedTelegramData} = require("./telegram")
+const {getVerifiedTelegramData} = require("./telegram/base")
 const {input_e} = require("./errors")
 const Redis = require("ioredis")
 const request = require("request");

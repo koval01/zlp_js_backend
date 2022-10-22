@@ -1,5 +1,5 @@
 const request = require("request");
-const {checkTelegramAuthorization} = require("../helpers/telegram");
+const {checkTelegramAuthorization} = require("../helpers/telegram/base");
 
 function re_check(req, resp, next) {
     request(

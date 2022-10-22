@@ -14,7 +14,7 @@ const catchAsync = require("./skin_renderer/helpers/catchAsync")
 const {getHead} = require("./skin_renderer/controller/head")
 const {get3dBody, get3dHead} = require("./skin_renderer/controller/render")
 
-const {tg_check_view} = require("./helpers/telegram")
+const {tg_check_view} = require("./helpers/telegram/base")
 const {apiLimiter, methodLimiter} = require("./helpers/limiters")
 const {global_error} = require("./middleware/other_middle")
 const {re_check, tg_check} = require("./middleware/security_middle")
