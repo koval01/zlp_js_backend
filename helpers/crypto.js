@@ -2,7 +2,7 @@ const crypto = require("crypto")
 const {crypto_keys} = require("../vars")
 const {get_current_server_time, get_user_ip} = require("./methods")
 
-function decrypt(data) {
+const decrypt = (data) => {
     try {
         let decipher = crypto.createDecipheriv("aes-256-cbc", crypto_keys.security_key, crypto_keys.init_vector)
         let decryptedData = decipher.update(data, "base64", "utf-8")
@@ -16,14 +16,14 @@ function decrypt(data) {
     }
 }
 
-function encryptor(data) {
+const encryptor = (data) => {
     let cipher = crypto.createCipheriv("aes-256-cbc", crypto_keys.security_key, crypto_keys.init_vector)
     let encryptedData = cipher.update(data, "utf-8", "base64")
     encryptedData += cipher.final("base64")
     return encryptedData
 }
 
-function crypto_check_logic(token, req) {
+const crypto_check_logic = (token, req) => {
     let decryptedData = decrypt(token)
 
     if (decryptedData) {
@@ -35,7 +35,7 @@ function crypto_check_logic(token, req) {
     return false
 }
 
-function crypto_check_raw(req, resp, next, mode="POST") {
+const crypto_check_raw = (req, resp, next, mode="POST") => {
     let token = req.body.crypto_token
     if (mode === "GET") {
         token = req.query.crypto_token
@@ -51,15 +51,15 @@ function crypto_check_raw(req, resp, next, mode="POST") {
     })
 }
 
-module.exports.crypto_check = (req, resp, next) => {
+const crypto_check = (req, resp, next) => {
     return crypto_check_raw(req, resp, next)
 }
 
-module.exports.crypto_check_get = (req, resp, next) => {
+const crypto_check_get = (req, resp, next) => {
     return crypto_check_raw(req, resp, next, "GET")
 }
 
-module.exports.crypto_view_ = async (req, resp) => {
+const crypto_view_ = async (req, resp) => {
     return resp.send({
         success: true, token: encryptor(JSON.stringify({
             ip: get_user_ip(req),
@@ -70,6 +70,9 @@ module.exports.crypto_view_ = async (req, resp) => {
 }
 
 module.exports = {
+    crypto_view_,
     crypto_check_logic,
-    encryptor
+    encryptor,
+    crypto_check,
+    crypto_check_get
 }
