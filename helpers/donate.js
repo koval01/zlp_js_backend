@@ -1,5 +1,6 @@
 const {input_e, main_e} = require("./errors")
 const {url_builder_, censorEmail} = require("./methods")
+const {encryptor} = require("./crypto")
 const request = require("request")
 const Redis = require("ioredis")
 
