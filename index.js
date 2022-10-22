@@ -11,7 +11,7 @@ const Redis = require("ioredis")
 
 const log = require("./helpers/log")
 const {secrets} = require("./vars")
-const {censorEmail, url_builder_} = require("./helpers/methods")
+const {censorEmail, url_builder_, ip_get_view} = require("./helpers/methods")
 
 const catchAsync = require("./skin_renderer/helpers/catchAsync")
 const {getHead} = require("./skin_renderer/controller/head")
@@ -28,6 +28,7 @@ const {promotions_sql} = require("./database/functions/promotion")
 const static_view = require("./static")
 const {crypto_view_, crypto_check_get} = require("./helpers/crypto")
 const {mc_status_view} = require("./helpers/server_status")
+const {promotion_view, t_monitoring_promotion} = require("./helpers/promotion");
 
 const app = express()
 const redis = new Redis(process.env.REDIS_URL)
@@ -300,45 +301,7 @@ app.post('/events', methodLimiter, re_check, async (req, resp) => {
     }
 })
 
-app.post('/promotion', async (req, resp) => {
-    let body = req.body
-    resp.set("Content-Type", "text/html")
-
-    if (!req.query.monitoring) {
-        return resp.send("Не указан мониторинг")
-    }
-
-    let get_mon_ = () => {
-        for (i = 0; i < monitorings.length; i++) {
-            if (req.query.monitoring === monitorings[i].name) {
-                return monitorings[i]
-            }
-        }
-    }
-
-    let permission_ident = get_mon_()["permission"]
-    if (!permission_ident) {
-        return resp.send("Неверно указан мониторинг")
-    }
-
-    if (!body.username || !body.ip || !body.timestamp || !body.signature) {
-        return resp.send("Присланы не все данные, вероятно запрос подделан")
-    }
-
-    let shasum = crypto.createHash('sha1')
-    shasum.update(body.username + body.timestamp + secrets[get_mon_()["name"]])
-    let signature = shasum.digest('hex')
-
-    if (body.signature !== signature) {
-        return resp.send("Неверная подпись / секретный ключ")
-    }
-
-    let stat = () => {
-        monitoring_statistic(get_mon_()["name"], body.username)
-    }
-
-    promotions_sql(resp, body, stat(), permission_ident)
-})
+app.post('/promotion', catchAsync(promotion_view))
 
 app.post('/donate/services', methodLimiter, re_check, async (req, resp) => {
     try {
@@ -728,45 +691,11 @@ app.post('/telegram/auth/check', methodLimiter, tg_check, async (_, resp) => {
     return resp.send({success: true})
 })
 
-app.get('/ip', (req, resp) => resp.send(
-    {success: true, ip: req.ip}))
+app.get('/ip', catchAsync(ip_get_view))
 
 app.get('/monitoringminecraft.ru', static_view.monitoring_minecraft_ru)
 
-app.get('/tmonitoring_promotion', async (req, resp) => {
-    let body = req.query
-    let api_host = "https://tmonitoring.com/api/check/"
-    resp.set("Content-Type", "text/html")
-
-    let get_data = (callback) => {
-        request(
-            {
-                uri: `${api_host}/${body.hash}?id=${body.id}`,
-                method: "GET",
-            },
-            (error, response, body) => {
-                if (!error && response.statusCode === 200) {
-                    body = JSON.parse(body)
-                    callback(body)
-                } else {
-                    callback({})
-                }
-            }
-        )
-    }
-
-    get_data(function (api_resp) {
-        if (api_resp) {
-            if (api_resp.hash !== 32 || body.hash !== 32 || api_resp.hash !== body.hash) {
-                resp.send("Invalid hash")
-            }
-            body.username = api_resp.username
-            // give award
-            return resp.send("ok")
-        }
-        return resp.send("Error")
-    })
-})
+app.get('/tmonitoring_promotion', catchAsync(t_monitoring_promotion))
 
 app.get('/profile/avatar', methodLimiter, catchAsync(getHead))
 
