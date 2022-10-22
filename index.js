@@ -26,7 +26,7 @@ const {monitoring_statistic} = require("./database/functions/monitoring")
 const {promotions_sql} = require("./database/functions/promotion")
 
 const static_view = require("./static")
-const {crypto_view_} = require("./helpers/crypto")
+const {crypto_view_, crypto_check_get} = require("./helpers/crypto")
 const {mc_status_view} = require("./helpers/server_status")
 
 const app = express()
@@ -774,7 +774,7 @@ app.get('/profile/head', methodLimiter, catchAsync(get3dHead))
 
 app.get('/profile/body', methodLimiter, catchAsync(get3dBody))
 
-app.get('/server', methodLimiter, catchAsync(mc_status_view))
+app.get('/server', methodLimiter, crypto_check_get, catchAsync(mc_status_view))
 
 app.get('*', async (_, resp) => {
     return main_e(resp, "error route", "This route cannot be found")
