@@ -22,10 +22,9 @@ const payment_create = async (req, resp) => {
     console.log(`paymentCreate: server_id=${server_id}`)
     try {
         let products_stringified = JSON.stringify(json_body.products)
-        // if (Object.keys(products_stringified).length !== 1) {
-        //     return input_e(resp, 400, "products error")
-        // }
-        console.log(json_body.products)
+        if (Object.keys(json_body.products).length !== 1) {
+            return input_e(resp, 400, "products error")
+        }
         let url = url_builder_(
             'https://easydonate.ru/api/v3/shop/payment/create',
             [
