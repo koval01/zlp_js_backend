@@ -1,6 +1,6 @@
 const mysql = require('mysql')
 
-const mysql_ = function() {
+const mysql_ = function () {
     return cursor = mysql.createConnection({
         host: process.env.DB_HOSTNAME,
         user: process.env.DB_USERNAME,
@@ -13,12 +13,12 @@ const mysql_ = function() {
 function sql_request(callback, query, values = []) {
     const error = (e) => console.error(`Database error: ${e}`)
     let con = mysql_()
-    con.query(query, values, 
+    con.query(query, values,
         function (err, result, _) {
             if (err) error(err)
             callback(result)
             con.end()
-    })
+        })
 }
 
 module.exports = {

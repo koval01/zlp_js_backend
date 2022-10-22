@@ -1,0 +1,4 @@
+test_recording:
+  test_commands:
+    - command: npx @appland/appmap-agent-js --recorder=process -- npm run test
+      env: { }

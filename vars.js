@@ -1,6 +1,6 @@
 const crypto = require('crypto')
 
-const monitorings = [
+const monitoring_list = [
     {
         name: "minecraftrating.ru",
         permission: "monitoring_1",
@@ -19,7 +19,7 @@ const crypto_keys = {
 }
 
 module.exports = {
-    monitorings,
+    monitoring_list,
     secrets,
     crypto_keys
 }
