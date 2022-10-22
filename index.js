@@ -1,7 +1,6 @@
 require('dotenv').config()
 
 const request = require('request')
-const qs = require('querystring')
 const compression = require('compression')
 const cors = require('cors')
 const html_parser = require('node-html-parser')
@@ -15,7 +14,7 @@ const catchAsync = require("./skin_renderer/helpers/catchAsync")
 const {getHead} = require("./skin_renderer/controller/head")
 const {get3dBody, get3dHead} = require("./skin_renderer/controller/render")
 
-const {getVerifiedTelegramData, tg_check_view} = require("./helpers/telegram")
+const {tg_check_view} = require("./helpers/telegram")
 const {apiLimiter, methodLimiter} = require("./helpers/limiters")
 const {global_error} = require("./middleware/other_middle")
 const {re_check, tg_check} = require("./middleware/security_middle")
