@@ -1,10 +1,12 @@
 {
-    "configurations": [
-        {
-          "type": "command",
-          "name": "dev run",
-          "program": "node",
-          "args": ["index.js"]
-        }
-    ]
+  "configurations": [
+    {
+      "type": "command",
+      "name": "dev run",
+      "program": "node",
+      "args": [
+        "index.js"
+      ]
+    }
+  ]
 }

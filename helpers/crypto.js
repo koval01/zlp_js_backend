@@ -39,7 +39,7 @@ const crypto_check_logic = (token, req) => {
     }
 }
 
-const crypto_check_raw = (req, resp, next, mode="POST") => {
+const crypto_check_raw = (req, resp, next, mode = "POST") => {
     let token = req.body.crypto_token
     if (mode === "GET") {
         token = req.query.crypto_token
