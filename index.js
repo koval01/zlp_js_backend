@@ -12,7 +12,7 @@ const Redis = require("ioredis")
 
 const log = require("./helpers/log")
 const {secrets} = require("./vars")
-const {censorEmail, url_builder_, get_user_ip, get_current_server_time} = require("./helpers/methods")
+const {censorEmail, url_builder_} = require("./helpers/methods")
 
 const catchAsync = require("./skin_renderer/helpers/catchAsync")
 const {getHead} = require("./skin_renderer/controller/head")
@@ -816,10 +816,10 @@ app.get('/profile/body', rateLimit({
     max: 20
 }), catchAsync(get3dBody))
 
-// app.get('/server', rateLimit({
-//     windowMs: 60 * 1000,
-//     max: 50
-// }), catchAsync(mc_status_view))
+app.get('/server', rateLimit({
+    windowMs: 60 * 1000,
+    max: 50
+}), catchAsync(mc_status_view))
 
 app.get('*', async (_, resp) => {
     return resp.status(404).json({
