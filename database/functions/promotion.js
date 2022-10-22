@@ -1,4 +1,4 @@
-const {sql_request} = require("../mysql");
+const {sql_request} = require("../mysql")
 
 function promotions_sql(resp, body, stat, permission_ident) {
     sql_request(function (result) {

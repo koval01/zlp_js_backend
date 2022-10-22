@@ -7,12 +7,12 @@ const get_current_server_time = () => {
 }
 
 const censorWord = (str) => {
-    return str[0] + "*".repeat(3) + str.slice(-1);
+    return str[0] + "*".repeat(3) + str.slice(-1)
 }
 
 const censorEmail = (email) => {
-    const arr = email.split("@");
-    return censorWord(arr[0]) + "@" + arr[1];
+    const arr = email.split("@")
+    return censorWord(arr[0]) + "@" + arr[1]
 }
 
 const url_builder_ = (base_url, submit_data_) => {

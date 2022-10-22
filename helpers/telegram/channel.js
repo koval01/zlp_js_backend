@@ -1,7 +1,7 @@
 const request = require("request")
 const html_parser = require("node-html-parser")
 const {input_e, main_e} = require("../errors")
-const Redis = require("ioredis");
+const Redis = require("ioredis")
 
 const redis = new Redis(process.env.REDIS_URL)
 

@@ -163,9 +163,9 @@ async function renderBody64(skinBuffer, width = 160, height = 320, isSlim = fals
 }
 
 async function get3DSkin(texture) {
-    const skinB64 = await getSkin64(texture);
-    const skin = new MinecraftSkin(Buffer.from(skinB64, "base64"), false, 320);
-    return skin.getRender();
+    const skinB64 = await getSkin64(texture)
+    const skin = new MinecraftSkin(Buffer.from(skinB64, "base64"), false, 320)
+    return skin.getRender()
 }
 
 async function get3DHead(texture) {
