@@ -77,6 +77,7 @@ module.exports = {
     crypto_view_,
     crypto_check_logic,
     encryptor,
+    decrypt,
     crypto_check,
     crypto_check_get
 }
