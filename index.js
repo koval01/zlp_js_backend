@@ -46,8 +46,6 @@ app.use(log.logError)
 app.use(apiLimiter)
 app.use(global_error)
 
-app.get('/ip', (req, resp) => resp.send({success: true, ip: req.ip}))
-
 app.post('/channel_get', methodLimiter, re_check, async (req, resp) => {
     try {
         function response_call(data, cache = false) {
@@ -300,43 +298,6 @@ app.post('/events', methodLimiter, re_check, async (req, resp) => {
     } catch (_) {
         return main_e(resp)
     }
-})
-
-app.get('/monitoringminecraft.ru', static_view.monitoring_minecraft_ru)
-
-app.get('/tmonitoring_promotion', async (req, resp) => {
-    let body = req.query
-    let api_host = "https://tmonitoring.com/api/check/"
-    resp.set("Content-Type", "text/html")
-
-    let get_data = (callback) => {
-        request(
-            {
-                uri: `${api_host}/${body.hash}?id=${body.id}`,
-                method: "GET",
-            },
-            (error, response, body) => {
-                if (!error && response.statusCode === 200) {
-                    body = JSON.parse(body)
-                    callback(body)
-                } else {
-                    callback({})
-                }
-            }
-        )
-    }
-
-    get_data(function (api_resp) {
-        if (api_resp) {
-            if (api_resp.hash !== 32 || body.hash !== 32 || api_resp.hash !== body.hash) {
-                resp.send("Invalid hash")
-            }
-            body.username = api_resp.username
-            // give award
-            return resp.send("ok")
-        }
-        return resp.send("Error")
-    })
 })
 
 app.post('/promotion', async (req, resp) => {
@@ -765,6 +726,46 @@ app.post('/crypto', methodLimiter, re_check, catchAsync(crypto_view_))
 
 app.post('/telegram/auth/check', methodLimiter, tg_check, async (_, resp) => {
     return resp.send({success: true})
+})
+
+app.get('/ip', (req, resp) => resp.send(
+    {success: true, ip: req.ip}))
+
+app.get('/monitoringminecraft.ru', static_view.monitoring_minecraft_ru)
+
+app.get('/tmonitoring_promotion', async (req, resp) => {
+    let body = req.query
+    let api_host = "https://tmonitoring.com/api/check/"
+    resp.set("Content-Type", "text/html")
+
+    let get_data = (callback) => {
+        request(
+            {
+                uri: `${api_host}/${body.hash}?id=${body.id}`,
+                method: "GET",
+            },
+            (error, response, body) => {
+                if (!error && response.statusCode === 200) {
+                    body = JSON.parse(body)
+                    callback(body)
+                } else {
+                    callback({})
+                }
+            }
+        )
+    }
+
+    get_data(function (api_resp) {
+        if (api_resp) {
+            if (api_resp.hash !== 32 || body.hash !== 32 || api_resp.hash !== body.hash) {
+                resp.send("Invalid hash")
+            }
+            body.username = api_resp.username
+            // give award
+            return resp.send("ok")
+        }
+        return resp.send("Error")
+    })
 })
 
 app.get('/profile/avatar', methodLimiter, catchAsync(getHead))
