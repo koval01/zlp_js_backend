@@ -1,8 +1,8 @@
 const {getVerifiedTelegramData} = require("./telegram/base")
 const {input_e} = require("./errors")
 const Redis = require("ioredis")
-const request = require("request");
-const qs = require("querystring");
+const request = require("request")
+const qs = require("querystring")
 
 const redis = new Redis(process.env.REDIS_URL)
 
