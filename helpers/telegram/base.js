@@ -1,4 +1,4 @@
-const crypto = require('helpers/crypto')
+const crypto = require('/helpers/crypto')
 
 const getTelegramValidateHash = (authData) => {
     const tgBotToken = process.env.FEEDBACK_BOT_TOKEN
