@@ -15,7 +15,7 @@ const catchAsync = require("./skin_renderer/helpers/catchAsync")
 const {getHead} = require("./skin_renderer/controller/head")
 const {get3dBody, get3dHead} = require("./skin_renderer/controller/render")
 
-const {getVerifiedTelegramData} = require("./helpers/telegram")
+const {getVerifiedTelegramData, tg_check_view} = require("./helpers/telegram")
 const {apiLimiter, methodLimiter} = require("./helpers/limiters")
 const {global_error} = require("./middleware/other_middle")
 const {re_check, tg_check} = require("./middleware/security_middle")
@@ -25,6 +25,7 @@ const static_view = require("./static")
 const {crypto_view_, crypto_check_get} = require("./helpers/crypto")
 const {mc_status_view} = require("./helpers/server_status")
 const {promotion_view, t_monitoring_promotion} = require("./helpers/promotion");
+const {feedback_check_view, feed_send_view} = require("./helpers/feedback");
 
 const app = express()
 const redis = new Redis(process.env.REDIS_URL)
@@ -607,85 +608,13 @@ app.post('/donate/payment/create', methodLimiter, re_check, async (req, resp) =>
     }
 })
 
-app.post('/feedback/send', methodLimiter, re_check, tg_check, async (req, resp) => {
-    let json_body = req.body
-    let tg_user = getVerifiedTelegramData(json_body)
-    const remove_repeats = (text) => {
-        let arr = text.split("\x20")
-        let newArr = []
-        let last = null
-        for (let i = 0; i < arr.length; i++) {
-            if (arr[i] !== last) {
-                newArr.push(arr[i])
-            }
-            last = arr[i]
-        }
-        return newArr.join("\x20")
-    }
-    redis.get(`feedback_${req.ip}_tg${tg_user.id}`, (error, result) => {
-        if (error) throw error
-        if (result !== null) {
-            return input_e(resp, resp.statusCode, "need wait")
-        } else {
-            let text = json_body.text
-            const text_c = text
-            if (text && text.length > 10 && text.length <= 3001) {
-                text = text.replaceAll(/<.*?>/gm, "").trim().match(/['!"#$%&()*+,\-.\/:;<=>?@\[\]^_{|}~\w\u0430-\u044f]+/ig).join("\x20").trim()
-                text = remove_repeats(text)
-                if (text.length !== text_c.length) {
-                    return input_e(resp, 403, "text field check error")
-                }
-                let username = (tg_user.username && tg_user.username.length) ? `(@${tg_user.username})` : ""
-                tg_user.last_name ? tg_user.last_name : ""
-                let user_name_builded = `<a href="tg://user?id=${tg_user.id}">${tg_user.first_name} ${tg_user.last_name}</a> ${username}`
-                request(
-                    {
-                        uri: `https://api.telegram.org/bot${process.env.FEEDBACK_BOT_TOKEN}/sendMessage?chat_id=${process.env.FEEDBACK_BOT_CHAT_ID}&${qs.stringify({
-                            text: `${text}\n\n${"_".repeat(10)}\n${user_name_builded}\n\nTG_ID:\x20${tg_user.id}\nIP:\x20<tg-spoiler>${req.ip}</tg-spoiler>`
-                        })}&parse_mode=HTML`,
-                        method: 'GET'
-                    },
-                    (error, response, body) => {
-                        if (!error && response.statusCode === 200) {
-                            body = JSON.parse(body)
-                            if (body.ok) {
-                                redis.set(`feedback_${req.ip}_tg${tg_user.id}`, "ok", "ex", 60)
-                                return resp.json({
-                                    success: true
-                                })
-                            }
-                            return input_e(resp, response.statusCode, "telegram api error")
-                        } else {
-                            return input_e(resp, response.statusCode, error)
-                        }
-                    }
-                )
-            } else {
-                return input_e(resp, 400, "text not valid")
-            }
-        }
-    })
-})
+app.post('/feedback/send', methodLimiter, re_check, tg_check, catchAsync(feed_send_view))
 
-app.post('/feedback/check', methodLimiter, re_check, tg_check, async (req, resp) => {
-    let tg_user = getVerifiedTelegramData(req.body)
-    redis.get(`feedback_${req.ip}_tg${tg_user.id}`, (error, result) => {
-        if (error) throw error
-        if (result !== null) {
-            return input_e(resp, resp.statusCode, "need wait")
-        } else {
-            return resp.json({
-                success: true
-            })
-        }
-    })
-})
+app.post('/feedback/check', methodLimiter, re_check, tg_check, catchAsync(feedback_check_view))
 
 app.post('/crypto', methodLimiter, re_check, catchAsync(crypto_view_))
 
-app.post('/telegram/auth/check', methodLimiter, tg_check, async (_, resp) => {
-    return resp.send({success: true})
-})
+app.post('/telegram/auth/check', methodLimiter, tg_check, tg_check_view)
 
 app.get('/ip', catchAsync(ip_get_view))
 
