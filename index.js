@@ -298,7 +298,7 @@ app.post('/events', rateLimit({
                                 redis.set("game_events", JSON.stringify(result), "ex", 120)
                                 return response_call(result)
                             } else {
-                                return input_e(resp, 503, "result array is void")
+                                return input_e(resp, 200, "result array is void")
                             }
                         } else {
                             return input_e(resp, response.statusCode, error)
