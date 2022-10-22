@@ -27,7 +27,7 @@ const {monitoring_statistic} = require("./database/functions/monitoring")
 const {promotions_sql} = require("./database/functions/promotion")
 
 const static_view = require("./static")
-const {crypto_view} = require("./helpers/crypto")
+const {crypto_view_} = require("./helpers/crypto")
 const {mc_status_view} = require("./helpers/server_status")
 
 const app = express()
@@ -792,7 +792,7 @@ app.post('/feedback/check', rateLimit({
 app.post('/crypto', rateLimit({
     windowMs: 60 * 1000,
     max: 50
-}), re_check, crypto_view)
+}), re_check, crypto_view_)
 
 app.post('/telegram/auth/check', rateLimit({
     windowMs: 60 * 1000,

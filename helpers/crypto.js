@@ -59,8 +59,8 @@ module.exports.crypto_check_get = (req, resp, next) => {
     return crypto_check_raw(req, resp, next, "GET")
 }
 
-module.exports.crypto_view = async (req, resp) => {
-    resp.send({
+module.exports.crypto_view_ = async (req, resp) => {
+    return resp.send({
         success: true, token: encryptor(JSON.stringify({
             ip: get_user_ip(req),
             timestamp: get_current_server_time(),
