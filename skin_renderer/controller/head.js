@@ -9,10 +9,9 @@ module.exports.getHead = async (req, res) => {
     }
 
     const texture = req.query.texture_hash
-    let width = Numbers.getPositive(req.query.width ? parseInt(req.query.width) : null, 80)
+    let width = Numbers.getPositive(req.query.width ? parseInt(req.query.width) : null, 100)
+    width > 250 ? width = 250 : null
     const height = parseInt(width)
-
-    width > 200 ? width = 200 : null
 
     let head64 = await getHead64(texture, width, height, req.query.overlay)
 
