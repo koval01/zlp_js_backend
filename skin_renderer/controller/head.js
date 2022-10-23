@@ -10,7 +10,7 @@ module.exports.getHead = async (req, res) => {
 
     const texture = req.query.texture_hash
     let width = Numbers.getPositive(req.query.width ? parseInt(req.query.width) : null, 80)
-    const height = Numbers.getPositive(null, 80)
+    const height = parseInt(width)
 
     width > 200 ? width = 200 : null
 
