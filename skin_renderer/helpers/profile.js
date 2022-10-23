@@ -170,7 +170,7 @@ async function get3DSkin(texture) {
 
 async function get3DHead(texture) {
     const skinB64 = await getSkin64(texture)
-    const skin = new MinecraftSkin(Buffer.from(skinB64, "base64"), false, 255)
+    const skin = new MinecraftSkin(Buffer.from(skinB64, "base64"), false, 320)
     return skin.getHead()
 }
 
