@@ -1,6 +1,6 @@
 const crypto = require('crypto')
 
-function getTelegramValidateHash(authData) {
+const getTelegramValidateHash = (authData) => {
     const tgBotToken = process.env.FEEDBACK_BOT_TOKEN
     delete authData.hash
 
@@ -16,11 +16,11 @@ function getTelegramValidateHash(authData) {
         .digest('hex')
 }
 
-function checkTelegramAuthorization(authData) {
+const checkTelegramAuthorization = (authData) => {
     return authData.hash === getTelegramValidateHash(authData)
 }
 
-function getVerifiedTelegramData(json_body, custom_var = false) {
+const getVerifiedTelegramData = (json_body, custom_var = false) => {
     let authData
     if (custom_var) {
         authData = json_body
@@ -37,8 +37,13 @@ function getVerifiedTelegramData(json_body, custom_var = false) {
     }
 }
 
+const tg_check_view = async (_, resp) => {
+    return resp.send({success: true})
+}
+
 module.exports = {
     getTelegramValidateHash,
     checkTelegramAuthorization,
-    getVerifiedTelegramData
+    getVerifiedTelegramData,
+    tg_check_view
 }
