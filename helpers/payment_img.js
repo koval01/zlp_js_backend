@@ -44,8 +44,10 @@ const generateGiftPrivateServer = async (data, response) => {
 }
 
 const getGiftPrivateServer = async (req, res) => {
+    console.log(req.query)
     const payment_id = req.query.payment_id
     getPaymentData(payment_id, function (data) {
+        console.log(data)
         if (data.product[0].name.toLowerCase().includes("проход")) {
             res.status(400).send(null)
         }
