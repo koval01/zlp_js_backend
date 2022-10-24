@@ -7,7 +7,7 @@ const express = require('express')
 const log = require("./helpers/log")
 const {ip_get_view} = require("./helpers/methods")
 
-const catchAsync = require("./skin_renderer/helpers/catchAsync")
+const catchAsync = require("./helpers/catchAsync")
 const {getHead} = require("./skin_renderer/controller/head")
 const {get3dBody, get3dHead} = require("./skin_renderer/controller/render")
 
@@ -21,6 +21,7 @@ const static_view = require("./static")
 const {crypto_view_, crypto_check_get} = require("./helpers/crypto")
 const {mc_status_view} = require("./helpers/server_status")
 const {promotion_view, t_monitoring_promotion} = require("./helpers/promotion")
+const {getGiftPrivateServer} = require("./helpers/payment_img")
 const {feedback_check_view, feed_send_view} = require("./helpers/feedback")
 const {payment_create, payment_get, coupon_get, donate_services} = require("./helpers/donate")
 const {events_view, channel_raw, channel_parse} = require("./helpers/telegram/channel")
@@ -76,6 +77,8 @@ app.get('/profile/avatar', methodLimiter, catchAsync(getHead))
 app.get('/profile/head', methodLimiter, catchAsync(get3dHead))
 
 app.get('/profile/body', methodLimiter, catchAsync(get3dBody))
+
+app.get('/gift/private_server', methodLimiter, crypto_check_get, catchAsync(getGiftPrivateServer))
 
 app.get('/server', methodLimiter, crypto_check_get, catchAsync(mc_status_view))
 

@@ -27,10 +27,56 @@ const ip_get_view = async (req, resp) => {
     return resp.send({success: true, ip: req.ip})
 }
 
+const getNoun = (number, one = "объект", two = "объекта", five = "объектов") => {
+    let n = Math.abs(number)
+
+    n %= 100
+    if (n >= 5 && n <= 20) { return five }
+
+    n %= 10
+    if (n === 1) { return one }
+    if (n >= 2 && n <= 4) { return two }
+    return five
+}
+
+const rand_int = (max=8, min=1) => {
+    return Math.floor(Math.random() * max) + min
+}
+
+const rand_bool = () => {
+    return Math.round(Math.random())
+}
+
+const rand_move = (val) => {
+    if (rand_bool()) {
+        return val - rand_int()
+    }
+    return val + rand_int()
+}
+
+const months_list = {
+    1: "января",
+    2: "февраля",
+    3: "марта",
+    4: "апреля",
+    5: "мая",
+    6: "июня",
+    7: "июля",
+    8: "августа",
+    9: "сентября",
+    10: "октября",
+    11: "ноября",
+    12: "декабря"
+}
+
 module.exports = {
     get_user_ip,
     get_current_server_time,
     censorEmail,
     url_builder_,
-    ip_get_view
+    ip_get_view,
+    getNoun,
+    rand_int,
+    rand_bool,
+    rand_move
 }
