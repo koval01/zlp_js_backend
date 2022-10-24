@@ -50,7 +50,7 @@ const getGiftPrivateServer = async (req, res) => {
             res.status(400).send(null)
         }
         const data_generator = {
-            payment_id: req.params.payment_id,
+            payment_id: payment_id,
             playername: data.customer,
             address: "поле для адреса",
             reason: "поле для причины",
