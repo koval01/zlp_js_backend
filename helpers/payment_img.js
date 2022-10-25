@@ -13,8 +13,8 @@ const giftItemsSet = (items, image, font) => {
 }
 
 const generateGiftPrivateServer = async (data, response) => {
-    const font = await Jimp.loadFont("B52.fnt")
-    const image = await Jimp.read("povestka.png")
+    const font = await Jimp.loadFont("../fnt/B52.fnt")
+    const image = await Jimp.read("../images/povestka.png")
 
     giftItemsSet([
         {x: 25, y: 360, params: {
