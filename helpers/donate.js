@@ -71,7 +71,7 @@ const payment_create = async (req, resp) => {
     }
 }
 
-const getPaymentData = (payment_id, callback) => {
+const getPaymentData = (json_body, callback) => {
     function response_(data) {
         if (data) {
             if (json_body.tokens_send) {
@@ -113,7 +113,7 @@ const getPaymentData = (payment_id, callback) => {
         }
     }
 
-    redis.get(`payment_${payment_id}`, (error, result) => {
+    redis.get(`payment_${json_body.payment_id}`, (error, result) => {
         if (error) {
             callback(null)
         }
@@ -122,7 +122,7 @@ const getPaymentData = (payment_id, callback) => {
         } else {
             request(
                 {
-                    uri: `https://easydonate.ru/api/v3/shop/payment/${payment_id}`,
+                    uri: `https://easydonate.ru/api/v3/shop/payment/${json_body.payment_id}`,
                     method: 'GET',
                     headers: {
                         'Shop-Key': process.env.DONATE_API_KEY
@@ -133,7 +133,7 @@ const getPaymentData = (payment_id, callback) => {
                         body = JSON.parse(body)
                         if (body.success) {
                             const body_data = response_(body.response)
-                            redis.set(`payment_${payment_id}`, JSON.stringify(body_data), "ex", 1000)
+                            redis.set(`payment_${json_body.payment_id}`, JSON.stringify(body_data), "ex", 1000)
                             callback({data: body_data, cache: false})
                         } else {
                             callback(null)
@@ -148,7 +148,6 @@ const getPaymentData = (payment_id, callback) => {
 }
 
 const payment_get = async (req, resp) => {
-    let json_body = req.body
     try {
         function response_call(result, cache = false) {
             return resp.send({
@@ -158,7 +157,7 @@ const payment_get = async (req, resp) => {
             })
         }
 
-        getPaymentData(json_body.payment_id, function (data) {
+        getPaymentData(req.body, function (data) {
             if (data) {
                 return response_call(data.data, data.cache)
             }

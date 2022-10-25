@@ -1,5 +1,6 @@
 const Jimp = require("jimp")
 const {getPaymentData} = require("./donate")
+const {input_e} = require("./errors")
 
 const giftItemsSet = (items, image, font) => {
     for (let i = 0; i < items.length; i++) {
@@ -49,7 +50,7 @@ const getGiftPrivateServer = async (req, res) => {
     getPaymentData(payment_id, function (data) {
         console.log(data)
         if (data.product[0].name.toLowerCase().includes("проход")) {
-            res.status(400).send(null)
+            return input_e(res, 400, "error service identify")
         }
         const data_generator = {
             payment_id: payment_id,
