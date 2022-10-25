@@ -1,6 +1,6 @@
 const Jimp = require("jimp")
 const {getPaymentData} = require("../donate")
-const {months_list} = require("../methods")
+const {months_list, rand_move} = require("../methods")
 const {input_e} = require("../errors")
 
 const giftItemsSet = (items, image, font) => {
