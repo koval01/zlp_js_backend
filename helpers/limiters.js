@@ -12,14 +12,7 @@ const apiLimiter = rateLimit({
     message: rateLimitMessage
 })
 
-const methodLimiter = rateLimit({
-    windowMs: 60 * 1000, // 1 minute
-    max: 50,
-    standardHeaders: true,
-    message: rateLimitMessage
-})
-
 module.exports = {
     apiLimiter,
-    methodLimiter
+    rateLimitMessage
 }
