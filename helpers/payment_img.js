@@ -51,7 +51,7 @@ const getGiftPrivateServer = async (req, res) => {
     }
     getPaymentData(json_body, function (data) {
         data = data.data
-        if (data.product.name.toLowerCase().includes("проход")) {
+        if (!data.product.name.toLowerCase().includes("проход")) {
             return input_e(res, 400, "error service identify")
         }
         // data.product.created_at
