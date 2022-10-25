@@ -6,7 +6,7 @@ const {input_e} = require("../errors")
 const giftItemsSet = (items, image, font) => {
     for (let i = 0; i < items.length; i++) {
         image.print(
-            font, items.x, rand_move(items.y),
+            font, rand_move(items.x), rand_move(items.y),
             items.params, image.getWidth()
         )
     }
