@@ -63,9 +63,9 @@ const getGiftPrivateServer = async (req, res) => {
             reason: "поле для причины",
             publisher: "Генерал-Полковник Пена Детров",
             date: {
-                day_month: `${String(date.getDay())} ${months_list[date.getMonth() + 1]}`,
-                year_last: String(date.getFullYear()).slice(-2),
-                hour: String(date.getHours())
+                day_month: `${date.getDay().toString()} ${months_list[date.getMonth() + 1]}`,
+                year_last: date.getFullYear().toString().slice(-2),
+                hour: date.getHours().toString()
             }
         }
         return generateGiftPrivateServer(data_generator, res)
