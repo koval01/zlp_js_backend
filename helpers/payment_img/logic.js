@@ -1,7 +1,7 @@
 const Jimp = require("jimp")
-const {getPaymentData} = require("./donate")
-const {months_list} = require("./methods")
-const {input_e} = require("./errors")
+const {getPaymentData} = require("../donate")
+const {months_list} = require("../methods")
+const {input_e} = require("../errors")
 
 const giftItemsSet = (items, image, font) => {
     for (let i = 0; i < items.length; i++) {
@@ -13,8 +13,8 @@ const giftItemsSet = (items, image, font) => {
 }
 
 const generateGiftPrivateServer = async (data, response) => {
-    const font = await Jimp.loadFont("../fnt/B52.fnt")
-    const image = await Jimp.read("../images/povestka.png")
+    const font = await Jimp.loadFont("B52.fnt")
+    const image = await Jimp.read("povestka.png")
 
     giftItemsSet([
         {x: 25, y: 360, params: {
