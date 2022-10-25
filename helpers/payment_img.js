@@ -48,6 +48,7 @@ const getGiftPrivateServer = async (req, res) => {
     console.log(req.query)
     const payment_id = req.query.payment_id
     getPaymentData(payment_id, function (data) {
+        data = data.data
         console.log(data)
         if (data.product[0].name.toLowerCase().includes("проход")) {
             return input_e(res, 400, "error service identify")
