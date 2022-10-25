@@ -57,7 +57,7 @@ const getGiftPrivateServer = async (req, res) => {
         }
         const date = new Date(`${data.product.created_at} GMT+0000`)
         const data_generator = {
-            payment_id: payment_id,
+            payment_id: data.id,
             playername: data.customer,
             address: "поле для адреса",
             reason: "поле для причины",
