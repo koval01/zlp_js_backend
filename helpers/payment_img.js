@@ -51,10 +51,10 @@ const getGiftPrivateServer = async (req, res) => {
     }
     getPaymentData(json_body, function (data) {
         data = data.data
-        console.log(data)
-        if (data.product[0].name.toLowerCase().includes("проход")) {
+        if (data.product.name.toLowerCase().includes("проход")) {
             return input_e(res, 400, "error service identify")
         }
+        // data.product.created_at
         const data_generator = {
             payment_id: payment_id,
             playername: data.customer,
