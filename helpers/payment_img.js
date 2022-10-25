@@ -1,5 +1,6 @@
 const Jimp = require("jimp")
 const {getPaymentData} = require("./donate")
+const {months_list} = require("./methods")
 const {input_e} = require("./errors")
 
 const giftItemsSet = (items, image, font) => {
@@ -54,7 +55,7 @@ const getGiftPrivateServer = async (req, res) => {
         if (!data.product.name.toLowerCase().includes("проход")) {
             return input_e(res, 400, "error service identify")
         }
-        // data.product.created_at
+        const date = new Date(`${data.product.created_at} GMT+0000`)
         const data_generator = {
             payment_id: payment_id,
             playername: data.customer,
@@ -62,9 +63,9 @@ const getGiftPrivateServer = async (req, res) => {
             reason: "поле для причины",
             publisher: "Генерал-Полковник Пена Детров",
             date: {
-                day_month: "00 месяц",
-                year_last: "22",
-                hour: "15"
+                day_month: `${String(date.getDay())} ${months_list[date.getMonth() + 1]}`,
+                year_last: String(date.getFullYear()).slice(-2),
+                hour: String(date.getHours())
             }
         }
         return generateGiftPrivateServer(data_generator, res)

@@ -78,5 +78,6 @@ module.exports = {
     getNoun,
     rand_int,
     rand_bool,
-    rand_move
+    rand_move,
+    months_list
 }
