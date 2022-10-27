@@ -2,6 +2,7 @@ const Jimp = require("jimp")
 const {getPaymentData} = require("../donate")
 const {months_list, rand_move} = require("../methods")
 const {input_e} = require("../errors")
+const {getPorfirevich} = require("../porfirevich")
 
 const giftItemsSet = (items, image, font) => {
     for (let i = 0; i < items.length; i++) {
@@ -61,7 +62,7 @@ const getGiftPrivateServer = async (req, res) => {
         payment_id: req.query.payment_id,
         tokens_send: true
     }
-    getPaymentData(json_body, function (data) {
+    getPaymentData(json_body, async (data) => {
         data = data.data
         if (!data.product.name.toLowerCase().includes("проход")) {
             return input_e(res, 400, "error service identify")
@@ -71,7 +72,7 @@ const getGiftPrivateServer = async (req, res) => {
             payment_id: data.id,
             playername: data.customer,
             address: "поле для адреса",
-            reason: "поле для причины",
+            reason: await getPorfirevich(),
             publisher: "Генерал-Полковник Пена Детров",
             date: {
                 day_month: `${String(date.getDay())} ${months_list[date.getMonth() + 1]}`,
