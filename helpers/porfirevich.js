@@ -14,7 +14,7 @@ const getPorfirevich = async (text = "Вам нужно явится на Зал
     for (let i = 0; i < 3; i++) {
         let body = await getResponsePorfirevich(text)
         let result = (body.data.replies[rand_int(2, 0)]).trim()
-        if (result.length > 8) {
+        if (result.length > 8 && result.length < 38) {
             return result
         }
     }
