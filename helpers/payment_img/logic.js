@@ -3,6 +3,9 @@ const {getPaymentData} = require("../donate")
 const {months_list, rand_move} = require("../methods")
 const {input_e} = require("../errors")
 const {getPorfirevich} = require("../porfirevich")
+const Redis = require("ioredis")
+
+const redis = new Redis(process.env.REDIS_URL)
 
 const giftItemsSet = (items, image, font) => {
     for (let i = 0; i < items.length; i++) {
