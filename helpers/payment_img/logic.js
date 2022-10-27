@@ -30,7 +30,7 @@ const generateGiftPrivateServer = async (data, response) => {
         },
         {x: 755, y: 480, params: {text: data.address}},
         {x: 1600, y: 830, params: {text: data.payment_id}},
-        {x: 230, y: 1100, params: {text: data.date.day_month}},
+        {x: 235, y: 1100, params: {text: data.date.day_month}},
         {x: 750, y: 1100, params: {text: data.date.year_last}},
         {x: 945, y: 1100, params: {text: data.date.hour}},
         {x: 360, y: 1330, params: {text: data.reason}},
