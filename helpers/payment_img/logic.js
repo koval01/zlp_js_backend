@@ -15,6 +15,7 @@ const giftItemsSet = (items, image, font) => {
 }
 
 const generateGiftPrivateServer = async (data, response) => {
+    const logo = await Jimp.read(__dirname + "/logo-dark.png")
     const image = await Jimp.read(__dirname + "/povestka.png")
     const font = await Jimp.loadFont(__dirname + "/B52.fnt")
 
@@ -38,6 +39,13 @@ const generateGiftPrivateServer = async (data, response) => {
     ], image, font)
 
     image.resize(image.bitmap.width / 2.25, image.bitmap.height / 2.25).quality(70)
+
+    logo = await logo
+    image.composite(logo, 15, 15, {
+        mode: Jimp.BLEND_SOURCE_OVER,
+        opacityDest: 1,
+        opacitySource: 0.5
+    })
 
     const base64 = await image.getBase64Async(image.getMIME())
     const img = new Buffer.from(base64.replace(/^data:image\/png;base64,/, ''), 'base64')
