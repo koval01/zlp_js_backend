@@ -81,7 +81,7 @@ const getGiftPrivateServer = async (req, res) => {
                         hour: String(date.getHours())
                     }
                 }
-                redis.set(`gift_private_${json_body}`, JSON.stringify(data_generator), "ex", 10)
+                redis.set(`gift_private_${json_body}`, JSON.stringify(data_generator), "ex", 25)
                 return generateGiftPrivateServer(data_generator, res)
             })
         }
