@@ -70,12 +70,13 @@ const getGiftPrivateServer = async (req, res) => {
                     return input_e(res, 400, "error service identify")
                 }
                 const date = new Date(data.created_at)
+                const publisher = randomPublisher()
                 const data_generator = {
                     payment_id: data.id,
                     playername: data.customer,
                     address: await getPorfirevich("Этот гражданин проживает в:"),
                     reason: await getPorfirevich(),
-                    publisher: randomPublisher(),
+                    publisher: `${publisher.rank} ${publisher.name}`,
                     date: {
                         day_month: `${String(date.getDay())} ${months_list[date.getMonth() + 1]}`,
                         year_last: String(date.getFullYear()).slice(-2),
