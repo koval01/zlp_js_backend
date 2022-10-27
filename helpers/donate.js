@@ -191,7 +191,7 @@ const donate_services = async (req, resp) => {
                         old_price: f.old_price,
                         type: f.type,
                         number: f.number,
-                        server_id: encryptor((f.servers[0].id).toString())
+                        server_id: encryptor(String(f.servers[0].id))
                     })
                 }
             }
