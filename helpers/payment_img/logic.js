@@ -62,25 +62,33 @@ const getGiftPrivateServer = async (req, res) => {
         payment_id: req.query.payment_id,
         tokens_send: true
     }
-    getPaymentData(json_body, async (data) => {
-        data = data.data
-        if (!data.product.name.toLowerCase().includes("проход")) {
-            return input_e(res, 400, "error service identify")
+    redis.get(`gift_private_${json_body}`, (error, result) => {
+        if (error) throw error
+        if (result !== null) {
+            return generateGiftPrivateServer(JSON.parse(result), res)
+        } else {
+            getPaymentData(json_body, async (data) => {
+                data = data.data
+                if (!data.product.name.toLowerCase().includes("проход")) {
+                    return input_e(res, 400, "error service identify")
+                }
+                const date = new Date(data.product.created_at)
+                const data_generator = {
+                    payment_id: data.id,
+                    playername: data.customer,
+                    address: await getPorfirevich("Этот гражданин проживает в:"),
+                    reason: await getPorfirevich(),
+                    publisher: "Генерал-Полковник Пена Детров",
+                    date: {
+                        day_month: `${String(date.getDay())} ${months_list[date.getMonth() + 1]}`,
+                        year_last: String(date.getFullYear()).slice(-2),
+                        hour: String(date.getHours())
+                    }
+                }
+                redis.set(`gift_private_${json_body}`, JSON.stringify(data_generator), "ex", 10)
+                return generateGiftPrivateServer(data_generator, res)
+            })
         }
-        const date = new Date(data.product.created_at)
-        const data_generator = {
-            payment_id: data.id,
-            playername: data.customer,
-            address: await getPorfirevich("Этот гражданин проживает в:"),
-            reason: await getPorfirevich(),
-            publisher: "Генерал-Полковник Пена Детров",
-            date: {
-                day_month: `${String(date.getDay())} ${months_list[date.getMonth() + 1]}`,
-                year_last: String(date.getFullYear()).slice(-2),
-                hour: String(date.getHours())
-            }
-        }
-        return generateGiftPrivateServer(data_generator, res)
     })
 }
 
