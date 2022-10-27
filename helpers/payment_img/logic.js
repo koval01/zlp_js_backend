@@ -35,6 +35,8 @@ const generateGiftPrivateServer = async (data, response) => {
         }
     ], image, font)
 
+    console.log("call base64")
+
     const base64 = await image.getBase64Async(image.getMIME())
     const img = new Buffer.from(base64.replace(/^data:image\/png;base64,/, ''), 'base64')
 
@@ -68,6 +70,7 @@ const getGiftPrivateServer = async (req, res) => {
                 hour: String(date.getHours())
             }
         }
+        console.log("call generateGiftPrivateServer")
         return generateGiftPrivateServer(data_generator, res)
     })
 }
