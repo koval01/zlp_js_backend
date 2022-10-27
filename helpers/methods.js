@@ -39,7 +39,7 @@ const getNoun = (number, one = "объект", two = "объекта", five = "�
     return five
 }
 
-const rand_int = (max=8, min=1) => {
+const rand_int = (max=4, min=1) => {
     return Math.floor(Math.random() * max) + min
 }
 
