@@ -38,7 +38,7 @@ const generateGiftPrivateServer = async (data, response) => {
         }
     ], image, font)
 
-    image.resize(image.bitmap.width / 2.3, image.bitmap.height / 2.3)
+    image.resize(image.bitmap.width / 2.4, image.bitmap.height / 2.4)
 
     image.composite(logo, -(image.bitmap.width / 2), 20, {
         mode: Jimp.BLEND_SOURCE_OVER,
