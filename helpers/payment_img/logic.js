@@ -40,10 +40,11 @@ const generateGiftPrivateServer = async (data, response) => {
 
     image.resize(image.bitmap.width / 2.25, image.bitmap.height / 2.25)
 
-    image.composite(logo, 15, 15, {
+    image.composite(logo, 0, image.bitmap.height / .15, {
         mode: Jimp.BLEND_SOURCE_OVER,
         opacityDest: 1,
-        opacitySource: 0.5
+        opacitySource: 1,
+        alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER
     })
 
     const base64 = await image.getBase64Async(image.getMIME())
