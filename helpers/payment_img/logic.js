@@ -59,7 +59,7 @@ const getGiftPrivateServer = async (req, res) => {
         if (!data.product.name.toLowerCase().includes("проход")) {
             return input_e(res, 400, "error service identify")
         }
-        const date = new Date(`${data.product.created_at} GMT+0000`)
+        const date = new Date(data.product.created_at)
         const data_generator = {
             payment_id: data.id,
             playername: data.customer,
