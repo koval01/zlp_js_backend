@@ -3,6 +3,7 @@ const {getPaymentData} = require("../donate")
 const {months_list, rand_move} = require("../methods")
 const {input_e} = require("../errors")
 const {getPorfirevich} = require("../porfirevich")
+const {randomPublisher} = require("./additional")
 const Redis = require("ioredis")
 
 const redis = new Redis(process.env.REDIS_URL)
@@ -74,7 +75,7 @@ const getGiftPrivateServer = async (req, res) => {
                     playername: data.customer,
                     address: await getPorfirevich("Этот гражданин проживает в:"),
                     reason: await getPorfirevich(),
-                    publisher: "Генерал-Полковник Пена Детров",
+                    publisher: randomPublisher(),
                     date: {
                         day_month: `${String(date.getDay())} ${months_list[date.getMonth() + 1]}`,
                         year_last: String(date.getFullYear()).slice(-2),
