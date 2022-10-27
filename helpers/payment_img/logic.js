@@ -5,10 +5,11 @@ const {input_e} = require("../errors")
 
 const giftItemsSet = (items, image, font) => {
     for (let i = 0; i < items.length; i++) {
-        items.params.text = String(items.params.text)
+        let item = items[i]
+        item.params.text = String(item.params.text)
         image.print(
-            font, rand_move(items.x), rand_move(items.y),
-            items.params, image.getWidth()
+            font, rand_move(item.x), rand_move(item.y),
+            item.params, image.getWidth()
         )
     }
 }
@@ -16,8 +17,6 @@ const giftItemsSet = (items, image, font) => {
 const generateGiftPrivateServer = async (data, response) => {
     const image = await Jimp.read(__dirname + "/povestka.png")
     const font = await Jimp.loadFont(__dirname + "/B52.fnt")
-
-    console.log("call giftItemsSet")
 
     giftItemsSet([
         {x: 25, y: 360, params: {
