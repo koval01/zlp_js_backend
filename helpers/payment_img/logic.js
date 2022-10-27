@@ -37,7 +37,7 @@ const generateGiftPrivateServer = async (data, response) => {
         }
     ], image, font)
 
-    image.resize(image.bitmap.width, image.bitmap.height).quality(75)
+    image.resize(image.bitmap.width / 2, image.bitmap.height / 2).quality(75)
 
     const base64 = await image.getBase64Async(image.getMIME())
     const img = new Buffer.from(base64.replace(/^data:image\/png;base64,/, ''), 'base64')
