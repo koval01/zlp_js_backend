@@ -74,7 +74,9 @@ const getGiftPrivateServer = async (req, res) => {
                 const data_generator = {
                     payment_id: data.id,
                     playername: data.customer,
-                    address: "Залупа",
+                    address: "Ул. " + await getPorfirevich(
+                        "На конверте был указан адрес: Ул.", "Залупина 89"
+                    ),
                     reason: await getPorfirevich(),
                     publisher: `${publisher.rank} ${publisher.name}`,
                     date: {
