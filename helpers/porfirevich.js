@@ -9,7 +9,10 @@ const getResponsePorfirevich = async (text) => {
     )
 }
 
-const getPorfirevich = async (text = "Вам нужно явится на Залупу для", error_paste = "") => {
+const getPorfirevich = async (
+    text = "Вам нужно явится на Залупу для",
+    error_paste = ""
+) => {
     for (let i = 0; i < 3; i++) {
         let body = await getResponsePorfirevich(text)
         let replies = body.data.replies
