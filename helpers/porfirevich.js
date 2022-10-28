@@ -16,7 +16,6 @@ const getPorfirevich = async (
     for (let i = 0; i < 3; i++) {
         let body = await getResponsePorfirevich(text)
         let replies = body.data.replies
-        console.log(replies)
         for (let j = 0; j < replies.length; j++) {
             let result = replies[j].trim()
             let len = result.length
