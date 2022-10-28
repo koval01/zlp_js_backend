@@ -18,7 +18,7 @@ const getPorfirevich = async (
         let body = await getResponsePorfirevich(text, tokens)
         let replies = body.data.replies
         for (let result of replies) {
-            let result = result.trim()
+            result = result.trim()
             let len = result.length
             if (
                 len > 8 && len < 38 &&
