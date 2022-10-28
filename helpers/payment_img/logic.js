@@ -7,7 +7,7 @@ const {randomPublisher} = require("./additional")
 const Redis = require("ioredis")
 
 const redis = new Redis(process.env.REDIS_URL)
-const season = "1"
+// const season = "1"
 
 const calculateTextSize = (text, font) => {
     return Jimp.measureText(font, text)
@@ -113,7 +113,7 @@ const getGiftPrivateServer = async (req, res) => {
                 const date = new Date(data.created_at)
                 const publisher = randomPublisher()
                 const data_generator = {
-                    payment_id: `Сезон ${season}`,
+                    payment_id: data.id,
                     playername: data.customer,
                     address: "Ул. " + await getPorfirevich(
                         "На конверте был указан адрес: Ул.", "Залупина 89"
