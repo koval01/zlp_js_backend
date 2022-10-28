@@ -28,7 +28,7 @@ const getPorfirevich = async (
                     "\x20")
                     .slice(-1)
                     .toString()
-                    .length > 2
+                    .length > 3
             ) {
                 return result
             }
