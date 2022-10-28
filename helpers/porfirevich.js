@@ -17,12 +17,12 @@ const getPorfirevich = async (
         let body = await getResponsePorfirevich(text)
         let replies = body.data.replies
         for (let j = 0; j < replies.length; j++) {
-            let result = (replies[j]).trim()
+            let result = replies[j].trim()
             let len = result.length
             if (
                 len > 8 && len < 38 &&
+                result.slice(-1) !== "," &&
                 !result.includes("—") &&
-                !result.slice(-1) === "," &&
                 !result.split(
                     "\x20")
                     .slice(-1)
