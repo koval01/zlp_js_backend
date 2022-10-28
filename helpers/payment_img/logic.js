@@ -8,14 +8,46 @@ const Redis = require("ioredis")
 
 const redis = new Redis(process.env.REDIS_URL)
 
-const giftItemsSet = (items, image, font) => {
-    for (let item of items) {
-        item.params.text = String(item.params.text)
-        image.print(
-            font, rand_move(item.x), rand_move(item.y),
-            item.params, image.getWidth()
-        )
+const calculateTextSize = (text, font) => {
+    return Jimp.measureText(font, text)
+}
+
+const splitLines = (text, font, width) => {
+    let words = text.split(' ')
+    for (let i = words.length; i > 0; i--) {
+        let phrase = words.slice(0, i).join(' ')
+        if (calculateTextSize(phrase, font) < width) {
+            return [phrase, words.slice(i).join(' ')]
+        }
     }
+    return ['', text]
+}
+
+const giftItemsSet = (items, image, font) => {
+    items.forEach(item => {
+        item.params.text = String(item.params.text)
+        if (item.params.multi_lines == null) {
+            image.print(
+                font, rand_move(item.x), rand_move(item.y),
+                item.params, image.getWidth()
+            )
+        } else {
+            let phrase = ['', item.params.text]
+            let indent = item.params.multi_lines.indent
+            let lineIndex = 0
+            while (phrase[1] != '') {
+                phrase = splitLines(phrase[1], font, item.params.multi_lines.width - indent)
+                image.print(
+                    font,
+                    rand_move(item.x + indent),
+                    rand_move(item.y + lineIndex * item.params.multi_lines.height_line),
+                    phrase[0], image.getWidth()
+                )
+                indent = 0
+                lineIndex++
+            }
+        }
+    })
 }
 
 const generateGiftPrivateServer = async (data, response) => {
@@ -38,6 +70,15 @@ const generateGiftPrivateServer = async (data, response) => {
                 text: data.publisher,
                 alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER
             }
+        },
+        {x: 250, y: 1590, params: {
+                text: data.additional_things,
+                multi_lines: {
+                    indent: 1050,
+                    width: 1960,
+                    height_line: 110,
+                }
+            }
         }
     ], image, font)
 
@@ -47,7 +88,7 @@ const generateGiftPrivateServer = async (data, response) => {
     const img = new Buffer.from(base64.replace(/^data:image\/png;base64,/, ''), 'base64')
 
     response.writeHead(200, {
-        'Content-Type': 'image/png',
+        'Content-Type': image.getMIME(),
         'Content-Length': img.length
     })
     return response.end(img)
@@ -82,7 +123,10 @@ const getGiftPrivateServer = async (req, res) => {
                         day_month: `${String(date.getDay())} ${months_list[date.getMonth() + 1]}`,
                         year_last: String(date.getFullYear()).slice(-2),
                         hour: String(date.getHours())
-                    }
+                    },
+                    additional_things: await getPorfirevich(
+                        "При себе вам нужно иметь такие вещи:",
+                        "ничего", 20)
                 }
                 redis.set(`gift_private_${json_body}`, JSON.stringify(data_generator), "ex", 25)
                 return generateGiftPrivateServer(data_generator, res)
