@@ -9,8 +9,7 @@ const Redis = require("ioredis")
 const redis = new Redis(process.env.REDIS_URL)
 
 const giftItemsSet = (items, image, font) => {
-    for (let i = 0; i < items.length; i++) {
-        let item = items[i]
+    for (let item of items) {
         item.params.text = String(item.params.text)
         image.print(
             font, rand_move(item.x), rand_move(item.y),
