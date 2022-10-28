@@ -17,6 +17,7 @@ const getPorfirevich = async (text = "Вам нужно явится на Зал
         if (
             result.length > 8 &&
             result.length < 38 &&
+            !result.includes("—") &&
             !result.split("\x20").slice(-1).toString().length <= 2
         ) {
             return result
