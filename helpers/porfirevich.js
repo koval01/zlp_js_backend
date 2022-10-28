@@ -1,5 +1,4 @@
 const axios = require("axios")
-const { rand_int } = require("./methods")
 
 const getResponsePorfirevich = async (text) => {
     return await axios.post(
