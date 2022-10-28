@@ -23,11 +23,11 @@ const getPorfirevich = async (
                 len > 8 && len < 38 &&
                 result.slice(-1) !== "," &&
                 !result.includes("—") &&
-                !result.split(
+                result.split(
                     "\x20")
                     .slice(-1)
                     .toString()
-                    .length <= 2
+                    .length > 2
             ) {
                 return result
             }
