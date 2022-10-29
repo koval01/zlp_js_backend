@@ -54,6 +54,13 @@ const rand_move = (val) => {
     return val + rand_int()
 }
 
+const removeItemOnce = (arr, value) => {
+    let index = arr.indexOf(value)
+    if (index > -1) {
+        arr.splice(index, 1) }
+    return arr
+}
+
 const months_list = {
     1: "января",
     2: "февраля",
@@ -79,5 +86,6 @@ module.exports = {
     rand_int,
     rand_bool,
     rand_move,
-    months_list
+    months_list,
+    removeItemOnce
 }

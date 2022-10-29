@@ -1,13 +1,13 @@
 const Jimp = require("jimp")
 const {getPaymentData} = require("../donate")
-const {months_list, rand_move} = require("../methods")
+const {months_list, rand_move, removeItemOnce} = require("../methods")
 const {input_e} = require("../errors")
 const {getPorfirevich} = require("../porfirevich")
 const {randomPublisher} = require("./additional")
 const Redis = require("ioredis")
 
 const redis = new Redis(process.env.REDIS_URL)
-// const season = "1"
+var generateLock = []
 
 const calculateTextSize = (text, font) => {
     return Jimp.measureText(font, text)
@@ -96,44 +96,52 @@ const generateGiftPrivateServer = async (data, response) => {
 }
 
 const getGiftPrivateServer = async (req, res) => {
+    const payment_id = req.query.payment_id
     const json_body = {
         payment_id: req.query.payment_id,
         tokens_send: true
     }
-    redis.get(`gift_private_${json_body}`, (error, result) => {
-        if (error) throw error
-        if (result !== null) {
-            return generateGiftPrivateServer(JSON.parse(result), res)
-        } else {
-            getPaymentData(json_body, async (data) => {
-                data = data.data
-                if (!data.product.name.toLowerCase().includes("проход")) {
-                    return input_e(res, 400, "error service identify")
-                }
-                const date = new Date(data.created_at)
-                const publisher = randomPublisher()
-                const data_generator = {
-                    payment_id: data.id,
-                    playername: data.customer,
-                    address: "Ул. " + await getPorfirevich(
-                        "На конверте был указан адрес: Ул.", "Залупина 89"
-                    ),
-                    reason: await getPorfirevich(),
-                    publisher: `${publisher.rank} ${publisher.name}`,
-                    date: {
-                        day_month: `${String(date.getDay())} ${months_list[date.getMonth() + 1]}`,
-                        year_last: String(date.getFullYear()).slice(-2),
-                        hour: String(date.getHours())
-                    },
-                    additional_things: await getPorfirevich(
-                        "При себе вам нужно иметь такие вещи:",
-                        "ничего", 20)
-                }
-                redis.set(`gift_private_${json_body}`, JSON.stringify(data_generator), "ex", 25)
-                return generateGiftPrivateServer(data_generator, res)
-            })
-        }
-    })
+    const key = `gift_private_${payment_id}`
+    if (!generateLock.includes(payment_id)) {
+        generateLock.push(payment_id)
+        redis.get(key, (error, result) => {
+            if (error) throw error
+            if (result !== null) {
+                return generateGiftPrivateServer(JSON.parse(result), res)
+            } else {
+                getPaymentData(json_body, async (data) => {
+                    data = data.data
+                    if (!data.product.name.toLowerCase().includes("проход")) {
+                        return input_e(res, 400, "error service identify")
+                    }
+                    const date = new Date(data.created_at)
+                    const publisher = randomPublisher()
+                    const data_generator = {
+                        payment_id: data.id,
+                        playername: data.customer,
+                        address: "Ул. " + await getPorfirevich(
+                            "На конверте был указан адрес: Ул.", "Залупина 89"
+                        ),
+                        reason: await getPorfirevich(),
+                        publisher: `${publisher.rank} ${publisher.name}`,
+                        date: {
+                            day_month: `${String(date.getDay())} ${months_list[date.getMonth() + 1]}`,
+                            year_last: String(date.getFullYear()).slice(-2),
+                            hour: String(date.getHours())
+                        },
+                        additional_things: await getPorfirevich(
+                            "При себе вам нужно иметь такие вещи:",
+                            "ничего", 20)
+                    }
+                    redis.set(key, JSON.stringify(data_generator), "ex", 25)
+                    return generateGiftPrivateServer(data_generator, res)
+                })
+            }
+        })
+    } else {
+        console.log(`Generation is lock ${payment_id} SKIP`)
+    }
+    removeItemOnce(generateLock, payment_id)
 }
 
 module.exports = {
