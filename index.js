@@ -89,7 +89,7 @@ app.post('/donate/payment_get', rateLimit({
 
 app.post('/donate/payment/create', rateLimit({
     windowMs: 60 * 1000,
-    max: 15,
+    max: 25,
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, catchAsync(payment_create))
