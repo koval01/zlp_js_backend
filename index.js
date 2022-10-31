@@ -150,8 +150,8 @@ app.get('/profile/body', rateLimit({
 }), catchAsync(get3dBody))
 
 app.get('/gift/private_server', rateLimit({
-    windowMs: 60 * 1000,
-    max: 15,
+    windowMs: 180 * 1000,
+    max: 5,
     standardHeaders: true,
     message: rateLimitMessage
 }), crypto_check_get, catchAsync(getGiftPrivateServer))

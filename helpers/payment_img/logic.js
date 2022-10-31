@@ -101,46 +101,40 @@ const getGiftPrivateServer = async (req, res) => {
         tokens_send: true
     }
     const key = `gift_private_${payment_id}`
-    if (!memGetValue(key)) {
-        memWrite(key, true)
-        redis.get(key, (error, result) => {
-            if (error) throw error
-            if (result !== null) {
-                return generateGiftPrivateServer(JSON.parse(result), res)
-            } else {
-                getPaymentData(json_body, async (data) => {
-                    data = data.data
-                    if (!data.product.name.toLowerCase().includes("проход")) {
-                        return input_e(res, 400, "error service identify")
-                    }
-                    const date = new Date(data.created_at)
-                    const publisher = randomPublisher()
-                    const data_generator = {
-                        payment_id: data.id,
-                        playername: data.customer,
-                        address: "Ул. " + await getPorfirevich(
-                            "На конверте был указан адрес: Ул.", "Залупина 89"
-                        ),
-                        reason: await getPorfirevich(),
-                        publisher: `${publisher.rank} ${publisher.name}`,
-                        date: {
-                            day_month: `${String(date.getDay())} ${months_list[date.getMonth() + 1]}`,
-                            year_last: String(date.getFullYear()).slice(-2),
-                            hour: String(date.getHours())
-                        },
-                        additional_things: await getPorfirevich(
-                            "При себе вам нужно иметь такие вещи:",
-                            "ничего", 20)
-                    }
-                    redis.set(key, JSON.stringify(data_generator), "ex", 25)
-                    return generateGiftPrivateServer(data_generator, res)
-                })
-            }
-        })
-        memRemoveKey(key)
-    } else {
-        console.log(`Generation is lock ${payment_id} SKIP`)
-    }
+    redis.get(key, (error, result) => {
+        if (error) throw error
+        if (result !== null) {
+            return generateGiftPrivateServer(JSON.parse(result), res)
+        } else {
+            getPaymentData(json_body, async (data) => {
+                data = data.data
+                if (!data.product.name.toLowerCase().includes("проход")) {
+                    return input_e(res, 400, "error service identify")
+                }
+                const date = new Date(data.created_at)
+                const publisher = randomPublisher()
+                const data_generator = {
+                    payment_id: data.id,
+                    playername: data.customer,
+                    address: "Ул. " + await getPorfirevich(
+                        "На конверте был указан адрес: Ул.", "Залупина 89"
+                    ),
+                    reason: await getPorfirevich(),
+                    publisher: `${publisher.rank} ${publisher.name}`,
+                    date: {
+                        day_month: `${String(date.getDay())} ${months_list[date.getMonth() + 1]}`,
+                        year_last: String(date.getFullYear()).slice(-2),
+                        hour: String(date.getHours())
+                    },
+                    additional_things: await getPorfirevich(
+                        "При себе вам нужно иметь такие вещи:",
+                        "ничего", 20)
+                }
+                redis.set(key, JSON.stringify(data_generator), "ex", 25)
+                return generateGiftPrivateServer(data_generator, res)
+            })
+        }
+    })
 }
 
 module.exports = {
