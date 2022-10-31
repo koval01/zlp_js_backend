@@ -151,7 +151,7 @@ app.get('/profile/body', rateLimit({
 
 app.get('/gift/private_server', rateLimit({
     windowMs: 180 * 1000,
-    max: 5,
+    max: 10,
     standardHeaders: true,
     message: rateLimitMessage
 }), crypto_check_get, catchAsync(getGiftPrivateServer))
