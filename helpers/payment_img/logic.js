@@ -130,7 +130,7 @@ const getGiftPrivateServer = async (req, res) => {
                         "При себе вам нужно иметь такие вещи:",
                         "ничего", 20)
                 }
-                redis.set(key, JSON.stringify(data_generator), "ex", 25)
+                redis.set(key, JSON.stringify(data_generator), "ex", 30)
                 return generateGiftPrivateServer(data_generator, res)
             })
         }
