@@ -1,13 +1,12 @@
 const Jimp = require("jimp")
 const {getPaymentData} = require("../donate")
-const {months_list, rand_move, removeItemOnce} = require("../methods")
+const {months_list, rand_move, removeItemOnce, memWrite, memGetValue, memRemoveKey} = require("../methods")
 const {input_e} = require("../errors")
 const {getPorfirevich} = require("../porfirevich")
 const {randomPublisher} = require("./additional")
 const Redis = require("ioredis")
 
 const redis = new Redis(process.env.REDIS_URL)
-var generateLock = []
 
 const calculateTextSize = (text, font) => {
     return Jimp.measureText(font, text)
@@ -102,8 +101,8 @@ const getGiftPrivateServer = async (req, res) => {
         tokens_send: true
     }
     const key = `gift_private_${payment_id}`
-    if (!generateLock.includes(payment_id)) {
-        generateLock.push(payment_id)
+    if (!memGetValue(key)) {
+        memWrite(key, true)
         redis.get(key, (error, result) => {
             if (error) throw error
             if (result !== null) {
@@ -138,10 +137,10 @@ const getGiftPrivateServer = async (req, res) => {
                 })
             }
         })
+        memRemoveKey(key)
     } else {
         console.log(`Generation is lock ${payment_id} SKIP`)
     }
-    removeItemOnce(generateLock, payment_id)
 }
 
 module.exports = {

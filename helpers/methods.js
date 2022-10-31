@@ -1,3 +1,19 @@
+const { MemoryCache } = require('memory-cache-node')
+
+const memoryCache = new MemoryCache(600, 1000000)
+
+const memWrite = (key_name, key_value, expiring = 10 * 60) => {
+    return memoryCache.storeExpiringItem(key_name, key_value, expiring)
+}
+
+const memGetValue = (key_name) => {
+    return memoryCache.retrieveItemValue(key_name)
+}
+
+const memRemoveKey = (key_name) => {
+    return memoryCache.removeItem(key_name)
+}
+
 const get_user_ip = (req) => {
     return req.headers['x-forwarded-for'].split(",\x20")[0].trim() || req.socket.remoteAddress
 }
@@ -86,5 +102,8 @@ module.exports = {
     rand_bool,
     rand_move,
     months_list,
-    removeItemOnce
+    removeItemOnce,
+    memWrite,
+    memGetValue,
+    memRemoveKey
 }
