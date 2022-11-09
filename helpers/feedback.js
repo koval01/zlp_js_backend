@@ -23,9 +23,6 @@ const feedback_check_view = async (req, resp) => {
 const feed_send_view = async (req, resp) => {
     let json_body = req.body
     let tg_user = getVerifiedTelegramData(json_body)
-    if (!tg_user) {
-        return input_e(resp, 403, "tg_auth error")
-    }
     const remove_repeats = (text) => {
         let arr = text.split("\x20")
         let newArr = []
