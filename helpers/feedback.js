@@ -23,6 +23,9 @@ const feedback_check_view = async (req, resp) => {
 const feed_send_view = async (req, resp) => {
     let json_body = req.body
     let tg_user = getVerifiedTelegramData(json_body)
+    if (!tg_user) {
+        return input_e(resp, 403, "tg_auth error")
+    }
     const remove_repeats = (text) => {
         let arr = text.split("\x20")
         let newArr = []
@@ -38,7 +41,7 @@ const feed_send_view = async (req, resp) => {
     redis.get(`feedback_${req.ip}_tg${tg_user.id}`, (error, result) => {
         if (error) throw error
         if (result !== null) {
-            return input_e(resp, resp.statusCode, "need wait")
+            return input_e(resp, 429, "need wait")
         } else {
             let text = json_body.text
             const text_c = text
