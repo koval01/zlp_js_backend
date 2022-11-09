@@ -25,6 +25,9 @@ const payment_create = async (req, resp) => {
         if (Object.keys(json_body.products).length !== 1) {
             return input_e(resp, 400, "products error")
         }
+        if (json_body.customer.length < 3 && json_body.customer.length > 32) {
+            return input_e(resp, 400, "customer field error")
+        }
         let url = url_builder_(
             'https://easydonate.ru/api/v3/shop/payment/create',
             [
@@ -71,50 +74,84 @@ const payment_create = async (req, resp) => {
     }
 }
 
-const payment_get = async (req, resp) => {
-    let json_body = req.body
-    try {
-        function response_(data) {
-            if (data) {
-                if (json_body.tokens_send) {
-                    let pattern = data.products[0].commands[0]
-                    let exc_com = data.sent_commands[0].command
+const getPaymentData = (json_body, callback) => {
+    function response_(data) {
+        if (data) {
+            if (json_body.tokens_send) {
+                let pattern = data.products[0].commands[0]
+                let exc_com = data.sent_commands[0].command
 
-                    let split_pattern = pattern.split("\x20")
-                    let split_exc_com = exc_com.split("\x20")
+                let split_pattern = pattern.split("\x20")
+                let split_exc_com = exc_com.split("\x20")
 
-                    for (let i = 0; i < split_pattern.length; i++) {
-                        if (split_pattern[i] === "{amount}") {
-                            data.enrolled = parseInt(split_exc_com[i])
-                        }
-                    }
-                } else {
-                    data.enrolled = 0
-                }
-                data.status = (data.status === 2)
-                let p = data.products[0]
-                return {
-                    id: data.id,
-                    customer: data.customer,
-                    email: censorEmail(data.email),
-                    created_at: data.created_at,
-                    payment_system: data.payment_system,
-                    status: data.status,
-                    enrolled: data.enrolled,
-                    product: {
-                        name: p.name,
-                        price: p.price,
-                        type: p.type,
-                        number: p.number,
-                        description: p.description,
-                        image: p.image
+                for (let i = 0; i < split_pattern.length; i++) {
+                    if (split_pattern[i] === "{amount}") {
+                        data.enrolled = parseInt(split_exc_com[i])
                     }
                 }
             } else {
-                return null
+                data.enrolled = 0
             }
+            data.status = (data.status === 2)
+            let p = data.products[0]
+            return {
+                id: data.id,
+                customer: data.customer,
+                email: censorEmail(data.email),
+                created_at: data.created_at,
+                payment_system: data.payment_system,
+                status: data.status,
+                enrolled: data.enrolled,
+                product: {
+                    name: p.name,
+                    price: p.price,
+                    type: p.type,
+                    number: p.number,
+                    description: p.description,
+                    image: p.image
+                }
+            }
+        } else {
+            return null
         }
+    }
 
+    redis.get(`payment_${json_body.payment_id}`, (error, result) => {
+        if (error) {
+            callback(null)
+        }
+        if (result !== null) {
+            callback({data: JSON.parse(result), cache: true})
+        } else {
+            request(
+                {
+                    uri: `https://easydonate.ru/api/v3/shop/payment/${json_body.payment_id}`,
+                    method: 'GET',
+                    headers: {
+                        'Shop-Key': process.env.DONATE_API_KEY
+                    }
+                },
+                (error, response, body) => {
+                    if (!error && response.statusCode === 200) {
+                        body = JSON.parse(body)
+                        if (body.success) {
+                            const body_data = response_(body.response)
+                            redis.set(`payment_${json_body.payment_id}`, JSON.stringify(body_data), "ex", 1000)
+                            callback({data: body_data, cache: false})
+                        } else {
+                            callback(null)
+                        }
+                    } else {
+                        callback(null)
+                    }
+                }
+            )
+        }
+    })
+}
+
+const payment_get = async (req, resp) => {
+    try {
         function response_call(result, cache = false) {
             return resp.send({
                 success: true,
@@ -123,37 +160,9 @@ const payment_get = async (req, resp) => {
             })
         }
 
-        redis.get(`payment_${json_body.payment_id}`, (error, result) => {
-            if (error) throw error
-            if (result !== null) {
-                return response_call(JSON.parse(result), true)
-            } else {
-                request(
-                    {
-                        uri: `https://easydonate.ru/api/v3/shop/payment/${json_body.payment_id}`,
-                        method: 'GET',
-                        headers: {
-                            'Shop-Key': process.env.DONATE_API_KEY
-                        }
-                    },
-                    (error, response, body) => {
-                        if (!error && response.statusCode === 200) {
-                            body = JSON.parse(body)
-                            if (body.success) {
-                                let payment = response_(body.response)
-                                redis.set(`payment_${json_body.payment_id}`, JSON.stringify(payment), "ex", 1000)
-                                return resp.send(response_call(payment))
-                            }
-                            return resp.status(503).json({
-                                success: false,
-                                message: "Error check response EasyDonate API",
-                                exception: "var success is not true"
-                            })
-                        } else {
-                            return input_e(resp, response.statusCode, error)
-                        }
-                    }
-                )
+        getPaymentData(req.body, function (data) {
+            if (data) {
+                return response_call(data.data, data.cache)
             }
         })
     } catch (_) {
@@ -185,7 +194,7 @@ const donate_services = async (req, resp) => {
                         old_price: f.old_price,
                         type: f.type,
                         number: f.number,
-                        server_id: encryptor((f.servers[0].id).toString())
+                        server_id: encryptor(String(f.servers[0].id))
                     })
                 }
             }
@@ -318,5 +327,6 @@ module.exports = {
     payment_create,
     payment_get,
     coupon_get,
-    donate_services
+    donate_services,
+    getPaymentData
 }

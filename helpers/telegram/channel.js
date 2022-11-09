@@ -163,7 +163,13 @@ const channel_raw = async (req, resp) => {
                                 let regex_link = /(https:\/\/t.me\/)([A-z\d_\-]*?\/[\d]*$)/
                                 let org_link = container.querySelector(".tgme_widget_message_date").getAttribute("href")
                                 let link = `https://t.me/s/${org_link.match(regex_link)[2]}`
-                                if (text.length > 3 && text.toLowerCase() !== "live stream started" && !text.toLowerCase().includes("pinned a file")) {
+                                const text_lower = text.toLowerCase()
+                                if (
+                                    text.length > 5 &&
+                                    text_lower !== "live stream started" &&
+                                    !text_lower.includes("pinned a file") &&
+                                    !text_lower.includes("pinned «")
+                                ) {
                                     text = text.replaceAll(/>(https:|http:)(\/\/www.)/gm, ">")
                                     text = text.replaceAll(/(<a .*?">)(.*?)(\/.*?)(<\/a>)/gm, '$1$2$4')
                                     result.push({

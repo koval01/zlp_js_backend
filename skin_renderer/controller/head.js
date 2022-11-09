@@ -1,11 +1,12 @@
 const {getHead64} = require("../helpers/profile")
+const {input_e} = require("../../helpers/errors")
 const Numbers = require("../helpers/numbers")
 const {getVerifiedTelegramData} = require("../../helpers/telegram/base")
 
 module.exports.getHead = async (req, res) => {
     const tg_user = getVerifiedTelegramData(req.query.tg_auth, true)
     if (!tg_user) {
-        return res.status(400).send(null)
+        return input_e(res, 403, "telegram auth invalid")
     }
 
     const texture = req.query.texture_hash
