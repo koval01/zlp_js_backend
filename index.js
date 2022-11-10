@@ -99,14 +99,14 @@ app.post('/feedback/send', rateLimit({
     max: 10,
     standardHeaders: true,
     message: rateLimitMessage
-}), re_check, tg_check, catchAsync(feed_send_view))
+}), re_check, catchAsync(feed_send_view))
 
 app.post('/feedback/check', rateLimit({
     windowMs: 60 * 1000,
     max: 50,
     standardHeaders: true,
     message: rateLimitMessage
-}), re_check, tg_check, catchAsync(feedback_check_view))
+}), re_check, catchAsync(feedback_check_view))
 
 app.post('/crypto', rateLimit({
     windowMs: 60 * 1000,
