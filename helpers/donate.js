@@ -155,6 +155,7 @@ const getPaymentHistoryData = (json_body, callback) => {
         if (data) {
             let result = [];
             console.log(`payment_history array length : ${data.length}`)
+            data = data.reverse();
             for (let i = 0; i < data.length; i++) {
                 let p = data[i];
                 let pi = p.products[0];
