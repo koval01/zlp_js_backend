@@ -163,6 +163,7 @@ const getPaymentHistoryData = (json_body, callback) => {
                     result.push({
                         customer: p.customer,
                         created_at: p.created_at,
+                        updated_at: p.updated_at,
                         products: {
                             name: pi.name,
                             image: pi.image
