@@ -24,7 +24,7 @@ const {mc_status_view} = require("./helpers/server_status")
 const {promotion_view, t_monitoring_promotion} = require("./helpers/promotion")
 const {getGiftPrivateServer} = require("./helpers/payment_img/logic")
 const {feedback_check_view, feed_send_view} = require("./helpers/feedback")
-const {payment_create, payment_get, coupon_get, donate_services} = require("./helpers/donate")
+const {payment_create, payment_get, coupon_get, donate_services, payment_history_get} = require("./helpers/donate")
 const {events_view, channel_raw, channel_parse} = require("./helpers/telegram/channel")
 
 const app = express()
@@ -86,6 +86,13 @@ app.post('/donate/payment_get', rateLimit({
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, catchAsync(payment_get))
+
+app.post('/donate/payment_history', rateLimit({
+    windowMs: 60 * 1000,
+    max: 30,
+    standardHeaders: true,
+    message: rateLimitMessage
+}), re_check, catchAsync(payment_history_get))
 
 app.post('/donate/payment/create', rateLimit({
     windowMs: 60 * 1000,
