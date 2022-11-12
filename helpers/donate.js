@@ -157,15 +157,15 @@ const getPaymentHistoryData = (json_body, callback) => {
             console.log(`payment_history array length : ${data.length}`)
             for (let i = 0; i < data.length; i++) {
                 let p = data[i];
-                // let pi = data.p.products[0];
+                let pi = p.products[0];
                 if (p.status === 2 && result.length <= 50) {
                     result.push({
                         customer: p.customer,
                         created_at: p.created_at,
-                        // products: {
-                        //     name: pi.name,
-                        //     image: pi.image
-                        // }
+                        products: {
+                            name: pi.name,
+                            image: pi.image
+                        }
                     })
                 }
             }
@@ -198,7 +198,7 @@ const getPaymentHistoryData = (json_body, callback) => {
                             redis.set(
                                 `payment_history`,
                                 JSON.stringify(body_data),
-                                "ex", 120)
+                                "ex", 20)
                             callback({data: body_data, cache: false})
                         } else {
                             callback(null)
