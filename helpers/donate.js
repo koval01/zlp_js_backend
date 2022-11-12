@@ -156,15 +156,15 @@ const getPaymentHistoryData = (json_body, callback) => {
             let result = [];
             for (let i = 0; i < data.length; i++) {
                 let p = data[i];
-                let pi = data.p.products[0];
+                // let pi = data.p.products[0];
                 if (p.status === 2 && result.length <= 50) {
                     result.push({
                         customer: p.customer,
                         created_at: p.created_at,
-                        products: {
-                            name: pi.name,
-                            image: pi.image
-                        }
+                        // products: {
+                        //     name: pi.name,
+                        //     image: pi.image
+                        // }
                     })
                 }
             }
