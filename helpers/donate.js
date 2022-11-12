@@ -154,8 +154,8 @@ const getPaymentHistoryData = (json_body, callback) => {
     function response_(data) {
         if (data) {
             let result = [];
-            for (let i = 0; i < data.response.length; i++) {
-                let p = data.response[0];
+            for (let i = 0; i < data.length; i++) {
+                let p = data[i];
                 let pi = data.p.products[0];
                 if (p.status === 2 && result.length <= 50) {
                     result.push({
