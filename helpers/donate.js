@@ -164,7 +164,7 @@ const getPaymentHistoryData = (json_body, callback) => {
                         customer: p.customer,
                         created_at: p.created_at,
                         updated_at: p.updated_at,
-                        products: {
+                        product: {
                             name: pi.name,
                             image: pi.image
                         }
