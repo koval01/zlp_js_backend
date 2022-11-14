@@ -29,6 +29,7 @@ function private_chat_data(callback, username, invite_id=null) {
         )
     }
     check_in_db(function (data) {
+        console.log(`check_in_db in private_chat_data : ${data}`)
         if (data.length) {
             callback(data)
         } else if (invite_id !== null) {
