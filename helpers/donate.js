@@ -96,16 +96,9 @@ const getPaymentData = (json_body, callback) => {
             }
             data.status = (data.status === 2)
             let p = data.products[0]
-            let private_inv = null
+            let private_inv = false
             if (p.name === "Проходка") {
-                const data_db = private_chat_data(data.customer)
-                if (data_db) {
-                    private_inv = data_db
-                } else {
-                    createInviteLinkPrivateChat(function (invite_data) {
-                        private_inv = invite_data.invite_link
-                    })
-                }
+                private_inv = true
             }
             return {
                 id: data.id,
@@ -130,6 +123,18 @@ const getPaymentData = (json_body, callback) => {
         }
     }
 
+    function getInvite(callback, customer) {
+        private_chat_data(function (db_resp) {
+            if (db_resp) {
+                callback(db_resp)
+            } else {
+                createInviteLinkPrivateChat(function (invite_data) {
+                    callback(invite_data.invite_link)
+                })
+            }
+        }, customer)
+    }
+
     redis.get(`payment_${json_body.payment_id}`, (error, result) => {
         if (error) {
             callback(null)
@@ -149,9 +154,12 @@ const getPaymentData = (json_body, callback) => {
                     if (!error && response.statusCode === 200) {
                         body = JSON.parse(body)
                         if (body.success) {
-                            const body_data = response_(body.response)
-                            redis.set(`payment_${json_body.payment_id}`, JSON.stringify(body_data), "ex", 1000)
-                            callback({data: body_data, cache: false})
+                            let body_data = response_(body.response)
+                            getInvite(function (inv_resp) {
+                                body_data.private_invite = inv_resp
+                                redis.set(`payment_${json_body.payment_id}`, JSON.stringify(body_data), "ex", 1000)
+                                callback({data: body_data, cache: false})
+                            }, body_data.customer)
                         } else {
                             callback(null)
                         }

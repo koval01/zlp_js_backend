@@ -1,6 +1,6 @@
 const {sql_request} = require("../mysql")
 
-function private_chat_data(username, invite_id=null) {
+function private_chat_data(callback, username, invite_id=null) {
     let check_in_db = (callback) => {
         sql_request(function (data) {
                 console.log(`Get private chat row : ${JSON.stringify(data)}`)
@@ -28,15 +28,13 @@ function private_chat_data(username, invite_id=null) {
             [username, invite_id]
         )
     }
-    let exit_data = null
     check_in_db(function (data) {
         if (data.length) {
-            exit_data = data
+            callback(data)
         } else if (invite_id !== null) {
             insert()
         }
     })
-    return exit_data
 }
 
 module.exports = {
