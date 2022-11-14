@@ -23,7 +23,7 @@ const checkTelegramAuthorization = (authData) => {
     return authData.hash === getTelegramValidateHash(authData)
 }
 
-const createInviteLinkPrivateChat = () => {
+const createInviteLinkPrivateChat = (callback) => {
     request(
         {
             uri: `https://api.telegram.org/bot${
@@ -37,7 +37,7 @@ const createInviteLinkPrivateChat = () => {
             if (!error && response.statusCode === 200) {
                 body = JSON.parse(body)
                 if (body.ok) {
-                    return body.result
+                    callback(body.result)
                 }
             }
         }

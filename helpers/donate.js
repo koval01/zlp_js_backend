@@ -1,6 +1,8 @@
 const {input_e, main_e} = require("./errors")
 const {url_builder_, censorEmail} = require("./methods")
 const {encryptor, decrypt} = require("./crypto")
+const {private_chat_data} = require("../database/functions/private_chat")
+const {createInviteLinkPrivateChat} = require("./telegram/base")
 const request = require("request")
 const Redis = require("ioredis")
 
@@ -96,7 +98,14 @@ const getPaymentData = (json_body, callback) => {
             let p = data.products[0]
             let private_inv = null
             if (p.name === "Проходка") {
-                // pass
+                const data_db = private_chat_data(data.customer)
+                if (data_db) {
+                    private_inv = data_db
+                } else {
+                    createInviteLinkPrivateChat(function (invite_data) {
+                        private_inv = invite_data.invite_link
+                    })
+                }
             }
             return {
                 id: data.id,
