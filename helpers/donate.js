@@ -157,7 +157,10 @@ const getPaymentData = (json_body, callback) => {
                             let body_data = response_(body.response)
                             getInvite(function (inv_resp) {
                                 body_data.private_invite = inv_resp
-                                redis.set(`payment_${json_body.payment_id}`, JSON.stringify(body_data), "ex", 1000)
+                                redis.set(
+                                    `payment_${json_body.payment_id}`,
+                                    JSON.stringify(body_data), "ex", 15
+                                )
                                 callback({data: body_data, cache: false})
                             }, body_data.customer)
                         } else {
