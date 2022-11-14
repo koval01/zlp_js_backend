@@ -136,7 +136,7 @@ const getPaymentData = (json_body, callback) => {
                         inv_link}`)
                     private_chat_data(
                         function (_) {},
-                        customer, inv_link.match(/\/\+(.*)/)[1]
+                        customer, inv_link.toString().match(/\/\+(.*)/)[1]
                     )
                     callback(inv_link)
                 })
