@@ -127,12 +127,18 @@ const getPaymentData = (json_body, callback) => {
         private_chat_data(function (db_resp) {
             if (db_resp) {
                 console.log(`db_resp in payment_get : ${db_resp}`)
+                console.log(db_resp)
                 callback(db_resp)
             } else {
                 createInviteLinkPrivateChat(function (invite_data) {
+                    let inv_link = invite_data
                     console.log(`invite_data(createInviteLinkPrivateChat) in payment_get : ${
-                        invite_data.invite_link}`)
-                    callback(invite_data.invite_link)
+                        inv_link}`)
+                    private_chat_data(
+                        function (_) {},
+                        customer, inv_link.match(/\/\+(.*)/)[1]
+                    )
+                    callback(inv_link)
                 })
             }
         }, customer)
