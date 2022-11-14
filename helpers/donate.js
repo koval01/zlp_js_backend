@@ -94,6 +94,10 @@ const getPaymentData = (json_body, callback) => {
             }
             data.status = (data.status === 2)
             let p = data.products[0]
+            let private_inv = null
+            if (p.name === "Проходка") {
+                // pass
+            }
             return {
                 id: data.id,
                 customer: data.customer,
@@ -109,7 +113,8 @@ const getPaymentData = (json_body, callback) => {
                     number: p.number,
                     description: p.description,
                     image: p.image
-                }
+                },
+                private_invite: private_inv
             }
         } else {
             return null
