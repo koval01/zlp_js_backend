@@ -34,6 +34,9 @@ function private_chat_data(callback, username, invite_id=null) {
             callback(data)
         } else if (invite_id !== null) {
             insert()
+            callback(null)
+        } else {
+            callback(null)
         }
     })
 }
