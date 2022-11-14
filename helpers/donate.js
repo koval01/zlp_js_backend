@@ -126,6 +126,7 @@ const getPaymentData = (json_body, callback) => {
     function getInvite(callback, customer) {
         private_chat_data(function (db_resp) {
             if (db_resp) {
+                console.log(`db_resp in payment_get : ${db_resp}`)
                 callback(db_resp)
             } else {
                 createInviteLinkPrivateChat(function (invite_data) {
