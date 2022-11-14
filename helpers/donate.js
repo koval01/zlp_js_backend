@@ -130,7 +130,8 @@ const getPaymentData = (json_body, callback) => {
                 callback(db_resp)
             } else {
                 createInviteLinkPrivateChat(function (invite_data) {
-                    console.log(`invite_data(createInviteLinkPrivateChat) in payment_get : ${invite_data}`)
+                    console.log(`invite_data(createInviteLinkPrivateChat) in payment_get : ${
+                        invite_data.invite_link}`)
                     callback(invite_data.invite_link)
                 })
             }
@@ -158,6 +159,7 @@ const getPaymentData = (json_body, callback) => {
                         if (body.success) {
                             let body_data = response_(body.response)
                             getInvite(function (inv_resp) {
+                                console.log(`getInvite date : ${inv_resp}`)
                                 body_data.private_invite = inv_resp
                                 redis.set(
                                     `payment_${json_body.payment_id}`,
