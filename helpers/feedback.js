@@ -54,7 +54,7 @@ const feed_send_view = async (req, resp) => {
                 let user_name_builded = `<a href="tg://user?id=${tg_user.id}">${tg_user.first_name} ${tg_user.last_name}</a> ${username}`
                 request(
                     {
-                        uri: `https://api.telegram.org/bot${process.env.FEEDBACK_BOT_TOKEN}/sendMessage?chat_id=${process.env.FEEDBACK_BOT_CHAT_ID}&${qs.stringify({
+                        uri: `https://api.telegram.org/bot${process.env.BOT_TOKEN}/sendMessage?chat_id=${process.env.PRIVATE_CHAT_ID}&${qs.stringify({
                             text: `${text}\n\n${"_".repeat(10)}\n${user_name_builded}\n\nTG_ID:\x20${tg_user.id}\nIP:\x20<tg-spoiler>${req.ip}</tg-spoiler>`
                         })}&parse_mode=HTML`,
                         method: 'GET'

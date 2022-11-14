@@ -4,7 +4,7 @@ const qs = require("querystring");
 const {input_e} = require("../errors");
 
 const getTelegramValidateHash = (authData) => {
-    const tgBotToken = process.env.FEEDBACK_BOT_TOKEN
+    const tgBotToken = process.env.BOT_TOKEN
     delete authData.hash
 
     let key = crypto.createHash('sha256').update(tgBotToken).digest()
@@ -26,7 +26,7 @@ const checkTelegramAuthorization = (authData) => {
 const createInviteLinkPrivateChat = (resp) => {
     request(
         {
-            uri: `https://api.telegram.org/bot${process.env.FEEDBACK_BOT_TOKEN}/createChatInviteLink?chat_id=${process.env.FEEDBACK_BOT_CHAT_ID}&member_limit=1`,
+            uri: `https://api.telegram.org/bot${process.env.BOT_TOKEN}/createChatInviteLink?chat_id=${process.env.PRIVATE_CHAT_ID}&member_limit=1`,
             method: 'GET'
         },
         (error, response, body) => {
