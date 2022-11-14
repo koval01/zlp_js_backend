@@ -131,7 +131,7 @@ const getPaymentData = (json_body, callback) => {
                 callback(db_resp)
             } else {
                 createInviteLinkPrivateChat(function (invite_data) {
-                    let inv_link = invite_data
+                    let inv_link = invite_data.invite_link
                     console.log(`invite_data(createInviteLinkPrivateChat) in payment_get : ${
                         inv_link}`)
                     private_chat_data(
