@@ -123,24 +123,29 @@ const getPaymentData = (json_body, callback) => {
         }
     }
 
-    function getInvite(callback, customer) {
+    function getInvite(callback, payment) {
         private_chat_data(function (db_resp) {
-            if (db_resp) {
-                console.log(`db_resp in payment_get : ${db_resp}`)
-                callback(`https://t.me/+${db_resp[0]["invite_id"]}`)
+            if (payment.private_invite) {
+                if (db_resp) {
+                    console.log(`db_resp in payment_get : ${db_resp}`)
+                    callback(`https://t.me/+${db_resp[0]["invite_id"]}`)
+                } else {
+                    createInviteLinkPrivateChat(function (invite_data) {
+                        let inv_link = invite_data.invite_link
+                        console.log(`invite_data(createInviteLinkPrivateChat) in payment_get : ${
+                            inv_link}`)
+                        private_chat_data(
+                            function (_) {
+                            },
+                            payment.customer, inv_link.toString().match(/\/\+(.*)/)[1]
+                        )
+                        callback(inv_link)
+                    })
+                }
             } else {
-                createInviteLinkPrivateChat(function (invite_data) {
-                    let inv_link = invite_data.invite_link
-                    console.log(`invite_data(createInviteLinkPrivateChat) in payment_get : ${
-                        inv_link}`)
-                    private_chat_data(
-                        function (_) {},
-                        customer, inv_link.toString().match(/\/\+(.*)/)[1]
-                    )
-                    callback(inv_link)
-                })
+                callback(null)
             }
-        }, customer)
+        }, payment.customer)
     }
 
     redis.get(`payment_${json_body.payment_id}`, (error, result) => {
@@ -171,7 +176,7 @@ const getPaymentData = (json_body, callback) => {
                                     JSON.stringify(body_data), "ex", 15
                                 )
                                 callback({data: body_data, cache: false})
-                            }, body_data.customer)
+                            }, body_data)
                         } else {
                             callback(null)
                         }
