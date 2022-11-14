@@ -127,8 +127,7 @@ const getPaymentData = (json_body, callback) => {
         private_chat_data(function (db_resp) {
             if (db_resp) {
                 console.log(`db_resp in payment_get : ${db_resp}`)
-                console.log(db_resp)
-                callback(db_resp)
+                callback(`https://t.me/+${db_resp[0]["invite_id"]}`)
             } else {
                 createInviteLinkPrivateChat(function (invite_data) {
                     let inv_link = invite_data.invite_link
