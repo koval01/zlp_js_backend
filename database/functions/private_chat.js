@@ -6,6 +6,7 @@ function private_chat_data(callback, username, invite_id=null) {
                 console.log(`Get private chat row : ${JSON.stringify(data)}`)
                 callback(data)
             },
+            "private_chat_tg",
             "SELECT * FROM `private_chat_tg` WHERE `player_name` = ?",
             [username]
         )
@@ -15,6 +16,7 @@ function private_chat_data(callback, username, invite_id=null) {
                 console.log(`Update data for player in private chat row : ${JSON.stringify(update_result)}`)
                 return update_result
             },
+            "private_chat_tg",
             "UPDATE `private_chat_tg` SET `invite_id` = ? WHERE `player_name` = ?",
             [invite_id, username]
         )
@@ -24,6 +26,7 @@ function private_chat_data(callback, username, invite_id=null) {
                 console.log(`Insert private chat row : ${JSON.stringify(insert_result)}`)
                 return insert_result
             },
+            "private_chat_tg",
             "INSERT `private_chat_tg` (player_name, invite_id) VALUES (?, ?)",
             [username, invite_id]
         )

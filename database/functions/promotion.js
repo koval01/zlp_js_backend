@@ -6,9 +6,7 @@ function promotions_sql(resp, body, stat, permission_ident) {
             let no_player = () => resp.send("Игрок не найден")
             if (!result) {
                 return error()
-            } else if (!result.length) {
-                return no_player()
-            } else if (!result[0].uuid) {
+            } else if (!result.length || !result[0].uuid) {
                 return no_player()
             } else {
                 let add_permission = () => {
@@ -20,6 +18,7 @@ function promotions_sql(resp, body, stat, permission_ident) {
                             }
                             return error
                         },
+                        "luckperms",
                         "INSERT luckperms_user_permissions (uuid, permission, value, server, world, expiry, contexts) VALUES (?, ?, 1, 'global', 'global', '0', '{}')",
                         [result[0].uuid, permission_ident]
                     )
@@ -33,6 +32,7 @@ function promotions_sql(resp, body, stat, permission_ident) {
                             }
                             return error
                         },
+                        "luckperms",
                         "UPDATE luckperms_user_permissions SET `value` = 1 WHERE `uuid` = ? AND `permission` = ? ORDER BY id DESC LIMIT 1",
                         [result[0].uuid, permission_ident]
                     )
@@ -47,12 +47,14 @@ function promotions_sql(resp, body, stat, permission_ident) {
                         }
                         return resp.send("Неизвестная ошибка")
                     },
+                    "luckperms",
                     "SELECT `uuid`, `permission`, `value` FROM luckperms_user_permissions WHERE `uuid` = ? AND `permission` = ? ORDER BY id DESC LIMIT 1",
                     [result[0].uuid, permission_ident]
                 )
             }
             return error
         },
+        "luckperms",
         "SELECT `uuid` FROM `luckperms_players` WHERE `username` = ?",
         [body.username]
     )
