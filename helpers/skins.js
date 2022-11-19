@@ -39,6 +39,7 @@ const buildSkinsResponse = (json_body, callback) => {
         if (result !== null) {
             callback({data: JSON.parse(result), cache: true})
         } else {
+            console.log(`Ordered player list for skins get : ${json_body.players}`)
             getSkins(function (body_data) {
                 redis.set(
                     "skins_data",
