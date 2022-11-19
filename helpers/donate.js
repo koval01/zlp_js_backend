@@ -173,7 +173,7 @@ const getPaymentData = (json_body, callback) => {
                                 body_data.private_invite = inv_resp
                                 redis.set(
                                     `payment_${json_body.payment_id}`,
-                                    JSON.stringify(body_data), "ex", 15
+                                    JSON.stringify(body_data), "ex", 900
                                 )
                                 callback({data: body_data, cache: false})
                             }, body_data)
@@ -239,7 +239,7 @@ const getPaymentHistoryData = (json_body, callback) => {
                             redis.set(
                                 `payment_history`,
                                 JSON.stringify(body_data),
-                                "ex", 20)
+                                "ex", 30)
                             callback({data: body_data, cache: false})
                         } else {
                             callback(null)
