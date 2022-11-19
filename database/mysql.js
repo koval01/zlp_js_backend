@@ -2,7 +2,7 @@ const mysql = require('mysql')
 
 const mysql_ = function (database_name) {
     if (typeof process.env.TEST_NODE !== 'undefined') {
-        database_name = process.env.DBNAME
+        database_name = process.env.DB_DATABASE
     }
     return mysql.createConnection({
         host: process.env.DB_HOSTNAME,
