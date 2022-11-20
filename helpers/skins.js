@@ -34,20 +34,29 @@ const buildSkinsResponse = (json_body, callback) => {
     // }
 
     const getUUID = async (player_name) => {
-        return await axios.get(
+        const data = await axios.get(
             `https://api.mojang.com/users/profiles/minecraft/${player_name}`
-        ).data.id
+        ).data
+        if (data) {
+            return data.id
+        }
     }
 
     const getSkinValue = async (player_name) => {
         const uuid = await getUUID(player_name)
-        return await axios.get(
+        const data = await axios.get(
             `https://sessionserver.mojang.com/session/minecraft/profile/${uuid}`
-        ).data.properties.value
+        ).data
+        if (data) {
+            return data.properties.value
+        }
     }
 
     const getMojangSkin = async (player_name) => {
         const value = await getSkinValue(player_name)
+        if (!value) {
+            return
+        }
         return JSON.parse(b64_to_utf8(value))
     }
 
@@ -69,11 +78,12 @@ const buildSkinsResponse = (json_body, callback) => {
         let result = players_array
         for (let player_iter of json_body.players) {
             if (!ordered_skins.includes(player_iter)) {
-                result.push(
-                    getTextureID(
-                        await getMojangSkin(player_iter["Nick"])
-                    )[0]
-                )
+                const skin = await getMojangSkin(player_iter["Nick"])
+                if (skin) {
+                    result.push(
+                        getTextureID(skin)[0]
+                    )
+                }
             }
         }
         return result
