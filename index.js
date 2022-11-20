@@ -145,14 +145,14 @@ app.get('/tmonitoring_promotion', catchAsync(t_monitoring_promotion))
 
 app.get('/profile/avatar', rateLimit({
     windowMs: 60 * 1000,
-    max: 50,
+    max: 100,
     standardHeaders: true,
     message: rateLimitMessage
 }), crypto_check_get, catchAsync(getHead))
 
 app.get('/profile/head', rateLimit({
     windowMs: 60 * 1000,
-    max: 50,
+    max: 80,
     standardHeaders: true,
     message: rateLimitMessage
 }), crypto_check_get, catchAsync(get3dHead))

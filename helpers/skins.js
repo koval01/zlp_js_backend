@@ -1,5 +1,5 @@
-const {main_e} = require("./errors");
-const request = require("request");
+const {main_e} = require("./errors")
+const axios = require("axios")
 const Redis = require("ioredis")
 const {b64_to_utf8} = require("./methods")
 const {getSkins} = require("../database/functions/skins")
@@ -33,12 +33,29 @@ const buildSkinsResponse = (json_body, callback) => {
     //     }
     // }
 
-    function getTextureID(skins) {
+    const getUUID = async (player_name) => {
+        return await axios.get(
+            `https://api.mojang.com/users/profiles/minecraft/${player_name}`
+        ).data.id
+    }
+
+    const getSkinValue = async (player_name) => {
+        const uuid = await getUUID(player_name)
+        return await axios.get(
+            `https://sessionserver.mojang.com/session/minecraft/profile/${uuid}`
+        ).data.properties.value
+    }
+
+    const getMojangSkin = async (player_name) => {
+        const value = await getSkinValue(player_name)
+        return JSON.parse(b64_to_utf8(value))
+    }
+
+    const getTextureID = (skins) => {
         let result = []
         for (let skin of skins) {
             const texture = JSON.parse(b64_to_utf8(skin["Value"]))
 
-            // console.log(`getTextureID (textures) : ${JSON.stringify(texture["textures"])}`)
             result.push({
                 Nick: skin["Nick"],
                 Value: (texture["textures"]["SKIN"]["url"])
@@ -46,6 +63,12 @@ const buildSkinsResponse = (json_body, callback) => {
             })
         }
         return result
+    }
+
+    const loadMojangSkins = (players_array) => {
+        for (let player_iter of json_body.players) {
+
+        }
     }
 
     redis.get("skins_data", (error, result) => {
