@@ -15,11 +15,11 @@ const memRemoveKey = (key_name) => {
 }
 
 const utf8_to_b64 = (str) => {
-    return window.btoa(unescape(encodeURIComponent(str)));
+    return Buffer.from(str, "utf8").toString("base64")
 }
 
 const b64_to_utf8 = (str) => {
-    return decodeURIComponent(escape(window.atob(str)));
+    return Buffer.from(str, "base64").toString("utf8")
 }
 
 const get_user_ip = (req) => {
