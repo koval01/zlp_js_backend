@@ -19,7 +19,7 @@ const {re_check, tg_check} = require("./middleware/security_middle")
 const {main_e} = require("./helpers/errors")
 
 const static_view = require("./static")
-const {crypto_view_, crypto_check_get} = require("./helpers/crypto")
+const {crypto_view_, crypto_check} = require("./helpers/crypto")
 const {mc_status_view} = require("./helpers/server_status")
 const {promotion_view, t_monitoring_promotion} = require("./helpers/promotion")
 const {getGiftPrivateServer} = require("./helpers/payment_img/logic")
@@ -171,12 +171,12 @@ app.get('/profile/body', rateLimit({
 //     message: rateLimitMessage
 // }), crypto_check_get, catchAsync(getGiftPrivateServer))
 
-app.get('/server', rateLimit({
+app.post('/server', rateLimit({
     windowMs: 60 * 1000,
     max: 50,
     standardHeaders: true,
     message: rateLimitMessage
-}), crypto_check_get, catchAsync(mc_status_view))
+}), crypto_check, catchAsync(mc_status_view))
 
 app.get('*', async (_, resp) => {
     return main_e(resp, "error route", "This route cannot be found")
