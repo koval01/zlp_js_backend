@@ -32,19 +32,6 @@ const buildSkinsResponse = (json_body, callback) => {
     //     }
     // }
 
-    function checkPlayersArray(players) {
-        let result = []
-        for (let player of players) {
-            if (
-                player.match(/[A-z\d_\-]*/) === player &&
-                player.length >= 3 && player.length <= 32
-            ) {
-                result.push(player)
-            }
-        }
-        return result
-    }
-
     redis.get("skins_data", (error, result) => {
         if (error) {
             callback(null)
