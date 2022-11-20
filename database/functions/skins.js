@@ -7,7 +7,8 @@ function getSkins(callback, usernames) {
                 callback(data)
             },
             "Skins",
-            `SELECT Nick, Value FROM Skins WHERE Nick IN (${JSON.stringify(usernames).slice(1, -1)})`
+            `SELECT Nick, Value FROM Skins WHERE Nick IN (?)`,
+            [usernames]
         )
     }
     check_in_db(function (data) {
