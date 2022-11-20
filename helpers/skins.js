@@ -32,6 +32,21 @@ const buildSkinsResponse = (json_body, callback) => {
     //     }
     // }
 
+    function getTextureID(skins) {
+        let result = []
+        for (let skin of skins) {
+            const buff = new Buffer(skin["Value"], "base64")
+            const text = buff.toString("utf-8")
+
+            result.push({
+                Nick: skin["Nick"],
+                Value: (text["textures"]["SKIN"]["url"])
+                    .replace("http://textures.minecraft.net/texture/", "")
+            })
+        }
+        return result
+    }
+
     redis.get("skins_data", (error, result) => {
         if (error) {
             callback(null)
@@ -41,6 +56,7 @@ const buildSkinsResponse = (json_body, callback) => {
         } else {
             console.log(`Ordered player list for skins get : ${JSON.stringify(json_body.players)}`)
             getSkins(function (body_data) {
+                body_data = getTextureID(body_data)
                 redis.set(
                     "skins_data",
                     JSON.stringify(body_data),
