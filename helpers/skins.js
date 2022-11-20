@@ -1,6 +1,7 @@
 const {main_e} = require("./errors");
 const request = require("request");
 const Redis = require("ioredis")
+const {b64_to_utf8} = require("./methods")
 const {getSkins} = require("../database/functions/skins")
 
 const redis = new Redis(process.env.REDIS_URL)
@@ -35,13 +36,12 @@ const buildSkinsResponse = (json_body, callback) => {
     function getTextureID(skins) {
         let result = []
         for (let skin of skins) {
-            const buff = new Buffer(skin["Value"], "base64")
-            const text = buff.toString("ascii")
+            const texture = JSON.parse(b64_to_utf8(skin["Value"]))
 
-            console.log(`getTextureID (textures) : ${JSON.stringify(text["textures"])}`)
+            console.log(`getTextureID (textures) : ${JSON.stringify(texture["textures"])}`)
             result.push({
                 Nick: skin["Nick"],
-                Value: (text["textures"]["SKIN"]["url"])
+                Value: (texture["textures"]["SKIN"]["url"])
                     .replace("http://textures.minecraft.net/texture/", "")
             })
         }
