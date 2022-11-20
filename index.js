@@ -19,7 +19,7 @@ const {re_check, tg_check} = require("./middleware/security_middle")
 const {main_e} = require("./helpers/errors")
 
 const static_view = require("./static")
-const {crypto_view_, crypto_check} = require("./helpers/crypto")
+const {crypto_view_, crypto_check, crypto_check_get} = require("./helpers/crypto")
 const {mc_status_view} = require("./helpers/server_status")
 const {promotion_view, t_monitoring_promotion} = require("./helpers/promotion")
 const {getGiftPrivateServer} = require("./helpers/payment_img/logic")
@@ -148,18 +148,18 @@ app.get('/profile/avatar', rateLimit({
     max: 50,
     standardHeaders: true,
     message: rateLimitMessage
-}), catchAsync(getHead))
+}), crypto_check_get, catchAsync(getHead))
 
 app.get('/profile/head', rateLimit({
     windowMs: 60 * 1000,
     max: 50,
     standardHeaders: true,
     message: rateLimitMessage
-}), catchAsync(get3dHead))
+}), crypto_check_get, catchAsync(get3dHead))
 
 app.get('/profile/body', rateLimit({
     windowMs: 60 * 1000,
-    max: 8,
+    max: 5,
     standardHeaders: true,
     message: rateLimitMessage
 }), catchAsync(get3dBody))
@@ -173,7 +173,7 @@ app.get('/profile/body', rateLimit({
 
 app.post('/server', rateLimit({
     windowMs: 60 * 1000,
-    max: 50,
+    max: 45,
     standardHeaders: true,
     message: rateLimitMessage
 }), crypto_check, catchAsync(mc_status_view))
