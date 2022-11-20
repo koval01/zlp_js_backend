@@ -65,10 +65,18 @@ const buildSkinsResponse = (json_body, callback) => {
         return result
     }
 
-    const loadMojangSkins = (players_array) => {
+    const loadMojangSkins = async (players_array, ordered_skins) => {
+        let result = players_array
         for (let player_iter of json_body.players) {
-
+            if (!ordered_skins.includes(player_iter)) {
+                result.push(
+                    getTextureID(
+                        await getMojangSkin(player_iter["Nick"])
+                    )[0]
+                )
+            }
         }
+        return result
     }
 
     redis.get("skins_data", (error, result) => {
@@ -80,11 +88,17 @@ const buildSkinsResponse = (json_body, callback) => {
         } else {
             console.log(`Ordered player list for skins get : ${JSON.stringify(json_body.players)}`)
             getSkins(function (body_data) {
+                let ordered_skins = []
+                for (let skin_local of body_data) {
+                    ordered_skins.push(skin_local["Nick"])
+                }
+
                 body_data = getTextureID(body_data)
+                body_data = loadMojangSkins(body_data, ordered_skins)
                 redis.set(
                     "skins_data",
                     JSON.stringify(body_data),
-                    "ex", 180)
+                    "ex", 15)
                 callback({data: body_data, cache: false})
             }, json_body.players)
         }
