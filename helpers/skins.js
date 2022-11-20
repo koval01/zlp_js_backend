@@ -38,7 +38,7 @@ const buildSkinsResponse = (json_body, callback) => {
         for (let skin of skins) {
             const texture = JSON.parse(b64_to_utf8(skin["Value"]))
 
-            console.log(`getTextureID (textures) : ${JSON.stringify(texture["textures"])}`)
+            // console.log(`getTextureID (textures) : ${JSON.stringify(texture["textures"])}`)
             result.push({
                 Nick: skin["Nick"],
                 Value: (texture["textures"]["SKIN"]["url"])
