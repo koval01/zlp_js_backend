@@ -36,7 +36,7 @@ const buildSkinsResponse = (json_body, callback) => {
         let result = []
         for (let skin of skins) {
             const buff = new Buffer(skin["Value"], "base64")
-            const text = buff.toString("utf-8")
+            const text = buff.toString("ascii")
 
             console.log(`getTextureID (textures) : ${JSON.stringify(text["textures"])}`)
             result.push({
