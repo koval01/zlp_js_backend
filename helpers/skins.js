@@ -38,6 +38,7 @@ const buildSkinsResponse = (json_body, callback) => {
             `https://api.mojang.com/users/profiles/minecraft/${player_name}`
         ).data
         if (data) {
+            console.log(`getUUID : ${data}`)
             return data.id
         }
     }
@@ -48,6 +49,7 @@ const buildSkinsResponse = (json_body, callback) => {
             `https://sessionserver.mojang.com/session/minecraft/profile/${uuid}`
         ).data
         if (data) {
+            console.log(`getSkinValue : ${data}`)
             return data.properties.value
         }
     }
