@@ -6,7 +6,7 @@ const {getSkins} = require("../database/functions/skins")
 
 const redis = new Redis(process.env.REDIS_URL)
 
-const buildSkinsResponse = (json_body, callback) => {
+const buildSkinsResponse = async (json_body, callback) => {
     // function response_(data) {
     //     if (data) {
     //         let result = [];
@@ -91,7 +91,7 @@ const buildSkinsResponse = (json_body, callback) => {
         return result
     }
 
-    redis.get("skins_data", (error, result) => {
+    await redis.get("skins_data", async (error, result) => {
         if (error) {
             callback(null)
         }
@@ -99,14 +99,14 @@ const buildSkinsResponse = (json_body, callback) => {
             callback({data: JSON.parse(result), cache: true})
         } else {
             console.log(`Ordered player list for skins get : ${JSON.stringify(json_body.players)}`)
-            getSkins(function (body_data) {
+            await getSkins(async function (body_data) {
                 let ordered_skins = []
                 for (let skin_local of body_data) {
                     ordered_skins.push(skin_local["Nick"])
                 }
 
                 body_data = getTextureID(body_data)
-                body_data = loadMojangSkins(body_data, ordered_skins)
+                body_data = await loadMojangSkins(body_data, ordered_skins)
                 redis.set(
                     "skins_data",
                     JSON.stringify(body_data),
@@ -127,7 +127,7 @@ const getSkinsData = async (req, resp) => {
             })
         }
 
-        buildSkinsResponse(req.body, function (data) {
+        await buildSkinsResponse(req.body, function (data) {
             if (data) {
                 return response_call(data.data, data.cache)
             }

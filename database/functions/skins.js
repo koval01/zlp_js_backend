@@ -1,6 +1,6 @@
 const {sql_request} = require("../mysql")
 
-function getSkins(callback, usernames) {
+async function getSkins (callback, usernames) {
     let check_in_db = (callback) => {
         sql_request(function (data) {
                 console.log(`Get skins row : ${JSON.stringify(data)}`)
