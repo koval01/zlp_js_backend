@@ -12,6 +12,7 @@ module.exports.get3dHead = async (req, res) => {
         if (error) throw error
         if (result !== null) {
             res.set("Content-Type", "image/png")
+            res.set("IS-Redis", "True")
             res.send(result)
         } else {
             const render = new Buffer(await get3DHead(texture))
@@ -21,6 +22,7 @@ module.exports.get3dHead = async (req, res) => {
                 return
             }
             res.set("Content-Type", "image/png")
+            res.set("IS-Redis", "False")
             res.send(render)
         }
     })
