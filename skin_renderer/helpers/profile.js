@@ -2,6 +2,9 @@ const axios = require("axios")
 const Jimp = require("jimp")
 const bodyParts = require("./bodySection")
 const MinecraftSkin = require("./3dRender")
+const Redis = require("ioredis")
+
+const redis = new Redis(process.env.REDIS_URL)
 
 const steveDefault = {
     time: 0,
@@ -53,8 +56,17 @@ function useSecondLayer(skin) {
 }
 
 async function getSkin64(texture) {
-    const profile = await getProfile(texture)
-    return profile.assets.skin.base64
+    redis.get(`getSkin64_${texture}`, async (error, result) => {
+        if (error) throw error
+        if (result !== null) {
+            return result
+        } else {
+            const profile = await getProfile(texture)
+            const base = profile.assets.skin.base64
+            redis.set(`getSkin64_${texture}`, base, "ex", 600)
+            return base
+        }
+    })
 }
 
 async function renderHead64(skinBuffer, width, height, overlay = true) {
