@@ -171,7 +171,7 @@ const channel_raw = async (req, resp) => {
                                     !text_lower.includes("pinned «")
                                 ) {
                                     text = text.replaceAll(/>(https:|http:)(\/\/www.)/gm, ">")
-                                    text = text.replaceAll(/(<a .*?">)(.*?)(\/.*?)(<\/a>)/gm, '$1$2$4')
+                                    text = text.replaceAll(/(<a .*?">)(.*?)\/\/(.*?)(<\/a>)/gm, '$1$3$4')
                                     result.push({
                                         text: text.trim(),
                                         name: container.querySelector(".tgme_widget_message_owner_name > span").text,
