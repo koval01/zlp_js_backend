@@ -1,17 +1,31 @@
 const {get3DHead, get3DSkin} = require("../helpers/profile")
 const {getVerifiedTelegramData} = require("../../helpers/telegram/base")
 const {crypto_check_logic} = require("../../helpers/crypto")
+const {b64_to_utf8} = require("../../helpers/methods")
+const Redis = require("ioredis")
+
+const redis = new Redis(process.env.REDIS_URL)
 
 module.exports.get3dHead = async (req, res) => {
     const texture = req.query.texture_hash
 
-    const render = new Buffer(await get3DHead(texture))
-    if (req.query.base64) {
-        res.send(render.toString("base64"))
-        return
-    }
-    res.set("Content-Type", "image/png")
-    res.send(render)
+    redis.get(`get3dHead_${texture}`, async (error, result) => {
+        if (error) throw error
+        if (result !== null) {
+            res.set("Content-Type", "image/png")
+            res.send(b64_to_utf8(result))
+        } else {
+            const render = new Buffer(await get3DHead(texture))
+            const base = render.toString("base64")
+            redis.set(`get3dHead_${texture}`, base, "ex", 7200)
+            if (req.query.base64) {
+                res.send(base)
+                return
+            }
+            res.set("Content-Type", "image/png")
+            res.send(render)
+        }
+    })
 }
 
 module.exports.get3dBody = async (req, res) => {
