@@ -152,7 +152,7 @@ app.get('/profile/avatar', rateLimit({
 
 app.get('/profile/head', rateLimit({
     windowMs: 60 * 1000,
-    max: 180,
+    max: 200,
     standardHeaders: true,
     message: rateLimitMessage
 }), crypto_check_get, catchAsync(get3dHead))
