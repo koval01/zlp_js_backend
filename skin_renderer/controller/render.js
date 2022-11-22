@@ -13,7 +13,7 @@ module.exports.get3dHead = async (req, res) => {
         if (result !== null) {
             res.set("Content-Type", "image/png")
             res.set("IS-Redis", "True")
-            res.send(new Buffer(result))
+            res.send(new Buffer.from(result, "base64"))
         } else {
             const render = new Buffer(await get3DHead(texture))
             const base = render.toString("base64")
