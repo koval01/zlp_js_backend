@@ -17,6 +17,10 @@ module.exports.get3dHead = async (req, res) => {
         } else {
             const render = new Buffer(await get3DHead(texture))
             const base = render.toString("base64")
+            if (!base) {
+                res.send(null)
+                return
+            }
             redis.set(`get3dHead_${texture}`, base, "ex", 600)
             if (req.query.base64) {
                 res.send(base)
