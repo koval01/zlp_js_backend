@@ -8,6 +8,7 @@ const redis = new Redis(process.env.REDIS_URL)
 
 const feedback_check_view = async (req, resp) => {
     let tg_user = getVerifiedTelegramData(req.body)
+    console.log(tg_user)
     redis.get(`feedback_${req.ip}_tg${tg_user.id}`, (error, result) => {
         if (error) throw error
         if (result !== null) {
@@ -38,7 +39,7 @@ const feed_send_view = async (req, resp) => {
     redis.get(`feedback_${req.ip}_tg${tg_user.id}`, (error, result) => {
         if (error) throw error
         if (result !== null) {
-            return input_e(resp, resp.statusCode, "need wait")
+            return input_e(resp, 429, "need wait")
         } else {
             let text = json_body.text
             const text_c = text
@@ -53,7 +54,7 @@ const feed_send_view = async (req, resp) => {
                 let user_name_builded = `<a href="tg://user?id=${tg_user.id}">${tg_user.first_name} ${tg_user.last_name}</a> ${username}`
                 request(
                     {
-                        uri: `https://api.telegram.org/bot${process.env.FEEDBACK_BOT_TOKEN}/sendMessage?chat_id=${process.env.FEEDBACK_BOT_CHAT_ID}&${qs.stringify({
+                        uri: `https://api.telegram.org/bot${process.env.BOT_TOKEN}/sendMessage?chat_id=${process.env.PRIVATE_CHAT_ID}&${qs.stringify({
                             text: `${text}\n\n${"_".repeat(10)}\n${user_name_builded}\n\nTG_ID:\x20${tg_user.id}\nIP:\x20<tg-spoiler>${req.ip}</tg-spoiler>`
                         })}&parse_mode=HTML`,
                         method: 'GET'

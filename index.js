@@ -19,12 +19,13 @@ const {re_check, tg_check} = require("./middleware/security_middle")
 const {main_e} = require("./helpers/errors")
 
 const static_view = require("./static")
-const {crypto_view_, crypto_check_get} = require("./helpers/crypto")
+const {crypto_view_, crypto_check, crypto_check_get} = require("./helpers/crypto")
 const {mc_status_view} = require("./helpers/server_status")
 const {promotion_view, t_monitoring_promotion} = require("./helpers/promotion")
 const {getGiftPrivateServer} = require("./helpers/payment_img/logic")
+const {getSkinsData} = require("./helpers/skins")
 const {feedback_check_view, feed_send_view} = require("./helpers/feedback")
-const {payment_create, payment_get, coupon_get, donate_services} = require("./helpers/donate")
+const {payment_create, payment_get, coupon_get, donate_services, payment_history_get} = require("./helpers/donate")
 const {events_view, channel_raw, channel_parse} = require("./helpers/telegram/channel")
 
 const app = express()
@@ -87,6 +88,13 @@ app.post('/donate/payment_get', rateLimit({
     message: rateLimitMessage
 }), re_check, catchAsync(payment_get))
 
+app.post('/donate/payment_history', rateLimit({
+    windowMs: 60 * 1000,
+    max: 30,
+    standardHeaders: true,
+    message: rateLimitMessage
+}), re_check, catchAsync(payment_history_get))
+
 app.post('/donate/payment/create', rateLimit({
     windowMs: 60 * 1000,
     max: 25,
@@ -99,14 +107,14 @@ app.post('/feedback/send', rateLimit({
     max: 10,
     standardHeaders: true,
     message: rateLimitMessage
-}), re_check, tg_check, catchAsync(feed_send_view))
+}), re_check, catchAsync(feed_send_view))
 
 app.post('/feedback/check', rateLimit({
     windowMs: 60 * 1000,
     max: 50,
     standardHeaders: true,
     message: rateLimitMessage
-}), re_check, tg_check, catchAsync(feedback_check_view))
+}), re_check, catchAsync(feedback_check_view))
 
 app.post('/crypto', rateLimit({
     windowMs: 60 * 1000,
@@ -122,6 +130,13 @@ app.post('/telegram/auth/check', rateLimit({
     message: rateLimitMessage
 }), tg_check, tg_check_view)
 
+app.post('/profile/skins/get', rateLimit({
+    windowMs: 60 * 1000,
+    max: 5,
+    standardHeaders: true,
+    message: rateLimitMessage
+}), re_check, catchAsync(getSkinsData))
+
 app.get('/ip', catchAsync(ip_get_view))
 
 app.get('/monitoringminecraft.ru', static_view.monitoring_minecraft_ru)
@@ -130,38 +145,38 @@ app.get('/tmonitoring_promotion', catchAsync(t_monitoring_promotion))
 
 app.get('/profile/avatar', rateLimit({
     windowMs: 60 * 1000,
-    max: 50,
+    max: 100,
     standardHeaders: true,
     message: rateLimitMessage
-}), catchAsync(getHead))
+}), crypto_check_get, catchAsync(getHead))
 
 app.get('/profile/head', rateLimit({
     windowMs: 60 * 1000,
-    max: 50,
+    max: 200,
     standardHeaders: true,
     message: rateLimitMessage
-}), catchAsync(get3dHead))
+}), crypto_check_get, catchAsync(get3dHead))
 
 app.get('/profile/body', rateLimit({
     windowMs: 60 * 1000,
-    max: 8,
+    max: 5,
     standardHeaders: true,
     message: rateLimitMessage
 }), catchAsync(get3dBody))
 
-app.get('/gift/private_server', rateLimit({
-    windowMs: 180 * 1000,
-    max: 10,
-    standardHeaders: true,
-    message: rateLimitMessage
-}), crypto_check_get, catchAsync(getGiftPrivateServer))
+// app.get('/gift/private_server', rateLimit({
+//     windowMs: 180 * 1000,
+//     max: 10,
+//     standardHeaders: true,
+//     message: rateLimitMessage
+// }), crypto_check_get, catchAsync(getGiftPrivateServer))
 
-app.get('/server', rateLimit({
+app.post('/server', rateLimit({
     windowMs: 60 * 1000,
-    max: 50,
+    max: 45,
     standardHeaders: true,
     message: rateLimitMessage
-}), crypto_check_get, catchAsync(mc_status_view))
+}), crypto_check, catchAsync(mc_status_view))
 
 app.get('*', async (_, resp) => {
     return main_e(resp, "error route", "This route cannot be found")

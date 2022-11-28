@@ -1,18 +1,21 @@
 const mysql = require('mysql')
 
-const mysql_ = function () {
-    return cursor = mysql.createConnection({
+const mysql_ = function (database_name) {
+    if (typeof process.env.TEST_NODE !== 'undefined') {
+        database_name = process.env.DB_DATABASE
+    }
+    return mysql.createConnection({
         host: process.env.DB_HOSTNAME,
         user: process.env.DB_USERNAME,
         password: process.env.DB_PASSWORD,
-        database: process.env.DB_DATABASE,
+        database: database_name,
         ssl: false
     })
 }
 
-function sql_request(callback, query, values = []) {
+function sql_request(callback, database_name, query, values = []) {
     const error = (e) => console.error(`Database error: ${e}`)
-    let con = mysql_()
+    let con = mysql_(database_name)
     con.query(query, values,
         function (err, result, _) {
             if (err) error(err)

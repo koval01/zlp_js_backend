@@ -14,6 +14,14 @@ const memRemoveKey = (key_name) => {
     return memoryCache.removeItem(key_name)
 }
 
+const utf8_to_b64 = (str) => {
+    return Buffer.from(str, "utf8").toString("base64")
+}
+
+const b64_to_utf8 = (str) => {
+    return Buffer.from(str, "base64").toString("utf8")
+}
+
 const get_user_ip = (req) => {
     return req.headers['x-forwarded-for'].split(",\x20")[0].trim() || req.socket.remoteAddress
 }
@@ -105,5 +113,7 @@ module.exports = {
     removeItemOnce,
     memWrite,
     memGetValue,
-    memRemoveKey
+    memRemoveKey,
+    utf8_to_b64,
+    b64_to_utf8
 }

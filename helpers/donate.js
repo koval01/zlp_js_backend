@@ -1,6 +1,8 @@
 const {input_e, main_e} = require("./errors")
 const {url_builder_, censorEmail} = require("./methods")
 const {encryptor, decrypt} = require("./crypto")
+const {private_chat_data} = require("../database/functions/private_chat")
+const {createInviteLinkPrivateChat} = require("./telegram/base")
 const request = require("request")
 const Redis = require("ioredis")
 
@@ -94,6 +96,10 @@ const getPaymentData = (json_body, callback) => {
             }
             data.status = (data.status === 2)
             let p = data.products[0]
+            let private_inv = false
+            if (p.name === "Проходка") {
+                private_inv = true
+            }
             return {
                 id: data.id,
                 customer: data.customer,
@@ -109,11 +115,37 @@ const getPaymentData = (json_body, callback) => {
                     number: p.number,
                     description: p.description,
                     image: p.image
-                }
+                },
+                private_invite: private_inv
             }
         } else {
             return null
         }
+    }
+
+    function getInvite(callback, payment) {
+        private_chat_data(function (db_resp) {
+            if (payment.private_invite) {
+                if (db_resp) {
+                    console.log(`db_resp in payment_get : ${db_resp}`)
+                    callback(`https://t.me/+${db_resp[0]["invite_id"]}`)
+                } else {
+                    createInviteLinkPrivateChat(function (invite_data) {
+                        let inv_link = invite_data.invite_link
+                        console.log(`invite_data(createInviteLinkPrivateChat) in payment_get : ${
+                            inv_link}`)
+                        private_chat_data(
+                            function (_) {
+                            },
+                            payment.customer, inv_link.toString().match(/\/\+(.*)/)[1]
+                        )
+                        callback(inv_link)
+                    })
+                }
+            } else {
+                callback(null)
+            }
+        }, payment.customer)
     }
 
     redis.get(`payment_${json_body.payment_id}`, (error, result) => {
@@ -135,8 +167,79 @@ const getPaymentData = (json_body, callback) => {
                     if (!error && response.statusCode === 200) {
                         body = JSON.parse(body)
                         if (body.success) {
+                            let body_data = response_(body.response)
+                            getInvite(function (inv_resp) {
+                                console.log(`getInvite date : ${inv_resp}`)
+                                body_data.private_invite = inv_resp
+                                redis.set(
+                                    `payment_${json_body.payment_id}`,
+                                    JSON.stringify(body_data), "ex", 900
+                                )
+                                callback({data: body_data, cache: false})
+                            }, body_data)
+                        } else {
+                            callback(null)
+                        }
+                    } else {
+                        callback(null)
+                    }
+                }
+            )
+        }
+    })
+}
+
+const getPaymentHistoryData = (json_body, callback) => {
+    function response_(data) {
+        if (data) {
+            let result = [];
+            console.log(`payment_history array length : ${data.length}`)
+            data = data.reverse();
+            for (let i = 0; i < data.length; i++) {
+                let p = data[i];
+                let pi = p.products[0];
+                if (p.status === 2 && result.length <= 30) {
+                    result.push({
+                        customer: p.customer,
+                        created_at: p.created_at,
+                        updated_at: p.updated_at,
+                        product: {
+                            name: pi.name,
+                            image: pi.image
+                        }
+                    })
+                }
+            }
+            return result;
+        } else {
+            return null
+        }
+    }
+
+    redis.get(`payment_history`, (error, result) => {
+        if (error) {
+            callback(null)
+        }
+        if (result !== null) {
+            callback({data: JSON.parse(result), cache: true})
+        } else {
+            request(
+                {
+                    uri: `https://easydonate.ru/api/v3/shop/payments`,
+                    method: 'GET',
+                    headers: {
+                        'Shop-Key': process.env.DONATE_API_KEY
+                    }
+                },
+                (error, response, body) => {
+                    if (!error && response.statusCode === 200) {
+                        body = JSON.parse(body)
+                        if (body.success) {
                             const body_data = response_(body.response)
-                            redis.set(`payment_${json_body.payment_id}`, JSON.stringify(body_data), "ex", 1000)
+                            redis.set(
+                                `payment_history`,
+                                JSON.stringify(body_data),
+                                "ex", 30)
                             callback({data: body_data, cache: false})
                         } else {
                             callback(null)
@@ -148,6 +251,26 @@ const getPaymentData = (json_body, callback) => {
             )
         }
     })
+}
+
+const payment_history_get = async (req, resp) => {
+    try {
+        function response_call(result, cache = false) {
+            return resp.send({
+                success: true,
+                cache: cache,
+                payment: result
+            })
+        }
+
+        getPaymentHistoryData(req.body, function (data) {
+            if (data) {
+                return response_call(data.data, data.cache)
+            }
+        })
+    } catch (_) {
+        return main_e(resp)
+    }
 }
 
 const payment_get = async (req, resp) => {
@@ -328,5 +451,6 @@ module.exports = {
     payment_get,
     coupon_get,
     donate_services,
+    payment_history_get,
     getPaymentData
 }
