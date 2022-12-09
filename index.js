@@ -44,28 +44,33 @@ app.use(log.logError)
 app.use(apiLimiter)
 app.use(global_error)
 
-app.post('/channel_get', rateLimit({
-    windowMs: 60 * 1000,
-    max: 20,
-    standardHeaders: true,
-    message: rateLimitMessage
-}), re_check, catchAsync(channel_parse))
+// app.post('/channel_get', rateLimit({
+//     windowMs: 60 * 1000,
+//     max: 20,
+//     standardHeaders: true,
+//     message: rateLimitMessage
+// }), re_check, catchAsync(channel_parse))
 
 app.post('/channel_parse', rateLimit({
     windowMs: 60 * 1000,
-    max: 20,
+    max: 15,
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, catchAsync(channel_raw))
 
 app.post('/events', rateLimit({
     windowMs: 60 * 1000,
-    max: 20,
+    max: 15,
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, catchAsync(events_view))
 
-app.post('/promotion', catchAsync(promotion_view))
+app.post('/promotion', rateLimit({
+    windowMs: 60 * 1000,
+    max: 90,
+    standardHeaders: true,
+    message: rateLimitMessage
+}), catchAsync(promotion_view))
 
 app.post('/donate/services', rateLimit({
     windowMs: 60 * 1000,
@@ -76,7 +81,7 @@ app.post('/donate/services', rateLimit({
 
 app.post('/donate/coupon', rateLimit({
     windowMs: 60 * 1000,
-    max: 15,
+    max: 10,
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, catchAsync(coupon_get))
@@ -96,25 +101,25 @@ app.post('/donate/payment_history', rateLimit({
 }), re_check, catchAsync(payment_history_get))
 
 app.post('/donate/payment/create', rateLimit({
-    windowMs: 60 * 1000,
-    max: 25,
+    windowMs: 120 * 1000,
+    max: 30,
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, catchAsync(payment_create))
 
-app.post('/feedback/send', rateLimit({
-    windowMs: 60 * 1000,
-    max: 10,
-    standardHeaders: true,
-    message: rateLimitMessage
-}), re_check, catchAsync(feed_send_view))
-
-app.post('/feedback/check', rateLimit({
-    windowMs: 60 * 1000,
-    max: 50,
-    standardHeaders: true,
-    message: rateLimitMessage
-}), re_check, catchAsync(feedback_check_view))
+// app.post('/feedback/send', rateLimit({
+//     windowMs: 60 * 1000,
+//     max: 10,
+//     standardHeaders: true,
+//     message: rateLimitMessage
+// }), re_check, catchAsync(feed_send_view))
+//
+// app.post('/feedback/check', rateLimit({
+//     windowMs: 60 * 1000,
+//     max: 50,
+//     standardHeaders: true,
+//     message: rateLimitMessage
+// }), re_check, catchAsync(feedback_check_view))
 
 app.post('/crypto', rateLimit({
     windowMs: 60 * 1000,
@@ -123,12 +128,12 @@ app.post('/crypto', rateLimit({
     message: rateLimitMessage
 }), re_check, catchAsync(crypto_view_))
 
-app.post('/telegram/auth/check', rateLimit({
-    windowMs: 60 * 1000,
-    max: 50,
-    standardHeaders: true,
-    message: rateLimitMessage
-}), tg_check, tg_check_view)
+// app.post('/telegram/auth/check', rateLimit({
+//     windowMs: 60 * 1000,
+//     max: 50,
+//     standardHeaders: true,
+//     message: rateLimitMessage
+// }), tg_check, tg_check_view)
 
 app.post('/profile/skins/get', rateLimit({
     windowMs: 60 * 1000,
@@ -145,7 +150,7 @@ app.get('/tmonitoring_promotion', catchAsync(t_monitoring_promotion))
 
 app.get('/profile/avatar', rateLimit({
     windowMs: 60 * 1000,
-    max: 100,
+    max: 80,
     standardHeaders: true,
     message: rateLimitMessage
 }), crypto_check_get, catchAsync(getHead))
@@ -157,12 +162,12 @@ app.get('/profile/head', rateLimit({
     message: rateLimitMessage
 }), crypto_check_get, catchAsync(get3dHead))
 
-app.get('/profile/body', rateLimit({
-    windowMs: 60 * 1000,
-    max: 5,
-    standardHeaders: true,
-    message: rateLimitMessage
-}), catchAsync(get3dBody))
+// app.get('/profile/body', rateLimit({
+//     windowMs: 60 * 1000,
+//     max: 5,
+//     standardHeaders: true,
+//     message: rateLimitMessage
+// }), catchAsync(get3dBody))
 
 // app.get('/gift/private_server', rateLimit({
 //     windowMs: 180 * 1000,

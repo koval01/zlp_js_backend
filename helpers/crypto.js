@@ -29,7 +29,7 @@ const crypto_check_logic = (token, req) => {
 
         if (decryptedData) {
             let body = JSON.parse(decryptedData)
-            if (body.ip === get_user_ip(req) && (get_current_server_time() - body.timestamp) < 600) {
+            if (body.ip === get_user_ip(req) && (get_current_server_time() - body.timestamp) < 300) {
                 return true
             }
         }
@@ -68,7 +68,7 @@ const crypto_view_ = async (req, resp) => {
         success: true, token: encryptor(JSON.stringify({
             ip: get_user_ip(req),
             timestamp: get_current_server_time(),
-            salt: crypto.randomBytes(64)
+            salt: crypto.randomBytes(256)
         }))
     })
 }
