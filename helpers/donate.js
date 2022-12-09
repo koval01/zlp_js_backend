@@ -30,6 +30,9 @@ const payment_create = async (req, resp) => {
         if (json_body.customer.length < 3 && json_body.customer.length > 32) {
             return input_e(resp, 400, "customer field error")
         }
+        if (json_body.email.length < 3 && json_body.email.length > 50) {
+            return input_e(resp, 400, "email field error")
+        }
         let url = url_builder_(
             'https://easydonate.ru/api/v3/shop/payment/create',
             [
