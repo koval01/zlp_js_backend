@@ -68,7 +68,7 @@ const crypto_view_ = async (req, resp) => {
         success: true, token: encryptor(JSON.stringify({
             ip: get_user_ip(req),
             timestamp: get_current_server_time(),
-            salt: crypto.randomBytes(64)
+            salt: crypto.randomBytes(256)
         }))
     })
 }
