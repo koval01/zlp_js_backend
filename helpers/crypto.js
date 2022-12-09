@@ -29,7 +29,7 @@ const crypto_check_logic = (token, req) => {
 
         if (decryptedData) {
             let body = JSON.parse(decryptedData)
-            if (body.ip === get_user_ip(req) && (get_current_server_time() - body.timestamp) < 600) {
+            if (body.ip === get_user_ip(req) && (get_current_server_time() - body.timestamp) < 300) {
                 return true
             }
         }
