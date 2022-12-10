@@ -242,7 +242,7 @@ const getPaymentHistoryData = (json_body, callback) => {
                             redis.set(
                                 `payment_history`,
                                 JSON.stringify(body_data),
-                                "ex", 30)
+                                "ex", 15)
                             callback({data: body_data, cache: false})
                         } else {
                             callback(null)
