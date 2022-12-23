@@ -128,7 +128,7 @@ app.post('/crypto', rateLimit({
 
 app.post('/telegram/auth/check', rateLimit({
     windowMs: 60 * 1000,
-    max: 30,
+    max: 60,
     standardHeaders: true,
     message: rateLimitMessage
 }), tg_check, tg_check_view)
