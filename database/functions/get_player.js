@@ -25,7 +25,9 @@ function get_player_auth(callback, telegram_id) {
     check_telegram(function (data) {
         console.log(`check_telegram in get_player_auth : ${data}`)
         if (data.length) {
-            callback(data)
+            get_player(function (data_0) {
+                callback(data_0[0])
+            }, data[0]["LOWERCASENICKNAME"])
         } else {
             callback(null)
         }

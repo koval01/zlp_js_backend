@@ -11,13 +11,17 @@ const getPlayerAuthData = async (req, resp) => {
             return resp.send({
                 success: true,
                 cache: cache,
-                payment: result
+                player_data: result
             })
         }
 
-        get_player_auth(function (data) {
-            return response_call(data, false)
-        }, authData.id)
+        try {
+            get_player_auth(function (data) {
+                return response_call(data, false)
+            }, authData.id)
+        } catch (_) {
+            return response_call(null, false)
+        }
     } catch (_) {
         return main_e(resp)
     }
