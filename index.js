@@ -131,7 +131,7 @@ app.post('/telegram/auth/check', rateLimit({
     max: 60,
     standardHeaders: true,
     message: rateLimitMessage
-}), tg_check, tg_check_view)
+}), tg_check, catchAsync(tg_check_view))
 
 app.post('/profile/skins/get', rateLimit({
     windowMs: 60 * 1000,
