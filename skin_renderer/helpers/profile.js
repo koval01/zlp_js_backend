@@ -59,9 +59,11 @@ async function getSkin64(texture) {
     redis.get(`getSkin64_${texture}`, async (error, result) => {
         if (error) throw error
         if (result !== null) {
+            console.log(result)
             return result
         } else {
             const profile = await getProfile(texture)
+            console.log(texture)
             const base = profile.assets.skin.base64
             redis.set(`getSkin64_${texture}`, base, "ex", 600)
             return base

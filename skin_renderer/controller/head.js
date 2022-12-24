@@ -8,7 +8,7 @@ module.exports.getHead = async (req, res) => {
     if (!tg_user) {
         return input_e(res, 403, "telegram auth invalid")
     }
-    console.log(req.query.texture_hash)
+
     const texture = req.query.texture_hash
     let width = Numbers.getPositive(req.query.width ? parseInt(req.query.width) : null, 100)
     width > 250 ? width = 250 : null
