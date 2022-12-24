@@ -80,7 +80,7 @@ const tg_check_view = async (req, res) => {
             return response_call(data, false)
         }, authData.id)
     } catch (_) {
-        return input_e(res, 500, "database error")
+        return input_e(res, 503, "database error")
     }
 }
 
