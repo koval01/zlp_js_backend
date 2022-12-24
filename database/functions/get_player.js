@@ -41,7 +41,11 @@ function get_player_auth(callback, telegram_id) {
             get_player(function (data_0) {
                 let player = data_0[0]
                 get_skin(function (skin) {
-                    player["SKIN"] = getTextureID(skin[0].Value, true)
+                    try {
+                        player["SKIN"] = getTextureID(skin[0].Value, true)["Value"]
+                    } catch (_) {
+                        player["SKIN"] = "31f477eb1a7beee631c2ca64d06f8f68fa93a3386d04452ab27f43acdf1b60cb" // Steve
+                    }
                     callback(player)
                 }, lower_nick)
             }, lower_nick)
