@@ -2,9 +2,10 @@ const {input_e, main_e} = require("./errors")
 const {url_builder_, censorEmail} = require("./methods")
 const {encryptor, decrypt} = require("./crypto")
 const {private_chat_data} = require("../database/functions/private_chat")
-const {createInviteLinkPrivateChat} = require("./telegram/base")
+const {createInviteLinkPrivateChat, getVerifiedTelegramData} = require("./telegram/base")
 const request = require("request")
 const Redis = require("ioredis")
+const {get_player_auth} = require("../database/functions/get_player");
 
 const redis = new Redis(process.env.REDIS_URL)
 
@@ -23,57 +24,67 @@ const payment_create = async (req, resp) => {
 
     console.log(`paymentCreate: server_id=${server_id}`)
     try {
-        let products_stringified = JSON.stringify(json_body.products)
-        if (Object.keys(json_body.products).length !== 1) {
-            return input_e(resp, 400, "products error")
-        }
-        if (json_body.customer.length < 3 && json_body.customer.length > 32) {
-            return input_e(resp, 400, "customer field error")
-        }
-        if (json_body.email.length < 3 && json_body.email.length > 50) {
-            return input_e(resp, 400, "email field error")
-        }
-        let url = url_builder_(
-            'https://easydonate.ru/api/v3/shop/payment/create',
-            [
-                {name: "customer", value: json_body.customer},
-                {name: "server_id", value: server_id},
-                {name: "products", value: products_stringified},
-                {name: "email", value: json_body.email},
-                {name: "coupon", value: json_body.coupon},
-                {name: "success_url", value: json_body.success_url},
-            ]
-        )
-        request(
-            {
-                uri: url,
-                method: 'GET',
-                headers: {
-                    'Shop-Key': process.env.DONATE_API_KEY
-                }
-            },
-            (error, response, body) => {
-                if (!error && response.statusCode === 200) {
-                    body = JSON.parse(body)
-                    if (body.success) {
-                        return resp.send({
-                            success: true,
-                            payment: {
-                                url: body.response.url,
-                                bill_id: body.response.payment.id
-                            }
-                        })
-                    }
-                    return resp.status(503).json({
-                        success: false,
-                        message: "Error check response EasyDonate API",
-                        exception: "var success is not true"
-                    })
-                } else {
-                    return input_e(resp, response.statusCode, error)
-                }
+        const authData = getVerifiedTelegramData(req.body)
+        get_player_auth(function (data) {
+            if (!data) {
+                return input_e(resp, 400, "telegram auth error")
             }
-        )
+            if (data["NICKNAME"] !== json_body.customer) {
+                return input_e(resp, 400, "customer is not valid")
+            }
+
+            let products_stringified = JSON.stringify(json_body.products)
+            if (Object.keys(json_body.products).length !== 1) {
+                return input_e(resp, 400, "products error")
+            }
+            if (json_body.customer.length < 3 && json_body.customer.length > 32) {
+                return input_e(resp, 400, "customer field error")
+            }
+            if (json_body.email.length < 3 && json_body.email.length > 50) {
+                return input_e(resp, 400, "email field error")
+            }
+            let url = url_builder_(
+                'https://easydonate.ru/api/v3/shop/payment/create',
+                [
+                    {name: "customer", value: json_body.customer},
+                    {name: "server_id", value: server_id},
+                    {name: "products", value: products_stringified},
+                    {name: "email", value: json_body.email},
+                    {name: "coupon", value: json_body.coupon},
+                    {name: "success_url", value: json_body.success_url},
+                ]
+            )
+            request(
+                {
+                    uri: url,
+                    method: 'GET',
+                    headers: {
+                        'Shop-Key': process.env.DONATE_API_KEY
+                    }
+                },
+                (error, response, body) => {
+                    if (!error && response.statusCode === 200) {
+                        body = JSON.parse(body)
+                        if (body.success) {
+                            return resp.send({
+                                success: true,
+                                payment: {
+                                    url: body.response.url,
+                                    bill_id: body.response.payment.id
+                                }
+                            })
+                        }
+                        return resp.status(503).json({
+                            success: false,
+                            message: "Error check response EasyDonate API",
+                            exception: "var success is not true"
+                        })
+                    } else {
+                        return input_e(resp, response.statusCode, error)
+                    }
+                }
+            )
+        }, authData.id)
     } catch (_) {
         return main_e(resp)
     }
