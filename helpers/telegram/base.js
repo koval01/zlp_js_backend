@@ -75,12 +75,12 @@ const tg_check_view = async (req, resp) => {
     try {
         get_player_auth(function (data) {
             if (!data) {
-                return main_e("not found user in social-bot database")
+                return input_e("not found user in social-bot database", 500)
             }
             return response_call(data, false)
         }, authData.id)
     } catch (_) {
-        return main_e(resp, "database error")
+        return input_e(resp, "database error", 500)
     }
 }
 
