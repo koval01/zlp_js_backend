@@ -190,5 +190,5 @@ app.listen(app.get('port'), () => {
 })
 
 process.on('uncaughtException', function (exception) {
-    console.error(`Uncaught exception: ${exception.stack}`)
+    console.error(exception.stack)
 })
