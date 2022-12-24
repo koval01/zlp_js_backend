@@ -88,7 +88,6 @@ async function renderHead64(skinBuffer, width, height, overlay = true) {
 
 async function getHead64(texture, width, height, overlay = true) {
     const skin = await getSkin64(texture)
-    console.log(skin)
     const skinBuffer = new Buffer.from(skin, "base64")
     return renderHead64(skinBuffer, width, height, overlay)
 }
