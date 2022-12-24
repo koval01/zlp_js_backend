@@ -27,7 +27,7 @@ function get_player_auth(callback, telegram_id) {
                 console.log(`Get player skin by lowercase nickname : ${JSON.stringify(data)}`)
                 callback(data)
             },
-            "limboauth",
+            "Skins",
             "SELECT Nick, Value FROM `Skins` WHERE `Nick` = ?",
             [lower_player]
         )
