@@ -35,16 +35,20 @@ const getMojangSkin = async (player_name) => {
     return JSON.parse(b64_to_utf8(value))
 }
 
-const getTextureID = (skins) => {
-    let result = []
-    for (let skin of skins) {
-        const texture = JSON.parse(b64_to_utf8(skin["Value"]))
+const getTextureID = (skins, one=false) => {
+    const takeData = (b64) => {
+        const texture = JSON.parse(b64_to_utf8(b64))
 
-        result.push({
-            Nick: skin["Nick"],
+        return {
+            Nick: texture["profileName"],
             Value: (texture["textures"]["SKIN"]["url"])
                 .replace("http://textures.minecraft.net/texture/", "")
-        })
+        }
+    }
+
+    let result = []
+    for (let skin of skins) {
+        result.push(takeData(skin["Value"]))
     }
     return result
 }
