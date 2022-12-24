@@ -62,10 +62,10 @@ const getVerifiedTelegramData = (json_body, custom_var = false) => {
     }
 }
 
-const tg_check_view = async (req, resp) => {
+const tg_check_view = async (req, res) => {
     const authData = getVerifiedTelegramData(req.body)
     function response_call(result, cache = false) {
-        return resp.send({
+        return res.send({
             success: true,
             cache: cache,
             player_data: result
@@ -80,7 +80,7 @@ const tg_check_view = async (req, resp) => {
             return response_call(data, false)
         }, authData.id)
     } catch (_) {
-        return input_e(resp, "database error", 500)
+        return input_e(res, "database error", 500)
     }
 }
 
