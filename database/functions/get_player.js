@@ -22,11 +22,26 @@ function get_player_auth(callback, telegram_id) {
         )
     }
 
+    const get_skin = (callback, lower_player) => {
+        sql_request(function (data) {
+                console.log(`Get player skin by lowercase nickname : ${JSON.stringify(data)}`)
+                callback(data)
+            },
+            "limboauth",
+            "SELECT Nick, Value FROM `Skins` WHERE `Nick` = ?",
+            [lower_player]
+        )
+    }
+
     check_telegram(function (data) {
         console.log(`check_telegram in get_player_auth : ${data}`)
         if (data.length) {
             get_player(function (data_0) {
-                callback(data_0[0])
+                let player = data_0[0]
+                get_skin(function (skin) {
+                    player["SKIN"] = skin[0].Value
+                    callback(player)
+                })
             }, data[0]["LOWERCASENICKNAME"])
         } else {
             callback(null)
