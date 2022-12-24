@@ -151,7 +151,7 @@ app.get('/profile/avatar', rateLimit({
     max: 80,
     standardHeaders: true,
     message: rateLimitMessage
-}), catchAsync(getHead)) // crypto_check_get
+}), crypto_check_get, catchAsync(getHead))
 
 app.get('/profile/head', rateLimit({
     windowMs: 60 * 1000,
