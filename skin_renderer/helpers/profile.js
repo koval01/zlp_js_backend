@@ -55,18 +55,16 @@ function useSecondLayer(skin) {
     return newFormat && secondLayer
 }
 
-async function getSkin64(texture) {
+async function getSkin64(callback, texture) {
     redis.get(`getSkin64_${texture}`, async (error, result) => {
         if (error) throw error
         if (result !== null) {
-            console.log(`redis : ${result}`)
-            return result
+            callback(result)
         } else {
             const profile = await getProfile(texture)
-            console.log(`dynamic : ${profile}`)
             const base = profile.assets.skin.base64
             redis.set(`getSkin64_${texture}`, base, "ex", 600)
-            return base
+            callback(base)
         }
     })
 }
@@ -88,10 +86,11 @@ async function renderHead64(skinBuffer, width, height, overlay = true) {
     return bottom.getBase64Async(Jimp.MIME_PNG)
 }
 
-async function getHead64(texture, width, height, overlay = true) {
-    const skin = await getSkin64(texture)
-    const skinBuffer = new Buffer.from(skin, "base64")
-    return renderHead64(skinBuffer, width, height, overlay)
+async function getHead64(callback, texture, width, height, overlay = true) {
+    await getSkin64(function (skin) {
+        const skinBuffer = new Buffer.from(skin, "base64")
+        callback(renderHead64(skinBuffer, width, height, overlay))
+    }, texture)
 }
 
 async function renderBody64(skinBuffer, width = 160, height = 320, isSlim = false, overlay = true) {
@@ -178,15 +177,17 @@ async function renderBody64(skinBuffer, width = 160, height = 320, isSlim = fals
 }
 
 async function get3DSkin(texture) {
-    const skinB64 = await getSkin64(texture)
-    const skin = new MinecraftSkin(Buffer.from(skinB64, "base64"), false, 400)
-    return skin.getRender()
+    await getSkin64(function(skinB64) {
+        const skin = new MinecraftSkin(Buffer.from(skinB64, "base64"), false, 400)
+        return skin.getRender()
+    }, texture)
 }
 
 async function get3DHead(texture) {
-    const skinB64 = await getSkin64(texture)
-    const skin = new MinecraftSkin(Buffer.from(skinB64, "base64"), false, 400)
-    return skin.getHead()
+    await getSkin64(function(skinB64) {
+        const skin = new MinecraftSkin(Buffer.from(skinB64, "base64"), false, 400)
+        return skin.getHead()
+    }, texture)
 }
 
 module.exports = {

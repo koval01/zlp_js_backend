@@ -14,16 +14,16 @@ module.exports.getHead = async (req, res) => {
     width > 250 ? width = 250 : null
     const height = parseInt(width)
 
-    let head64 = await getHead64(texture, width, height, req.query.overlay)
+    await getHead64(function(head64) {
+        head64 = head64.substr(head64.indexOf(",") + 1)
 
-    head64 = head64.substr(head64.indexOf(",") + 1)
+        if (req.query.base64) {
+            return res.send(head64)
+        }
 
-    if (req.query.base64) {
-        return res.send(head64)
-    }
+        const head = Buffer.from(head64, "base64")
 
-    const head = Buffer.from(head64, "base64")
-
-    res.set("Content-Type", "image/png")
-    return res.send(head)
+        res.set("Content-Type", "image/png")
+        return res.send(head)
+    }, texture, width, height, req.query["overlay"])
 }
