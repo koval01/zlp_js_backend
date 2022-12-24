@@ -36,13 +36,14 @@ function get_player_auth(callback, telegram_id) {
     check_telegram(function (data) {
         console.log(`check_telegram in get_player_auth : ${data}`)
         if (data.length) {
+            const lower_nick = data[0]["LOWERCASENICKNAME"]
             get_player(function (data_0) {
                 let player = data_0[0]
                 get_skin(function (skin) {
                     player["SKIN"] = skin[0].Value
                     callback(player)
-                })
-            }, data[0]["LOWERCASENICKNAME"])
+                }, lower_nick)
+            }, lower_nick)
         } else {
             callback(null)
         }
