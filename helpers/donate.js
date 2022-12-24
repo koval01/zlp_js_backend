@@ -13,14 +13,14 @@ const payment_create = async (req, resp) => {
     let json_body = req.body
     let server_id = decrypt(json_body.server_id)
 
-    // if (server_id) {
-    //     server_id = parseInt(server_id)
-    //     if (!Number.isInteger(server_id)) {
-    //         return input_e(resp, 400, "server_id error")
-    //     }
-    // } else {
-    //     return input_e(resp, 400, "server_id error")
-    // }
+    if (server_id) {
+        server_id = parseInt(server_id)
+        if (!Number.isInteger(server_id)) {
+            return input_e(resp, 400, "server_id error")
+        }
+    } else {
+        return input_e(resp, 400, "server_id error")
+    }
 
     console.log(`paymentCreate: server_id=${server_id}`)
     try {
