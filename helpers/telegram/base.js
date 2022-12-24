@@ -49,7 +49,7 @@ const getVerifiedTelegramData = (json_body, custom_var = false) => {
     if (custom_var) {
         authData = json_body
     } else {
-        json_body.tg_auth_data
+        authData = json_body.tg_auth_data
     }
     try {
         authData = JSON.parse(Buffer.from(authData, 'base64'))
