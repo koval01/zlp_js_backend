@@ -176,17 +176,17 @@ async function renderBody64(skinBuffer, width = 160, height = 320, isSlim = fals
     return base.getBase64Async(Jimp.MIME_PNG)
 }
 
-async function get3DSkin(texture) {
+async function get3DSkin(callback, texture) {
     await getSkin64(function(skinB64) {
         const skin = new MinecraftSkin(Buffer.from(skinB64, "base64"), false, 400)
-        return skin.getRender()
+        callback(skin.getRender())
     }, texture)
 }
 
-async function get3DHead(texture) {
+async function get3DHead(callback, texture) {
     await getSkin64(function(skinB64) {
         const skin = new MinecraftSkin(Buffer.from(skinB64, "base64"), false, 400)
-        return skin.getHead()
+        callback(skin.getHead())
     }, texture)
 }
 

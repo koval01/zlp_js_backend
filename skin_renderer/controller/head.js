@@ -15,6 +15,7 @@ module.exports.getHead = async (req, res) => {
     const height = parseInt(width)
 
     await getHead64(function(head64) {
+        console.log(`head64 : ${head64}`)
         head64 = head64.substr(head64.indexOf(",") + 1)
 
         if (req.query.base64) {
