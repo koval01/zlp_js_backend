@@ -44,6 +44,7 @@ const crypto_check_raw = (req, resp, next, mode = "POST") => {
     if (mode === "GET") {
         token = req.query.crypto_token
     }
+    console.log(`crypto_check_raw : ${token}`)
     const check = crypto_check_logic(token, req)
     if (check) {
         return next()
