@@ -45,12 +45,15 @@ const getTextureID = (skins, one=false) => {
                 .replace("http://textures.minecraft.net/texture/", "")
         }
     }
-
-    let result = []
-    for (let skin of skins) {
-        result.push(takeData(skin["Value"]))
+    if (one) {
+        return takeData(skins)
+    } else {
+        let result = []
+        for (let skin of skins) {
+            result.push(takeData(skin["Value"]))
+        }
+        return result
     }
-    return result
 }
 
 const buildSkinsResponse = async (json_body, callback) => {
