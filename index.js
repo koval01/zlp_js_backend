@@ -13,6 +13,7 @@ const {getHead} = require("./skin_renderer/controller/head")
 const {get3dHead} = require("./skin_renderer/controller/render")
 
 const {tg_check_view} = require("./helpers/telegram/base")
+const {getPlayerAuthData} = require("./helpers/auth")
 const {apiLimiter, rateLimitMessage} = require("./helpers/limiters")
 const {global_error} = require("./middleware/other_middle")
 const {re_check, tg_check} = require("./middleware/security_middle")
@@ -132,6 +133,13 @@ app.post('/telegram/auth/check', rateLimit({
     standardHeaders: true,
     message: rateLimitMessage
 }), tg_check, tg_check_view)
+
+app.post('/telegram/auth/test_data', rateLimit({
+    windowMs: 60 * 1000,
+    max: 10,
+    standardHeaders: true,
+    message: rateLimitMessage
+}), tg_check, getPlayerAuthData)
 
 app.post('/profile/skins/get', rateLimit({
     windowMs: 60 * 1000,
