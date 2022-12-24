@@ -6,6 +6,49 @@ const {getSkins} = require("../database/functions/skins")
 
 const redis = new Redis(process.env.REDIS_URL)
 
+const getUUID = async (player_name) => {
+    const data = await axios.get(
+        `https://api.mojang.com/users/profiles/minecraft/${player_name}`
+    ).data
+    if (data) {
+        console.log(`getUUID : ${JSON.stringify(data)}`)
+        return data.id
+    }
+}
+
+const getSkinValue = async (player_name) => {
+    const uuid = await getUUID(player_name)
+    const data = await axios.get(
+        `https://sessionserver.mojang.com/session/minecraft/profile/${uuid}`
+    ).data
+    if (data) {
+        console.log(`getSkinValue : ${JSON.stringify(data)}`)
+        return data.properties.value
+    }
+}
+
+const getMojangSkin = async (player_name) => {
+    const value = await getSkinValue(player_name)
+    if (!value) {
+        return
+    }
+    return JSON.parse(b64_to_utf8(value))
+}
+
+const getTextureID = (skins) => {
+    let result = []
+    for (let skin of skins) {
+        const texture = JSON.parse(b64_to_utf8(skin["Value"]))
+
+        result.push({
+            Nick: skin["Nick"],
+            Value: (texture["textures"]["SKIN"]["url"])
+                .replace("http://textures.minecraft.net/texture/", "")
+        })
+    }
+    return result
+}
+
 const buildSkinsResponse = async (json_body, callback) => {
     // function response_(data) {
     //     if (data) {
@@ -32,49 +75,6 @@ const buildSkinsResponse = async (json_body, callback) => {
     //         return null
     //     }
     // }
-
-    const getUUID = async (player_name) => {
-        const data = await axios.get(
-            `https://api.mojang.com/users/profiles/minecraft/${player_name}`
-        ).data
-        if (data) {
-            console.log(`getUUID : ${JSON.stringify(data)}`)
-            return data.id
-        }
-    }
-
-    const getSkinValue = async (player_name) => {
-        const uuid = await getUUID(player_name)
-        const data = await axios.get(
-            `https://sessionserver.mojang.com/session/minecraft/profile/${uuid}`
-        ).data
-        if (data) {
-            console.log(`getSkinValue : ${JSON.stringify(data)}`)
-            return data.properties.value
-        }
-    }
-
-    const getMojangSkin = async (player_name) => {
-        const value = await getSkinValue(player_name)
-        if (!value) {
-            return
-        }
-        return JSON.parse(b64_to_utf8(value))
-    }
-
-    const getTextureID = (skins) => {
-        let result = []
-        for (let skin of skins) {
-            const texture = JSON.parse(b64_to_utf8(skin["Value"]))
-
-            result.push({
-                Nick: skin["Nick"],
-                Value: (texture["textures"]["SKIN"]["url"])
-                    .replace("http://textures.minecraft.net/texture/", "")
-            })
-        }
-        return result
-    }
 
     const loadMojangSkins = async (players_array, ordered_skins) => {
         let result = players_array
@@ -138,5 +138,7 @@ const getSkinsData = async (req, resp) => {
 }
 
 module.exports = {
-    getSkinsData
+    getSkinsData,
+    getTextureID,
+    getMojangSkin
 }

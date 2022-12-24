@@ -1,4 +1,5 @@
 const {sql_request} = require("../mysql")
+const {getTextureID} = require("./skins")
 
 function get_player_auth(callback, telegram_id) {
     let check_telegram = (callback) => {
@@ -40,7 +41,7 @@ function get_player_auth(callback, telegram_id) {
             get_player(function (data_0) {
                 let player = data_0[0]
                 get_skin(function (skin) {
-                    player["SKIN"] = skin[0].Value
+                    player["SKIN"]  = getTextureID(skin[0].Value)
                     callback(player)
                 }, lower_nick)
             }, lower_nick)
