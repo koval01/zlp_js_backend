@@ -19,3 +19,7 @@ const getPlayerAuthData = async (req, resp) => {
         return main_e(resp)
     }
 }
+
+module.exports = {
+    getPlayerAuthData
+}
