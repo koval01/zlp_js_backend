@@ -2,6 +2,7 @@ const crypto = require('crypto')
 const request = require("request");
 const qs = require("querystring");
 const {input_e} = require("../errors");
+const {get_player_auth} = require("../../database/functions/get_player");
 
 const getTelegramValidateHash = (authData) => {
     const tgBotToken = process.env.BOT_TOKEN
@@ -61,8 +62,23 @@ const getVerifiedTelegramData = (json_body, custom_var = false) => {
     }
 }
 
-const tg_check_view = async (_, resp) => {
-    return resp.send({success: true})
+const tg_check_view = async (req, resp) => {
+    const authData = getVerifiedTelegramData(req.body)
+    function response_call(result, cache = false) {
+        return resp.send({
+            success: true,
+            cache: cache,
+            player_data: result
+        })
+    }
+
+    try {
+        get_player_auth(function (data) {
+            return response_call(data, false)
+        }, authData.id)
+    } catch (_) {
+        return response_call(null, false)
+    }
 }
 
 module.exports = {
