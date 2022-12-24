@@ -85,7 +85,8 @@ const payment_create = async (req, resp) => {
                 }
             )
         }, authData.id)
-    } catch (_) {
+    } catch (e) {
+        console.error(e.stack)
         return main_e(resp)
     }
 }
