@@ -1,7 +1,8 @@
 const crypto = require('crypto')
 const request = require("request");
 const qs = require("querystring");
-const {input_e} = require("../errors");
+const {input_e, main_e} = require("../errors");
+const {get_player_auth} = require("../../database/functions/get_player");
 
 const getTelegramValidateHash = (authData) => {
     const tgBotToken = process.env.BOT_TOKEN
@@ -49,7 +50,7 @@ const getVerifiedTelegramData = (json_body, custom_var = false) => {
     if (custom_var) {
         authData = json_body
     } else {
-        json_body.tg_auth_data
+        authData = json_body.tg_auth_data
     }
     try {
         authData = JSON.parse(Buffer.from(authData, 'base64'))
@@ -61,8 +62,26 @@ const getVerifiedTelegramData = (json_body, custom_var = false) => {
     }
 }
 
-const tg_check_view = async (_, resp) => {
-    return resp.send({success: true})
+const tg_check_view = async (req, res) => {
+    const authData = getVerifiedTelegramData(req.body)
+    function response_call(result, cache = false) {
+        return res.send({
+            success: true,
+            cache: cache,
+            player_data: result
+        })
+    }
+
+    try {
+        get_player_auth(function (data) {
+            if (!data) {
+                return input_e(res, 200, "not found user in social-bot database")
+            }
+            return response_call(data, false)
+        }, authData.id)
+    } catch (_) {
+        return input_e(res, 503, "database error")
+    }
 }
 
 module.exports = {

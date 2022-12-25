@@ -9,6 +9,7 @@ const mysql_ = function (database_name) {
         user: process.env.DB_USERNAME,
         password: process.env.DB_PASSWORD,
         database: database_name,
+        port: process.env.DB_PORT,
         ssl: false
     })
 }
