@@ -7,7 +7,10 @@ const get_status = (callback) => {
     })
         .then((result) => callback({
                 success: true, body: {
-                    motd: result.motd,
+                    motd: {
+                        clean: result.motd.clean,
+                        html: result.motd.html
+                    },
                     players: {
                         max: result.players.max,
                         online: result.players.online
