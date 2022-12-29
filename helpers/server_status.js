@@ -6,7 +6,14 @@ const get_status = (callback) => {
         timeout: 300
     })
         .then((result) => callback({
-                success: true, body: result
+                success: true, body: {
+                    motd: result.motd,
+                    players: {
+                        max: result.players.max,
+                        online: result.players.online
+                    },
+                    ping: result.roundTripLatency
+                }
             })
         )
         .catch((error) => callback({success: false, error: error}))
