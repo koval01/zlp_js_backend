@@ -179,7 +179,7 @@ app.post('/server', rateLimit({
     message: rateLimitMessage
 }), crypto_check, catchAsync(mc_status_view))
 
-app.post('/launcher/server/status', rateLimit({
+app.get('/launcher/server/status', rateLimit({
     windowMs: 180 * 1000,
     max: 50,
     standardHeaders: true,
