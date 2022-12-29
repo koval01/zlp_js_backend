@@ -139,7 +139,7 @@ const channel_raw = async (req, resp) => {
                                 let author = ""
                                 let cover = ""
                                 try {
-                                    text = container.querySelector(".tgme_widget_message_text").innerHTML
+                                    text = container.querySelector("div.tgme_widget_message_text").innerHTML
                                 } catch (_) {
                                 }
                                 try {
