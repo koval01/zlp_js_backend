@@ -24,7 +24,7 @@ const payment_create = async (req, resp) => {
 
     console.log(`paymentCreate: server_id=${server_id}`)
     try {
-        const authData = getVerifiedTelegramData(req.body)
+        const authData = getVerifiedTelegramData(json_body)
         get_player_auth(function (data) {
             if (!data) {
                 return input_e(resp, 400, "telegram auth error")
@@ -65,12 +65,13 @@ const payment_create = async (req, resp) => {
                 (error, response, body) => {
                     if (!error && response.statusCode === 200) {
                         body = JSON.parse(body)
-                        if (body.success) {
+                        if (body.success && body.response) {
+                            const resp_api = body.response
                             return resp.send({
                                 success: true,
                                 payment: {
-                                    url: body.response.url,
-                                    bill_id: body.response.payment.id
+                                    url: resp_api.url,
+                                    bill_id: resp_api.payment.id
                                 }
                             })
                         }
