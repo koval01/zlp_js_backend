@@ -14,8 +14,7 @@ const get_status = (callback) => {
                     players: {
                         max: result.players.max,
                         online: result.players.online
-                    },
-                    ping: result.roundTripLatency
+                    }
                 }
             })
         )
