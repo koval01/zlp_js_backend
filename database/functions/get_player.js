@@ -34,14 +34,14 @@ function get_player_auth(callback, telegram_id) {
         )
     }
 
-    const get_private_server = (callback, nickname, uuid) => {
+    const get_private_server = (callback, nickname) => {
         sql_request(function (data) {
                 console.log(`Get player skin by lowercase nickname : ${JSON.stringify(data)}`)
                 callback(data)
             },
             "WhitelistVanilla",
-            "SELECT * FROM `whitelist` WHERE `user` = ? and `UUID` = ?",
-            [nickname, uuid]
+            "SELECT * FROM `whitelist` WHERE `user` = ?", // OLD: "SELECT * FROM `whitelist` WHERE `user` = ? and `UUID` = ?"
+            [nickname]
         )
     }
 
@@ -60,7 +60,7 @@ function get_player_auth(callback, telegram_id) {
                     get_private_server(function (private_) {
                         player["PRIVATE_SERVER"] = !!(private_ && private_.length)
                         callback(player)
-                    }, player["NICKNAME"], player["UUID"])
+                    }, player["NICKNAME"])
                 }, lower_nick)
             }, lower_nick)
         } else {
