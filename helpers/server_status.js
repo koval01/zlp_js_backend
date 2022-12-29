@@ -1,12 +1,14 @@
 const mc_status = require("minecraft-server-util")
 const {input_e} = require("./errors")
 
-const get_status = (callback) => {
+const get_status = (callback, only_online=true) => {
     mc_status.status('zalupa.online', 25565, {
         timeout: 300
     })
         .then((result) => callback({
-                success: true, body: {
+                success: true, body: only_online ? {
+                    online: result.players.online
+                } :{
                     motd: {
                         clean: result.motd.clean,
                         html: result.motd.html
@@ -22,20 +24,15 @@ const get_status = (callback) => {
 }
 
 const mc_status_view = async (req, resp) => {
-    mc_status.status('zalupa.online', 25565, {
-        timeout: 1000
+    get_status(function (status_) {
+        return resp.send(status_)
     })
-        .then((result) => resp.send({
-                success: true, body: {online: result.players.online}
-            })
-        )
-        .catch((error) => input_e(resp, 503, error))
 }
 
 const mc_status_view_full = async (req, resp) => {
     get_status(function (status_) {
         return resp.send(status_)
-    })
+    }, false)
 }
 
 module.exports = {
