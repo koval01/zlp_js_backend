@@ -1,5 +1,4 @@
 const mc_status = require("minecraft-server-util")
-const {input_e} = require("./errors")
 
 const get_status = (callback, only_online=true) => {
     mc_status.status('zalupa.online', 25565, {

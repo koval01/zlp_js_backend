@@ -18,7 +18,7 @@ const {global_error} = require("./middleware/other_middle")
 const {re_check, tg_check} = require("./middleware/security_middle")
 const {main_e} = require("./helpers/errors")
 
-const {crypto_view_, crypto_check, crypto_check_get} = require("./helpers/crypto")
+const {crypto_view_, crypto_check, crypto_check_get, check_service_token} = require("./helpers/crypto")
 const {mc_status_view, mc_status_view_full} = require("./helpers/server_status")
 const {getSkinsData} = require("./helpers/skins")
 const {payment_create, payment_get, coupon_get, donate_services, payment_history_get} = require("./helpers/donate")
@@ -53,6 +53,13 @@ app.post('/channel_parse', rateLimit({
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, catchAsync(channel_raw))
+
+app.post('/channel_parse/service_api', rateLimit({
+    windowMs: 60 * 1000,
+    max: 15,
+    standardHeaders: true,
+    message: rateLimitMessage
+}), check_service_token, catchAsync(channel_raw))
 
 app.post('/events', rateLimit({
     windowMs: 60 * 1000,

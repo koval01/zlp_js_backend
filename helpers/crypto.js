@@ -56,6 +56,17 @@ const crypto_check_raw = (req, resp, next, mode = "POST") => {
     })
 }
 
+const check_service_token = (req, resp, next) => {
+    if (req.body.service_token === process.env.SERVICE_TOKEN) {
+        return next()
+    }
+    return resp.status(403).json({
+        success: false,
+        message: 'Security error',
+        exception: 'error verify service token'
+    })
+}
+
 const crypto_check = (req, resp, next) => {
     return crypto_check_raw(req, resp, next)
 }
@@ -80,5 +91,6 @@ module.exports = {
     encryptor,
     decrypt,
     crypto_check,
-    crypto_check_get
+    crypto_check_get,
+    check_service_token
 }
