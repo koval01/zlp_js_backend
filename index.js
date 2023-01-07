@@ -54,12 +54,12 @@ app.post('/channel_parse', rateLimit({
     message: rateLimitMessage
 }), re_check, catchAsync(channel_raw))
 
-app.post('/channel_parse/service_api', rateLimit({
-    windowMs: 60 * 1000,
-    max: 15,
-    standardHeaders: true,
-    message: rateLimitMessage
-}), check_service_token, catchAsync(channel_raw))
+// app.post('/channel_parse/service_api', rateLimit({
+//     windowMs: 60 * 1000,
+//     max: 15,
+//     standardHeaders: true,
+//     message: rateLimitMessage
+// }), check_service_token, catchAsync(channel_raw))
 
 app.post('/events', rateLimit({
     windowMs: 60 * 1000,
@@ -91,14 +91,14 @@ app.post('/donate/coupon', rateLimit({
 
 app.post('/donate/payment_get', rateLimit({
     windowMs: 60 * 1000,
-    max: 30,
+    max: 15,
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, catchAsync(payment_get))
 
 app.post('/donate/payment_history', rateLimit({
     windowMs: 60 * 1000,
-    max: 30,
+    max: 10,
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, catchAsync(payment_history_get))
@@ -138,12 +138,12 @@ app.post('/telegram/auth/check', rateLimit({
     message: rateLimitMessage
 }), re_check, tg_check, catchAsync(tg_check_view))
 
-app.post('/profile/skins/get', rateLimit({
-    windowMs: 60 * 1000,
-    max: 3,
-    standardHeaders: true,
-    message: rateLimitMessage
-}), re_check, catchAsync(getSkinsData))
+// app.post('/profile/skins/get', rateLimit({
+//     windowMs: 60 * 1000,
+//     max: 3,
+//     standardHeaders: true,
+//     message: rateLimitMessage
+// }), re_check, catchAsync(getSkinsData))
 
 app.get('/ip', catchAsync(ip_get_view))
 
@@ -153,14 +153,14 @@ app.get('/ip', catchAsync(ip_get_view))
 
 app.get('/profile/avatar', rateLimit({
     windowMs: 60 * 1000,
-    max: 60,
+    max: 35,
     standardHeaders: true,
     message: rateLimitMessage
 }), crypto_check_get, catchAsync(getHead))
 
 app.get('/profile/head', rateLimit({
     windowMs: 60 * 1000,
-    max: 30,
+    max: 20,
     standardHeaders: true,
     message: rateLimitMessage
 }), crypto_check_get, catchAsync(get3dHead))
@@ -181,24 +181,24 @@ app.get('/profile/head', rateLimit({
 
 app.post('/server', rateLimit({
     windowMs: 60 * 1000,
-    max: 45,
+    max: 35,
     standardHeaders: true,
     message: rateLimitMessage
 }), crypto_check, catchAsync(mc_status_view))
 
-app.get('/launcher/server/status', rateLimit({
-    windowMs: 180 * 1000,
-    max: 50,
-    standardHeaders: true,
-    message: rateLimitMessage
-}), catchAsync(mc_status_view_full))
+// app.get('/launcher/server/status', rateLimit({
+//     windowMs: 180 * 1000,
+//     max: 50,
+//     standardHeaders: true,
+//     message: rateLimitMessage
+// }), catchAsync(mc_status_view_full))
 
 app.get('*', async (_, resp) => {
     return main_e(resp, "error route", "This route cannot be found")
 })
 
 app.listen(app.get('port'), () => {
-    console.log(`Node app is running at localhost:${app.get('port')}`)
+    console.debug(`Node app is running at localhost:${app.get('port')}`)
 })
 
 process.on('uncaughtException', function (exception) {
