@@ -30,8 +30,12 @@ const {events_view, channel_raw} = require("./helpers/telegram/channel")
 const app = express()
 
 Sentry.init({
-    dsn: "https://5ce9698a3422422e9f75c3c011f32141@o1226843.ingest.sentry.io/4504515828776960",
-    tracesSampleRate: 1.0,
+    dsn: "https://0df16c06d2d646b2be2b2ed4f7c967d0@o1226843.ingest.sentry.io/4504515915153408",
+    integrations: [
+        new Sentry.Integrations.Http({ tracing: true }),
+        new Tracing.Integrations.Express({ app }),
+    ],
+    tracesSampleRate: 1.0
 })
 
 app.set('port', (process.env.PORT || 5000))
@@ -41,6 +45,9 @@ app.use(express.json())
 app.use(express.urlencoded())
 app.use(compression())
 app.use(cors())
+
+app.use(Sentry.Handlers.requestHandler())
+app.use(Sentry.Handlers.tracingHandler())
 
 app.use(log.logRequest)
 app.use(log.logError)
@@ -204,6 +211,8 @@ app.post('/server', rateLimit({
 app.get('*', async (_, resp) => {
     return main_e(resp, "error route", "This route cannot be found")
 })
+
+app.use(Sentry.Handlers.errorHandler())
 
 app.listen(app.get('port'), () => {
     console.debug(`Node app is running at localhost:${app.get('port')}`)
