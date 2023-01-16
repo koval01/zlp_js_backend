@@ -5,6 +5,9 @@ const cors = require('cors')
 const express = require('express')
 const rateLimit = require('express-rate-limit')
 
+const Sentry = require("@sentry/node")
+const Tracing = require("@sentry/tracing")
+
 const log = require("./helpers/log")
 const {ip_get_view} = require("./helpers/methods")
 
@@ -25,6 +28,11 @@ const {payment_create, payment_get, coupon_get, donate_services, payment_history
 const {events_view, channel_raw} = require("./helpers/telegram/channel")
 
 const app = express()
+
+Sentry.init({
+    dsn: "https://5ce9698a3422422e9f75c3c011f32141@o1226843.ingest.sentry.io/4504515828776960",
+    tracesSampleRate: 1.0,
+})
 
 app.set('port', (process.env.PORT || 5000))
 app.set('trust proxy', parseInt(process.env.PROXY_LAYER))
