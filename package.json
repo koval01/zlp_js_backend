@@ -22,9 +22,7 @@
     "canvas": "^2.10.1",
     "jimp": "^0.16.2",
     "rotating-file-stream": "^2.1.6",
-    "siphash": "^1.1.0",
-    "@sentry/node": "^7.31.0",
-    "@sentry/tracing": "^7.31.0"
+    "siphash": "^1.1.0"
   },
   "engines": {
     "node": "16.18.0"
