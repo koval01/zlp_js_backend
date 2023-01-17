@@ -21,7 +21,8 @@
     "memory-cache-node": "^1.2.0",
     "canvas": "^2.10.1",
     "jimp": "^0.16.2",
-    "rotating-file-stream": "^2.1.6"
+    "rotating-file-stream": "^2.1.6",
+    "siphash": "^1.1.0"
   },
   "engines": {
     "node": "16.18.0"
