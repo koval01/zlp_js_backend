@@ -74,7 +74,7 @@ function get_player_auth(callback, telegram_id) {
                     get_private_server(function (private_) {
                         player["PRIVATE_SERVER"] = !!(private_ && private_.length)
                         get_player_tokens(function (tokens_balance) {
-                            player["BALANCE"] = tokens_balance ? parseInt(tokens_balance["balance"]) : 0
+                            player["BALANCE"] = tokens_balance ? parseInt(tokens_balance[0]["balance"]) : 0
                             callback(player)
                         }, player["NICKNAME"], player["UUID"])
                     }, player["NICKNAME"])
