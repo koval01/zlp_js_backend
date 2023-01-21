@@ -65,13 +65,13 @@ const responseMicrosoft = async (req, resp) => {
         } else {
             let games = await getGameOwnership(token)
             games = games.data
-            if (!checkGames(games.data)) {
+            if (!checkGames(games)) {
                 return input_e(resp, 500, "error check game ownership")
             }
 
             let profile = await getMinecraftProfile(token)
             profile = profile.data
-            if (!checkProfile(profile.data)) {
+            if (!checkProfile(profile)) {
                 return input_e(resp, 500, "error check minecraft profile")
             }
 
