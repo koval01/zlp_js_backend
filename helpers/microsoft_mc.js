@@ -1,6 +1,8 @@
 const axios = require("axios")
-const {input_e} = require("../errors")
-const {json} = require("express");
+const {input_e} = require("./errors")
+const Redis = require("ioredis")
+
+const redis = new Redis(process.env.REDIS_URL)
 
 const getGameOwnership = async (token) => {
     return await axios.get(
@@ -46,19 +48,38 @@ const checkProfile = (json_body) => {
 
 const responseMicrosoft = async (req, resp) => {
     const token = req.body.token
+    const redis_token = `microsoft_jwt_${token}`
 
-    const games = await getGameOwnership(token).data
-    if (!checkGames(games)) {
-        return input_e(resp, 500, "error check game ownership")
+    const response_call = (data, cache = false) => {
+        return resp.send({
+            cache: cache,
+            success: true,
+            data: data
+        })
     }
 
-    const profile = await getMinecraftProfile(token).data
-    if (!checkProfile(profile)) {
-        return input_e(resp, 500, "error check minecraft profile")
-    }
+    redis.get(redis_token, async (error, result) => {
+        if (error) throw error
+        if (result !== null) {
+            return response_call(JSON.parse(result), true)
+        } else {
+            const games = await getGameOwnership(token).data
+            if (!checkGames(games)) {
+                return input_e(resp, 500, "error check game ownership")
+            }
 
-    return resp.json({
-        games: games, profile: profile
+            const profile = await getMinecraftProfile(token).data
+            if (!checkProfile(profile)) {
+                return input_e(resp, 500, "error check minecraft profile")
+            }
+
+            const result = {
+                games: games, profile: profile
+            }
+
+            redis.set(redis_token, JSON.stringify(result), "ex", 60)
+            return response_call(result, true)
+        }
     })
 }
 
