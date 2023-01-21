@@ -13,6 +13,7 @@ const {getHead} = require("./skin_renderer/controller/head")
 const {get3dHead} = require("./skin_renderer/controller/render")
 
 const {tg_check_view} = require("./helpers/telegram/base")
+const {responseMicrosoft} = require("./helpers/microsoft_mc")
 const {apiLimiter, rateLimitMessage} = require("./helpers/limiters")
 const {global_error} = require("./middleware/other_middle")
 const {re_check, tg_check} = require("./middleware/security_middle")
@@ -101,6 +102,13 @@ app.post('/telegram/auth/check', rateLimit({
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, tg_check, catchAsync(tg_check_view))
+
+app.post('/microsoft/auth/check', rateLimit({
+    windowMs: 60 * 1000,
+    max: 3,
+    standardHeaders: true,
+    message: rateLimitMessage
+}), catchAsync(responseMicrosoft))
 
 app.get('/ip', catchAsync(ip_get_view))
 
