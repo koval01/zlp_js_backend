@@ -73,12 +73,12 @@ const responseMicrosoft = async (req, resp) => {
                 return input_e(resp, 500, "error check minecraft profile")
             }
 
-            const result = {
+            const result_response = {
                 games: games, profile: profile
             }
 
-            redis.set(redis_token, JSON.stringify(result), "ex", 60)
-            return response_call(result, true)
+            redis.set(redis_token, JSON.stringify(result_response), "ex", 60)
+            return response_call(result_response, true)
         }
     })
 }
