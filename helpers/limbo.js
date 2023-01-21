@@ -1,5 +1,5 @@
 const siphash24 = require('siphash24')
-const {struct} = require('python-struct')
+const struct = require('python-struct')
 const {utf8_to_b64} = require('./methods')
 
 const generateSiphash = (player_username) => {
