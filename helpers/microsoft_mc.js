@@ -1,6 +1,7 @@
 const axios = require("axios")
 const {input_e} = require("./errors")
 const Redis = require("ioredis")
+const {generateSiphash} = require("./limbo")
 
 const redis = new Redis(process.env.REDIS_URL)
 
@@ -76,7 +77,7 @@ const responseMicrosoft = async (req, resp) => {
             }
 
             const result_response = {
-                games: games, profile: profile
+                games: games, profile: profile, siphash: generateSiphash(profile.name)
             }
 
             redis.set(redis_token, JSON.stringify(result_response), "ex", 60)

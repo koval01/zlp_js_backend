@@ -103,9 +103,9 @@ app.post('/telegram/auth/check', rateLimit({
     message: rateLimitMessage
 }), re_check, tg_check, catchAsync(tg_check_view))
 
-app.post('/microsoft/auth/check', rateLimit({
+app.post('/launcher/microsoft/auth/check', rateLimit({
     windowMs: 60 * 1000,
-    max: 3,
+    max: 8,
     standardHeaders: true,
     message: rateLimitMessage
 }), catchAsync(responseMicrosoft))
