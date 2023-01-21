@@ -11,9 +11,10 @@ const getGameOwnership = async (token) => {
     )
 }
 
-const responseMicrosoft = async (token) => {
-    const resp = await getGameOwnership(token)
-    return resp.data
+const responseMicrosoft = async (req, resp) => {
+    const json_body = req.body
+    const response = await getGameOwnership(json_body.token)
+    return resp.json(response.data)
 }
 
 module.exports = {
