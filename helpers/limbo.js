@@ -4,7 +4,7 @@ const {utf8_to_b64} = require('./methods')
 
 const generateSiphash = (player_username) => {
     const verify_key = "testkey123"
-    const issue_timestamp = Date.now()
+    const issue_timestamp = Date.now() / 1000
 
     const username_bytes = Buffer.from(player_username.toLowerCase(), 'utf-8').toString()
     const timestamp_bytes = struct.pack(">L", issue_timestamp)
