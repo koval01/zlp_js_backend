@@ -86,5 +86,6 @@ const get_player_auth = (callback, telegram_id) => {
 }
 
 module.exports = {
-    get_player_auth
+    get_player_auth,
+    check_telegram
 }
