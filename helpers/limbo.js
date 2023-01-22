@@ -11,10 +11,7 @@ const generateSiphash = (player_username) => {
     const username_bytes = Buffer.from(player_username.toLowerCase(), 'utf-8').toString()
     const timestamp_bytes = struct.pack(">Q", issue_timestamp)
 
-    let tokenhash = siphash24("", key)
-    tokenhash.update(username_bytes)
-    tokenhash.update(timestamp_bytes)
-    tokenhash = tokenhash.hash()
+    const tokenhash = siphash24(username_bytes+timestamp_bytes, key)
     const hash_bytes = struct.pack(">Q", tokenhash)
 
     return utf8_to_b64(timestamp_bytes.join(hash_bytes))
