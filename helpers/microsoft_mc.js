@@ -99,7 +99,7 @@ const responseMicrosoft = async (req, resp) => {
                 const result_response = {
                     games: games, profile: profile,
                     siphash: generateSiphash(profile.name),
-                    social: social_data.length ? social_data[0] : null
+                    telegram_id: social_data.length ? social_data[0]["TELEGRAM_ID"] : null
                 }
 
                 redis.set(redis_token, JSON.stringify(result_response), "ex", 30)
