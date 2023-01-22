@@ -1,8 +1,8 @@
 const axios = require("axios")
 const {input_e} = require("./errors")
 const Redis = require("ioredis")
-const {generateSiphash} = require("./limbo")
-const {check_telegram} = require("../database/functions/get_player")
+const {generateSiphash, getUUID} = require("./limbo")
+const {check_telegram, get_private_server_license, get_player_tokens} = require("../database/functions/get_player")
 
 const redis = new Redis(process.env.REDIS_URL)
 
@@ -95,15 +95,23 @@ const responseMicrosoft = async (req, resp) => {
                 return e_profile()
             }
 
-            check_telegram(function (social_data) {
-                const result_response = {
-                    games: games, profile: profile,
-                    siphash: generateSiphash(profile.name),
-                    telegram_id: social_data.length ? social_data[0]["TELEGRAM_ID"] : null
-                }
+            const UUID = getUUID(profile.id)
 
-                redis.set(redis_token, JSON.stringify(result_response), "ex", 30)
-                return response_call(result_response, true)
+            check_telegram(function (social_data) {
+                get_private_server_license(function (whitelistVanilla) {
+                    get_player_tokens(function (xconomy) {
+                        const result_response = {
+                            games: games, profile: profile,
+                            siphash: generateSiphash(profile.name),
+                            telegram_id: social_data.length ? social_data[0]["TELEGRAM_ID"] : null,
+                            whitelistVanilla: !!whitelistVanilla.length,
+                            balance: xconomy.length ? xconomy[0].balance : 0
+                        }
+
+                        redis.set(redis_token, JSON.stringify(result_response), "ex", 30)
+                        return response_call(result_response, true)
+                    }, profile.name, UUID)
+                }, UUID)
             }, null, profile.name)
         }
     })

@@ -45,6 +45,17 @@ const get_private_server = (callback, nickname) => {
     )
 }
 
+const get_private_server_license = (callback, uuid) => {
+    sql_request(function (data) {
+            console.log(`Get player from Vanilla whitelist : ${JSON.stringify(data)}`)
+            callback(data)
+        },
+        "WhitelistVanilla",
+        "SELECT * FROM `whitelist` WHERE `UUID` = ?",
+        [uuid]
+    )
+}
+
 const get_player_tokens = (callback, nickname, uuid) => {
     sql_request(function (data) {
             console.log(`Get player tokens : ${JSON.stringify(data)}`)
@@ -87,5 +98,7 @@ const get_player_auth = (callback, telegram_id) => {
 
 module.exports = {
     get_player_auth,
-    check_telegram
+    check_telegram,
+    get_private_server_license,
+    get_player_tokens
 }
