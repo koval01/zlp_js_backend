@@ -64,23 +64,41 @@ const responseMicrosoft = async (req, resp) => {
         if (result !== null) {
             return response_call(JSON.parse(result), true)
         } else {
-            let games = await getGameOwnership(token)
-            games = games.data
-            if (!checkGames(games)) {
+            const e_games = () => {
                 return input_e(resp, 500, "error check game ownership")
             }
 
-            let profile = await getMinecraftProfile(token)
-            profile = profile.data
-            if (!checkProfile(profile)) {
-                return input_e(resp, 500, "error check minecraft profile")
+            let games
+            try {
+                const response = await getGameOwnership(token)
+                games = response.data
+                if (!checkGames(games)) {
+                    return e_games()
+                }
+            } catch (_) {
+                return e_games()
+            }
+
+            const e_profile = () => {
+                return e_games()
+            }
+
+            let profile
+            try {
+                const response = await getMinecraftProfile(token)
+                profile = response.data
+                if (!checkProfile(profile)) {
+                    return e_profile()
+                }
+            } catch (_) {
+                return e_profile()
             }
 
             const result_response = {
                 games: games, profile: profile, siphash: generateSiphash(profile.name)
             }
 
-            redis.set(redis_token, JSON.stringify(result_response), "ex", 60)
+            redis.set(redis_token, JSON.stringify(result_response), "ex", 30)
             return response_call(result_response, true)
         }
     })
