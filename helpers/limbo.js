@@ -1,9 +1,10 @@
 const siphash24 = require('siphash24')
 const struct = require('python-struct')
+const crypto = require('crypto')
 const {utf8_to_b64} = require('./methods')
 
 const generateSiphash = (player_username) => {
-    const verify_key = "testkey123"
+    const verify_key = crypto.createHash('md5').update("testkey8384398").digest('hex')
     const issue_timestamp = Date.now() / 1000
 
     const username_bytes = Buffer.from(player_username.toLowerCase(), 'utf-8').toString()
