@@ -2,6 +2,7 @@ const axios = require("axios")
 const {input_e} = require("./errors")
 const Redis = require("ioredis")
 const {generateSiphash} = require("./limbo")
+const {check_telegram} = require("../database/functions/get_player")
 
 const redis = new Redis(process.env.REDIS_URL)
 
@@ -94,12 +95,16 @@ const responseMicrosoft = async (req, resp) => {
                 return e_profile()
             }
 
-            const result_response = {
-                games: games, profile: profile, siphash: generateSiphash(profile.name)
-            }
+            check_telegram(function (social_data) {
+                const result_response = {
+                    games: games, profile: profile,
+                    siphash: generateSiphash(profile.name),
+                    social: social_data.length ? social_data[0] : null
+                }
 
-            redis.set(redis_token, JSON.stringify(result_response), "ex", 30)
-            return response_call(result_response, true)
+                redis.set(redis_token, JSON.stringify(result_response), "ex", 30)
+                return response_call(result_response, true)
+            }, null, profile.name)
         }
     })
 }
