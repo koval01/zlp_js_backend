@@ -1,5 +1,6 @@
 const {sql_request} = require("../mysql")
 const {getTextureID} = require("../../helpers/skins")
+const {token} = require("mysql/lib/protocol/Auth");
 
 function get_player_auth(callback, telegram_id) {
     let check_telegram = (callback) => {
@@ -36,12 +37,23 @@ function get_player_auth(callback, telegram_id) {
 
     const get_private_server = (callback, nickname) => {
         sql_request(function (data) {
-                console.log(`Get player skin by lowercase nickname : ${JSON.stringify(data)}`)
+                console.log(`Get player from Vanilla whitelist : ${JSON.stringify(data)}`)
                 callback(data)
             },
             "WhitelistVanilla",
             "SELECT * FROM `whitelist` WHERE `user` = ?", // OLD: "SELECT * FROM `whitelist` WHERE `user` = ? and `UUID` = ?"
             [nickname]
+        )
+    }
+
+    const get_player_tokens = (callback, nickname, uuid) => {
+        sql_request(function (data) {
+                console.log(`Get player tokens : ${JSON.stringify(data)}`)
+                callback(data)
+            },
+            "xconomy",
+            "SELECT UID, player, balance FROM `xconomy` WHERE `player` = ? AND `UID` = ?",
+            [nickname, uuid]
         )
     }
 
@@ -61,7 +73,10 @@ function get_player_auth(callback, telegram_id) {
                     delete player["PREMIUMUUID"]
                     get_private_server(function (private_) {
                         player["PRIVATE_SERVER"] = !!(private_ && private_.length)
-                        callback(player)
+                        get_player_tokens(function (tokens_balance) {
+                            player["BALANCE"] = tokens_balance ? parseInt(tokens_balance[0]["balance"]) : 0
+                            callback(player)
+                        }, player["NICKNAME"], player["UUID"])
                     }, player["NICKNAME"])
                 }, lower_nick)
             }, lower_nick)
