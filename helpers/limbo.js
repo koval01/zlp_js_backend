@@ -12,11 +12,8 @@ const generateSiphash = (player_username) => {
     const timestamp_bytes = struct.pack(">Q", issue_timestamp)
 
     const tokenhash = siphash24(username_bytes+timestamp_bytes, key)
-    console.log(tokenhash)
-    console.log(typeof tokenhash)
-    const hash_bytes = struct.pack(">Q", tokenhash)
 
-    return utf8_to_b64(timestamp_bytes.join(hash_bytes))
+    return utf8_to_b64(timestamp_bytes.join(tokenhash))
 }
 
 module.exports = {
