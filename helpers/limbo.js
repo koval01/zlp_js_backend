@@ -4,7 +4,14 @@ const crypto = require('crypto')
 const {utf8_to_b64} = require('./methods')
 
 const ab2str = (buf) => {
-    return String.fromCharCode.apply(null, new Uint16Array(buf))
+    let result = ""
+    if (buf) {
+        let bytes = new Uint8Array(buf)
+        for (let i = 0; i < bytes.byteLength; i++) {
+            result = result + String.fromCharCode(bytes[i])
+        }
+    }
+    return result
 }
 
 const getUUID = (rawUUID) => {
