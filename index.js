@@ -34,7 +34,7 @@ app.use(express.urlencoded())
 app.use(compression())
 app.use(cors())
 
-app.use(log.logRequest)
+// app.use(log.logRequest)
 app.use(log.logError)
 
 app.use(apiLimiter)
