@@ -1,21 +1,8 @@
 const siphash24 = require('siphash24')
 const struct = require('python-struct')
 const crypto = require('crypto')
+const ab2str = require('arraybuffer-to-string')
 const {utf8_to_b64} = require('./methods')
-
-const ab2str = (buf) => {
-    let result = ""
-    if (buf) {
-        // let bytes = new Uint8Array(buf)
-        let bytes = buf
-        console.log(bytes)
-        for (let i = 0; i < bytes.byteLength; i++) {
-            console.log(bytes[i])
-            result = result + String.fromCharCode(bytes[i])
-        }
-    }
-    return result
-}
 
 const getUUID = (rawUUID) => {
     return [...rawUUID.matchAll(
@@ -33,7 +20,7 @@ const generateSiphash = (player_username) => {
 
     const tokenhash = siphash24(username_bytes+timestamp_bytes, key)
 
-    return utf8_to_b64(ab2str(timestamp_bytes.join(tokenhash)))
+    return utf8_to_b64(ab2str(timestamp_bytes.join(tokenhash), 'base64'))
 }
 
 module.exports = {
