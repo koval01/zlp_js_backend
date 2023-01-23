@@ -7,7 +7,9 @@ const ab2str = (buf) => {
     let result = ""
     if (buf) {
         let bytes = new Uint8Array(buf)
+        console.log(bytes)
         for (let i = 0; i < bytes.byteLength; i++) {
+            console.log(bytes[i])
             result = result + String.fromCharCode(bytes[i])
         }
     }
