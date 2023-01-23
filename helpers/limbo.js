@@ -18,10 +18,7 @@ const generateSiphash = (player_username) => {
 
     const tokenhash = siphash24(username_bytes+timestamp_bytes, key)
 
-    console.log(tokenhash)
-    console.log(timestamp_bytes)
-    console.log(timestamp_bytes.join(tokenhash))
-    return Buffer.from(timestamp_bytes.join(tokenhash)).toString("base64")
+    return Buffer.concat([timestamp_bytes, tokenhash]).toString("base64")
 }
 
 module.exports = {
