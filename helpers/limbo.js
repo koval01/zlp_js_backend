@@ -6,7 +6,8 @@ const {utf8_to_b64} = require('./methods')
 const ab2str = (buf) => {
     let result = ""
     if (buf) {
-        let bytes = new Uint8Array(buf)
+        // let bytes = new Uint8Array(buf)
+        let bytes = buf
         console.log(bytes)
         for (let i = 0; i < bytes.byteLength; i++) {
             console.log(bytes[i])
