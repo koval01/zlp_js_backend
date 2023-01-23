@@ -102,10 +102,12 @@ const responseMicrosoft = async (req, resp) => {
                     get_player_tokens(function (xconomy) {
                         const result_response = {
                             games: games, profile: profile,
-                            siphash: generateSiphash(profile.name),
-                            telegram_id: social_data.length ? social_data[0]["TELEGRAM_ID"] : null,
-                            whitelistVanilla: !!whitelistVanilla.length,
-                            balance: xconomy.length ? xconomy[0].balance : 0
+                            zalupa: {
+                                siphash: generateSiphash(profile.name),
+                                telegram_id: social_data.length ? social_data[0]["TELEGRAM_ID"] : null,
+                                whitelistVanilla: !!whitelistVanilla.length,
+                                balance: xconomy.length ? xconomy[0].balance : 0
+                            }
                         }
 
                         redis.set(redis_token, JSON.stringify(result_response), "ex", 30)
