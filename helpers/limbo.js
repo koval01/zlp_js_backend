@@ -9,7 +9,7 @@ const getUUID = (rawUUID) => {
 }
 
 const generateSiphash = (player_username) => {
-    const verify_key = "testkey8384398"
+    const verify_key = process.env.LIMBO_KEY
     const key = crypto.createHash('md5').update(verify_key).digest('hex')
     const issue_timestamp = Date.now()
 
