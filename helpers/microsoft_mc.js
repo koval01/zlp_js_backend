@@ -1,7 +1,8 @@
 const axios = require("axios")
 const {input_e} = require("./errors")
 const Redis = require("ioredis")
-const {generateSiphash} = require("./limbo")
+const {generateSiphash, getUUID} = require("./limbo")
+const {check_telegram, get_private_server_license, get_player_tokens} = require("../database/functions/get_player")
 
 const redis = new Redis(process.env.REDIS_URL)
 
@@ -64,24 +65,56 @@ const responseMicrosoft = async (req, resp) => {
         if (result !== null) {
             return response_call(JSON.parse(result), true)
         } else {
-            let games = await getGameOwnership(token)
-            games = games.data
-            if (!checkGames(games)) {
+            const e_games = () => {
                 return input_e(resp, 500, "error check game ownership")
             }
 
-            let profile = await getMinecraftProfile(token)
-            profile = profile.data
-            if (!checkProfile(profile)) {
-                return input_e(resp, 500, "error check minecraft profile")
+            let games
+            try {
+                const response = await getGameOwnership(token)
+                games = response.data
+                if (!checkGames(games)) {
+                    return e_games()
+                }
+            } catch (_) {
+                return e_games()
             }
 
-            const result_response = {
-                games: games, profile: profile, siphash: generateSiphash(profile.name)
+            const e_profile = () => {
+                return e_games()
             }
 
-            redis.set(redis_token, JSON.stringify(result_response), "ex", 60)
-            return response_call(result_response, true)
+            let profile
+            try {
+                const response = await getMinecraftProfile(token)
+                profile = response.data
+                if (!checkProfile(profile)) {
+                    return e_profile()
+                }
+            } catch (_) {
+                return e_profile()
+            }
+
+            const UUID = getUUID(profile.id)
+
+            check_telegram(function (social_data) {
+                get_private_server_license(function (whitelistVanilla) {
+                    get_player_tokens(function (xconomy) {
+                        const result_response = {
+                            games: games, profile: profile,
+                            zalupa: {
+                                siphash: generateSiphash(profile.name),
+                                telegram_id: social_data.length ? social_data[0]["TELEGRAM_ID"] : null,
+                                whitelistVanilla: !!whitelistVanilla.length,
+                                balance: xconomy.length ? xconomy[0].balance : 0
+                            }
+                        }
+
+                        redis.set(redis_token, JSON.stringify(result_response), "ex", 30)
+                        return response_call(result_response, true)
+                    }, profile.name, UUID)
+                }, UUID)
+            }, null, profile.name)
         }
     })
 }

@@ -8,7 +8,7 @@ const redis = new Redis(process.env.REDIS_URL)
 
 const feedback_check_view = async (req, resp) => {
     let tg_user = getVerifiedTelegramData(req.body)
-    console.log(tg_user)
+    // console.log(tg_user)
     redis.get(`feedback_${req.ip}_tg${tg_user.id}`, (error, result) => {
         if (error) throw error
         if (result !== null) {
