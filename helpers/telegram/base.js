@@ -79,7 +79,8 @@ const tg_check_view = async (req, res) => {
             }
             return response_call(data, false)
         }, authData.id)
-    } catch (_) {
+    } catch (e) {
+        console.error(e)
         return input_e(res, 503, "database error")
     }
 }

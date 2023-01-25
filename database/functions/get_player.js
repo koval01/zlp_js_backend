@@ -72,7 +72,7 @@ const get_player_auth = (callback, telegram_id) => {
         if (data.length) {
             const lower_nick = data[0]["LOWERCASENICKNAME"]
             get_player(function (data_0) {
-                if (!data_0.length) {
+                if (!data || !data_0.length) {
                     callback(null)
                     return;
                 }
