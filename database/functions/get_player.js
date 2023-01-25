@@ -9,7 +9,7 @@ const check_telegram = (callback, telegram_id, nickname=null) => {
         },
         "limboauth",
         "SELECT LOWERCASENICKNAME, TELEGRAM_ID FROM `SOCIAL` WHERE `TELEGRAM_ID` = ? OR `LOWERCASENICKNAME` = ?",
-        [telegram_id, nickname.toLowerCase()]
+        [telegram_id, nickname ? nickname.toLowerCase() : null]
     )
 }
 const get_player = (callback, lower_player) => {
