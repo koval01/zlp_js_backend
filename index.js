@@ -91,7 +91,7 @@ app.post('/donate/payment/create', rateLimit({
 
 app.post('/crypto', rateLimit({
     windowMs: 60 * 1000,
-    max: 120,
+    max: 160,
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, catchAsync(crypto_view_))
@@ -105,7 +105,7 @@ app.post('/telegram/auth/check', rateLimit({
 
 app.post('/launcher/microsoft/auth/check', rateLimit({
     windowMs: 60 * 1000,
-    max: 8,
+    max: 10,
     standardHeaders: true,
     message: rateLimitMessage
 }), catchAsync(responseMicrosoft))
@@ -128,7 +128,7 @@ app.get('/profile/head', rateLimit({
 
 app.post('/server', rateLimit({
     windowMs: 60 * 1000,
-    max: 90,
+    max: 160,
     standardHeaders: true,
     message: rateLimitMessage
 }), crypto_check, catchAsync(mc_status_view))
