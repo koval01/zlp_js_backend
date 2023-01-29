@@ -83,12 +83,18 @@ const get_player_auth = (callback, telegram_id) => {
                     } catch (_) {
                         player["SKIN"] = "31f477eb1a7beee631c2ca64d06f8f68fa93a3386d04452ab27f43acdf1b60cb" // Steve
                     }
-                    player["PREMIUM"] = !!player["PREMIUMUUID"].length
+                    player["PREMIUM"] = (typeof player["PREMIUMUUID"] !== 'undefined' && player["PREMIUMUUID"].length)
                     delete player["PREMIUMUUID"]
                     get_private_server(function (private_) {
-                        player["PRIVATE_SERVER"] = !!(private_ && private_.length)
+                        player["PRIVATE_SERVER"] = !!(
+                            typeof private_ !== 'undefined' && private_.length
+                        )
                         get_player_tokens(function (tokens_balance) {
-                            player["BALANCE"] = tokens_balance ? parseInt(tokens_balance[0]["balance"]) : 0
+                            try {
+                                player["BALANCE"] = tokens_balance ? parseInt(tokens_balance[0]["balance"]) : 0
+                            } catch (_) {
+                                player["BALANCE"] = 0
+                            }
                             callback(player)
                         }, player["NICKNAME"], player["UUID"])
                     }, player["NICKNAME"])
