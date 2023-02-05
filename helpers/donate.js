@@ -33,6 +33,11 @@ const payment_create = async (req, resp) => {
                 return input_e(resp, 400, "customer is not valid")
             }
 
+            const pay_methods = 2
+            if (json_body.pay_method < 1 || json_body.pay_method > pay_methods) {
+                return input_e(resp, 400, "payment method error")
+            }
+
             let products_stringified = JSON.stringify(json_body.products)
             if (Object.keys(json_body.products).length !== 1) {
                 return input_e(resp, 400, "products error")

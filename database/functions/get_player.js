@@ -67,6 +67,17 @@ const get_player_tokens = (callback, nickname, uuid) => {
     )
 }
 
+const take_player_tokens = (callback, nickname, uuid, transaction_value) => {
+    sql_request(function (data) {
+            console.log(`Get player tokens : ${JSON.stringify(data)}`)
+            callback(!!data.length)
+        },
+        "xconomy",
+        "UPDATE `xconomy` SET `balance` = `balance` - ? WHERE `balance` >= ? AND `player` = ? AND `UID` = ?",
+        [transaction_value, transaction_value, nickname, uuid]
+    )
+}
+
 const get_player_auth = (callback, telegram_id) => {
     check_telegram(function (data) {
         if (data.length) {
@@ -111,5 +122,6 @@ module.exports = {
     get_player_auth,
     check_telegram,
     get_private_server_license,
-    get_player_tokens
+    get_player_tokens,
+    take_player_tokens
 }
