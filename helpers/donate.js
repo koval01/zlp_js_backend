@@ -388,6 +388,9 @@ const coupon_get = async (req, resp) => {
     if (json_body.code.length > 35) {
         return input_e(resp, 400, "coupon is long")
     }
+    if (json_body.pay_method === 2) {
+        return input_e(resp, 400, "coupon not available for Zalupa Pay")
+    }
     try {
         function response_call(data, cache = false) {
             return resp.send({
