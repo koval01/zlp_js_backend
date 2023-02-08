@@ -5,7 +5,7 @@ const {private_chat_data} = require("../database/functions/private_chat")
 const {createInviteLinkPrivateChat, getVerifiedTelegramData} = require("./telegram/base")
 const request = require("request")
 const Redis = require("ioredis")
-const {get_player_auth, get_private_server_license} = require("../database/functions/get_player");
+const {get_player_auth, get_private_server_license, add_private_server_license} = require("../database/functions/get_player");
 
 const redis = new Redis(process.env.REDIS_URL)
 
@@ -78,10 +78,18 @@ const payment_create = async (req, resp) => {
                             if (cond_) {
                                 return input_e(resp, 400, "balance is low")
                             } else {
-                                return resp.send({
-                                    success: true,
-                                    payment: {zalupa_pay: true}
-                                })
+                                add_private_server_license(function (add_result) {
+                                    if (add_result) {
+                                        return resp.send({
+                                            success: true,
+                                            payment: {
+                                                zalupa_pay: true,
+                                                callback: typeof add_result
+                                            }
+                                        })
+                                    }
+                                    return input_e(resp, 400, "database error")
+                                }, player_data["UUID"], player_data["NICKNAME"])
                             }
                         }
                     }
