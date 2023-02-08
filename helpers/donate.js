@@ -112,7 +112,7 @@ const payment_create = async (req, resp) => {
                 return input_e(resp, 400, "payment method error")
             }
             if (json_body.pay_method === 2) {
-                return zalupa_pay_processing(data["NICKNAME"], data["UUID"])
+                return zalupa_pay_processing(data)
             }
             let url = url_builder_(
                 'https://easydonate.ru/api/v3/shop/payment/create',
