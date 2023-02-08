@@ -61,7 +61,7 @@ const payment_create = async (req, resp) => {
 
         const zalupa_pay_processing = (player_data) => {
             get_private_server_license(function(whitelist_info) {
-                if (whitelist_info) {
+                if (whitelist_info.length) {
                     return input_e(resp, 400, "player already in list")
                 }
                 if (player_data["BALANCE"]) {
