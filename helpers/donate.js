@@ -79,7 +79,7 @@ const payment_create = async (req, resp) => {
                                 return input_e(resp, 400, "balance is low")
                             } else {
                                 take_player_tokens(function (tokens_take_result) {
-                                    if (tokens_take_result) {
+                                    if (tokens_take_result.serverStatus === 2) {
                                         add_private_server_license(function (add_result) {
                                             if (add_result) {
                                                 return resp.send({
@@ -87,7 +87,7 @@ const payment_create = async (req, resp) => {
                                                     payment: {
                                                         zalupa_pay: true,
                                                         callbacks: {
-                                                            tokens_take_result: tokens_take_result.message,
+                                                            tokens_take_result: tokens_take_result,
                                                             add_result: add_result
                                                         }
                                                     }
