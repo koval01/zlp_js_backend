@@ -93,7 +93,6 @@ const payment_create = async (req, resp) => {
                             }
                         }
                     }
-                    return input_e(resp, 400, "error product selector")
                 })
             }, player_data["UUID"])
         }
