@@ -64,7 +64,7 @@ const payment_create = async (req, resp) => {
                 if (whitelist_info.length) {
                     return input_e(resp, 400, "player already in list")
                 }
-                if (player_data["BALANCE"]) {
+                if (!player_data["BALANCE"]) {
                     return input_e(resp, 400, "balance error")
                 }
 
