@@ -84,7 +84,7 @@ const payment_create = async (req, resp) => {
                                             success: true,
                                             payment: {
                                                 zalupa_pay: true,
-                                                callback: typeof add_result
+                                                callback: add_result
                                             }
                                         })
                                     }
