@@ -70,7 +70,7 @@ const payment_create = async (req, resp) => {
 
                 donate_services_internal(function (products) {
                     for (let i = 0; i < products.length; i++) {
-                        if (products[i].name.toLowerCase().includes("проходка")) {
+                        if (/проходка/.test(products[i].name.toLowerCase())) {
                             const cond_ = products[i].price > player_data["BALANCE"]
                             console.log(
                                 `PRICE: ${products[i].price} > BALANCE: ${player_data["BALANCE"]} = ${cond_}`
