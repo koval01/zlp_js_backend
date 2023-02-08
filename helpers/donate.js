@@ -87,7 +87,7 @@ const payment_create = async (req, resp) => {
                                                     payment: {
                                                         zalupa_pay: true,
                                                         callbacks: {
-                                                            tokens_take_status: tokens_take_status,
+                                                            tokens_take: tokens_take_status,
                                                             add_result: add_result
                                                         }
                                                     }

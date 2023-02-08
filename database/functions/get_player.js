@@ -59,7 +59,7 @@ const get_private_server_license = (callback, uuid) => {
 const add_private_server_license = (callback, uuid, nickname) => {
     sql_request(function (data) {
             console.log(`Add player to Vanilla whitelist : ${JSON.stringify(data)}`)
-            callback(data)
+            callback(data.serverStatus === 2)
         },
         "WhitelistVanilla",
         "INSERT INTO whitelist (`user`, `UUID`) VALUES (?, ?)",
