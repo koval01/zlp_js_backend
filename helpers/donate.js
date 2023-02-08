@@ -5,9 +5,41 @@ const {private_chat_data} = require("../database/functions/private_chat")
 const {createInviteLinkPrivateChat, getVerifiedTelegramData} = require("./telegram/base")
 const request = require("request")
 const Redis = require("ioredis")
-const {get_player_auth} = require("../database/functions/get_player");
+const {get_player_auth, get_private_server_license} = require("../database/functions/get_player");
 
 const redis = new Redis(process.env.REDIS_URL)
+
+const donate_services_internal = (callback) => {
+    redis.get("services_internal_get", (error, result) => {
+        if (error) throw error
+        if (result !== null) {
+            callback(JSON.parse(result))
+        } else {
+            request(
+                {
+                    uri: `https://easydonate.ru/api/v3/shop/products`,
+                    method: 'GET',
+                    headers: {
+                        'Shop-Key': process.env.DONATE_API_KEY
+                    }
+                },
+                (error, response, body) => {
+                    if (!error && response.statusCode === 200) {
+                        body = JSON.parse(body)
+                        if (body.success) {
+                            redis.set(
+                                "services_internal_get",
+                                JSON.stringify(body.response), "ex", 900
+                            )
+                            callback(body.response)
+                        }
+                    }
+                    callback({})
+                }
+            )
+        }
+    })
+}
 
 const payment_create = async (req, resp) => {
     let json_body = req.body
@@ -25,17 +57,42 @@ const payment_create = async (req, resp) => {
     console.log(`paymentCreate: server_id=${server_id}`)
     try {
         const authData = getVerifiedTelegramData(json_body)
+        const pay_methods = 2
+
+        const zalupa_pay_processing = (player_data) => {
+            get_private_server_license(function(whitelist_info) {
+                if (whitelist_info) {
+                    return input_e(resp, 400, "player already in list")
+                }
+                if (player_data["BALANCE"]) {
+                    return input_e(resp, 400, "balance error")
+                }
+
+                donate_services_internal(function (products) {
+                    for (let i = 0; i < products.length; i++) {
+                        if (products[i].name.toLowerCase().includes("проходка")) {
+                            if (products[i].price > player_data["BALANCE"]) {
+                                return input_e(resp, 400, "balance is low")
+                            } else {
+                                return resp.send({
+                                    success: true,
+                                    payment: {zalupa_pay: true}
+                                })
+                            }
+                        } else {
+                            return input_e(resp, 400, "error product selector")
+                        }
+                    }
+                })
+            }, player_data["UUID"])
+        }
+
         get_player_auth(function (data) {
             if (!data) {
                 return input_e(resp, 400, "telegram auth error")
             }
             if (data["NICKNAME"] !== json_body.customer) {
                 return input_e(resp, 400, "customer is not valid")
-            }
-
-            const pay_methods = 2
-            if (json_body.pay_method < 1 || json_body.pay_method > pay_methods) {
-                return input_e(resp, 400, "payment method error")
             }
 
             let products_stringified = JSON.stringify(json_body.products)
@@ -47,6 +104,12 @@ const payment_create = async (req, resp) => {
             }
             if (json_body.email.length < 3 && json_body.email.length > 50) {
                 return input_e(resp, 400, "email field error")
+            }
+            if (json_body.pay_method < 1 || json_body.pay_method > pay_methods) {
+                return input_e(resp, 400, "payment method error")
+            }
+            if (json_body.pay_method === 2) {
+                return zalupa_pay_processing(data["NICKNAME"], data["UUID"])
             }
             let url = url_builder_(
                 'https://easydonate.ru/api/v3/shop/payment/create',
@@ -76,7 +139,8 @@ const payment_create = async (req, resp) => {
                                 success: true,
                                 payment: {
                                     url: resp_api.url,
-                                    bill_id: resp_api.payment.id
+                                    bill_id: resp_api.payment.id,
+                                    zalupa_pay: false
                                 }
                             })
                         }
