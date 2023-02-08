@@ -79,10 +79,9 @@ const payment_create = async (req, resp) => {
                                     payment: {zalupa_pay: true}
                                 })
                             }
-                        } else {
-                            return input_e(resp, 400, "error product selector")
                         }
                     }
+                    return input_e(resp, 400, "error product selector")
                 })
             }, player_data["UUID"])
         }
