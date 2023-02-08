@@ -73,7 +73,7 @@ const payment_create = async (req, resp) => {
                         if (/проходка/.test(products[i].name.toLowerCase())) {
                             const cond_ = products[i].price > player_data["BALANCE"]
                             console.log(
-                                `PRICE: ${products[i].price} > BALANCE: ${player_data["BALANCE"]} = ${cond_}`
+                                `${player_data["NICKNAME"]} / PRICE: ${products[i].price} > BALANCE: ${player_data["BALANCE"]} = ${cond_}`
                             )
                             if (cond_) {
                                 return input_e(resp, 400, "balance is low")
