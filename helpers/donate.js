@@ -71,7 +71,11 @@ const payment_create = async (req, resp) => {
                 donate_services_internal(function (products) {
                     for (let i = 0; i < products.length; i++) {
                         if (products[i].name.toLowerCase().includes("проходка")) {
-                            if (products[i].price > player_data["BALANCE"]) {
+                            const cond_ = products[i].price > player_data["BALANCE"]
+                            console.log(
+                                `PRICE: ${products[i].price} > BALANCE: ${player_data["BALANCE"]} = ${cond_}`
+                            )
+                            if (cond_) {
                                 return input_e(resp, 400, "balance is low")
                             } else {
                                 return resp.send({
