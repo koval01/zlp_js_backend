@@ -81,7 +81,7 @@ const get_player_tokens = (callback, nickname, uuid) => {
 const take_player_tokens = (callback, nickname, uuid, transaction_value) => {
     sql_request(function (data) {
             console.log(`Take player tokens : ${JSON.stringify(data)}`)
-            callback(!!data.length)
+            callback(data.serverStatus === 2)
         },
         "xconomy",
         "UPDATE `xconomy` SET `balance` = `balance` - ? WHERE `balance` >= ? AND `player` = ? AND `UID` = ?",
