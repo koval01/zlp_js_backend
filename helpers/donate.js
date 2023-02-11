@@ -107,8 +107,9 @@ const payment_create = async (req, resp) => {
                                                     "Purchase of the \"Prokhodka\" product",
                                                     products[i].price
                                                 )
+                                            } else {
+                                                return input_e(resp, 500, "database error")
                                             }
-                                            return input_e(resp, 500, "database error")
                                         }, player_data["UUID"], player_data["NICKNAME"])
                                     } else {
                                         return input_e(resp, 500, "database error")
