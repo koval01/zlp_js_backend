@@ -85,31 +85,28 @@ const payment_create = async (req, resp) => {
                                 take_player_tokens(function (tokens_take_status) {
                                     if (tokens_take_status) {
                                         add_private_server_license(function (add_result) {
-                                            if (add_result) {
-                                                add_token_transaction(function (transaction_id) {
-                                                    if (transaction_id) {
-                                                        return resp.send({
-                                                            success: true,
-                                                            payment: {
-                                                                zalupa_pay: true,
-                                                                callbacks: {
-                                                                    tokens_take: tokens_take_status,
-                                                                    add_result: add_result,
-                                                                    transaction_id: transaction_id
-                                                                }
+                                            console.log(add_result)
+                                            add_token_transaction(function (transaction_id) {
+                                                if (transaction_id) {
+                                                    return resp.send({
+                                                        success: true,
+                                                        payment: {
+                                                            zalupa_pay: true,
+                                                            callbacks: {
+                                                                tokens_take: tokens_take_status,
+                                                                add_result: add_result,
+                                                                transaction_id: transaction_id
                                                             }
-                                                        })
-                                                    } else {
-                                                        return input_e(resp, 500, "transaction_id error")
-                                                    }
-                                                },
-                                                    player_data["UUID"], player_data["NICKNAME"],
-                                                    "Purchase of the \"Prokhodka\" product",
-                                                    products[i].price
-                                                )
-                                            } else {
-                                                return input_e(resp, 500, "database error")
-                                            }
+                                                        }
+                                                    })
+                                                } else {
+                                                    return input_e(resp, 500, "transaction_id error")
+                                                }
+                                            },
+                                                player_data["UUID"], player_data["NICKNAME"],
+                                                "Purchase of the \"Prokhodka\" product",
+                                                products[i].price
+                                            )
                                         }, player_data["UUID"], player_data["NICKNAME"])
                                     } else {
                                         return input_e(resp, 500, "database error")
