@@ -21,7 +21,10 @@ const sendReceiptTelegram = async (tg_user, tnum, value, product) => {
                 chat_id: tg_user, text: `Спасибо за покупку на Zalupa.Online. Вы приобрели "${
                     product}" за ${value} ${
                     getNoun(value, "токен", "токена", "токенов")
-                }\n\nID: <code>${tnum}</code>`,
+                }\n\nID: <code>${tnum}</code>\n\n<i>${
+                    "(Вы можете использовать это сообщение чтобы подтвердить оплату. "+
+                    "Для этого переотправьте это сообщение администратору не скрывая источник.)"
+                }</i>`,
                 parse_mode: "HTML"
             }
         }
