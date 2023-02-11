@@ -1,6 +1,7 @@
 const {sql_request} = require("../mysql")
 const {getTextureID} = require("../../helpers/skins")
 const {token} = require("mysql/lib/protocol/Auth");
+const {generateHexID} = require("../../helpers/methods")
 
 const check_telegram = (callback, telegram_id, nickname=null) => {
     sql_request(function (data) {
@@ -64,6 +65,18 @@ const add_private_server_license = (callback, uuid, nickname) => {
         "WhitelistVanilla",
         "INSERT INTO whitelist (`user`, `UUID`) VALUES (?, ?)",
         [nickname, uuid]
+    )
+}
+
+const add_token_transaction = (callback, uuid, nickname, operation, value) => {
+    const hex_ = generateHexID()
+    sql_request(function (data) {
+            console.log(`Add tokens transaction : ${JSON.stringify(data)}`)
+            callback(data.serverStatus === 2 ? hex_ : null)
+        },
+        "ZalupaPay",
+        "INSERT INTO pay_history (`nickname`, `uuid`, `tnum`, `item`, `value`) VALUES (?, ?, ?, ?, ?)",
+        [nickname, uuid, hex_, operation, value]
     )
 }
 
@@ -135,5 +148,6 @@ module.exports = {
     get_private_server_license,
     get_player_tokens,
     take_player_tokens,
-    add_private_server_license
+    add_private_server_license,
+    add_token_transaction
 }

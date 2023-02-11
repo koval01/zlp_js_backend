@@ -5,7 +5,11 @@ const {private_chat_data} = require("../database/functions/private_chat")
 const {createInviteLinkPrivateChat, getVerifiedTelegramData} = require("./telegram/base")
 const request = require("request")
 const Redis = require("ioredis")
-const {get_player_auth, get_private_server_license, add_private_server_license, take_player_tokens} = require("../database/functions/get_player");
+const {
+    get_player_auth, get_private_server_license,
+    add_private_server_license, take_player_tokens,
+    add_token_transaction
+} = require("../database/functions/get_player");
 
 const redis = new Redis(process.env.REDIS_URL)
 
@@ -82,21 +86,32 @@ const payment_create = async (req, resp) => {
                                     if (tokens_take_status) {
                                         add_private_server_license(function (add_result) {
                                             if (add_result) {
-                                                return resp.send({
-                                                    success: true,
-                                                    payment: {
-                                                        zalupa_pay: true,
-                                                        callbacks: {
-                                                            tokens_take: tokens_take_status,
-                                                            add_result: add_result
-                                                        }
+                                                add_token_transaction(function (transaction_id) {
+                                                    if (transaction_id) {
+                                                        return resp.send({
+                                                            success: true,
+                                                            payment: {
+                                                                zalupa_pay: true,
+                                                                callbacks: {
+                                                                    tokens_take: tokens_take_status,
+                                                                    add_result: add_result,
+                                                                    transaction_id: transaction_id
+                                                                }
+                                                            }
+                                                        })
+                                                    } else {
+                                                        return input_e(resp, 500, "transaction_id error")
                                                     }
-                                                })
+                                                },
+                                                    player_data["UUID"], player_data["NICKNAME"],
+                                                    "Purchase of the \"Prokhodka\" product",
+                                                    products[i].price
+                                                )
                                             }
-                                            return input_e(resp, 400, "database error")
+                                            return input_e(resp, 500, "database error")
                                         }, player_data["UUID"], player_data["NICKNAME"])
                                     } else {
-                                        return input_e(resp, 400, "database error")
+                                        return input_e(resp, 500, "database error")
                                     }
                                 }, player_data["NICKNAME"], player_data["UUID"], products[i].price)
                             }
@@ -127,6 +142,17 @@ const payment_create = async (req, resp) => {
             if (json_body.pay_method < 1 || json_body.pay_method > pay_methods) {
                 return input_e(resp, 400, "payment method error")
             }
+
+            donate_services_internal(function (products) {
+                let lock_whitelist = true
+                let lock_zalupa_pay = false
+                for (let i = 0; i < products.length; i++) {
+                    if (/проходка/.test(products[i].name.toLowerCase())) {
+                        lock_whitelist = false
+                    }
+                }
+            }, data["UUID"])
+
             if (json_body.pay_method === 2) {
                 return zalupa_pay_processing(data)
             }

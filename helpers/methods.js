@@ -63,6 +63,14 @@ const getNoun = (number, one = "объект", two = "объекта", five = "�
     return five
 }
 
+const generateHexID = () => {
+    return parseInt(`${
+        rand_int(99999999,10000000)
+    }${Date.now()}${
+        rand_int(99999999,10000000)
+    }`).toString(16).slice(0,16)
+}
+
 const rand_int = (max=4, min=1) => {
     return Math.floor(Math.random() * max) + min
 }
@@ -115,5 +123,6 @@ module.exports = {
     memGetValue,
     memRemoveKey,
     utf8_to_b64,
-    b64_to_utf8
+    b64_to_utf8,
+    generateHexID
 }
