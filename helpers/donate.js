@@ -79,6 +79,7 @@ const payment_create = async (req, resp) => {
                             console.log(
                                 `${player_data["NICKNAME"]} / PRICE: ${products[i].price} > BALANCE: ${player_data["BALANCE"]} = ${cond_}`
                             )
+                            console.log(products[i])
                             if (cond_) {
                                 return input_e(resp, 400, "balance is low")
                             } else {
