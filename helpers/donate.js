@@ -5,9 +5,45 @@ const {private_chat_data} = require("../database/functions/private_chat")
 const {createInviteLinkPrivateChat, getVerifiedTelegramData} = require("./telegram/base")
 const request = require("request")
 const Redis = require("ioredis")
-const {get_player_auth} = require("../database/functions/get_player");
+const {
+    get_player_auth, get_private_server_license,
+    add_private_server_license, take_player_tokens,
+    add_token_transaction
+} = require("../database/functions/get_player");
 
 const redis = new Redis(process.env.REDIS_URL)
+
+const donate_services_internal = (callback) => {
+    redis.get("services_internal_get", (error, result) => {
+        if (error) throw error
+        if (result !== null) {
+            callback(JSON.parse(result))
+        } else {
+            request(
+                {
+                    uri: `https://easydonate.ru/api/v3/shop/products`,
+                    method: 'GET',
+                    headers: {
+                        'Shop-Key': process.env.DONATE_API_KEY
+                    }
+                },
+                (error, response, body) => {
+                    if (!error && response.statusCode === 200) {
+                        body = JSON.parse(body)
+                        if (body.success) {
+                            redis.set(
+                                "services_internal_get",
+                                JSON.stringify(body.response), "ex", 900
+                            )
+                            callback(body.response)
+                        }
+                    }
+                    callback({})
+                }
+            )
+        }
+    })
+}
 
 const payment_create = async (req, resp) => {
     let json_body = req.body
@@ -25,6 +61,67 @@ const payment_create = async (req, resp) => {
     console.log(`paymentCreate: server_id=${server_id}`)
     try {
         const authData = getVerifiedTelegramData(json_body)
+        const pay_methods = 2
+
+        const zalupa_pay_processing = (player_data) => {
+            get_private_server_license(function(whitelist_info) {
+                if (whitelist_info.length) {
+                    return input_e(resp, 400, "player already in list")
+                }
+                if (!player_data["BALANCE"]) {
+                    return input_e(resp, 400, "balance error")
+                }
+
+                donate_services_internal(function (products) {
+                    for (let i = 0; i < products.length; i++) {
+                        if (/проходка/.test(products[i].name.toLowerCase())) {
+                            const cond_ = products[i].price > player_data["BALANCE"]
+                            console.log(
+                                `${player_data["NICKNAME"]} / PRICE: ${products[i].price} > BALANCE: ${player_data["BALANCE"]} = ${cond_}`
+                            )
+                            if (cond_) {
+                                return input_e(resp, 400, "balance is low")
+                            } else {
+                                take_player_tokens(function (tokens_take_status) {
+                                    if (tokens_take_status) {
+                                        add_private_server_license(function (add_result) {
+                                            if (add_result) {
+                                                add_token_transaction(function (transaction_id) {
+                                                    if (transaction_id) {
+                                                        return resp.send({
+                                                            success: true,
+                                                            payment: {
+                                                                zalupa_pay: true,
+                                                                callbacks: {
+                                                                    tokens_take: tokens_take_status,
+                                                                    add_result: add_result,
+                                                                    transaction_id: transaction_id
+                                                                }
+                                                            }
+                                                        })
+                                                    } else {
+                                                        return input_e(resp, 500, "transaction_id error")
+                                                    }
+                                                },
+                                                    player_data["UUID"], player_data["NICKNAME"],
+                                                    "Purchase of the \"Prokhodka\" product",
+                                                    products[i].price
+                                                )
+                                            } else {
+                                                return input_e(resp, 500, "database error")
+                                            }
+                                        }, player_data["UUID"], player_data["NICKNAME"])
+                                    } else {
+                                        return input_e(resp, 500, "database error")
+                                    }
+                                }, player_data["NICKNAME"], player_data["UUID"], products[i].price)
+                            }
+                        }
+                    }
+                })
+            }, player_data["UUID"])
+        }
+
         get_player_auth(function (data) {
             if (!data) {
                 return input_e(resp, 400, "telegram auth error")
@@ -42,6 +139,23 @@ const payment_create = async (req, resp) => {
             }
             if (json_body.email.length < 3 && json_body.email.length > 50) {
                 return input_e(resp, 400, "email field error")
+            }
+            if (json_body.pay_method < 1 || json_body.pay_method > pay_methods) {
+                return input_e(resp, 400, "payment method error")
+            }
+
+            donate_services_internal(function (products) {
+                let lock_whitelist = true
+                let lock_zalupa_pay = false
+                for (let i = 0; i < products.length; i++) {
+                    if (/проходка/.test(products[i].name.toLowerCase())) {
+                        lock_whitelist = false
+                    }
+                }
+            }, data["UUID"])
+
+            if (json_body.pay_method === 2) {
+                return zalupa_pay_processing(data)
             }
             let url = url_builder_(
                 'https://easydonate.ru/api/v3/shop/payment/create',
@@ -71,7 +185,8 @@ const payment_create = async (req, resp) => {
                                 success: true,
                                 payment: {
                                     url: resp_api.url,
-                                    bill_id: resp_api.payment.id
+                                    bill_id: resp_api.payment.id,
+                                    zalupa_pay: false
                                 }
                             })
                         }
@@ -382,6 +497,9 @@ const coupon_get = async (req, resp) => {
     let json_body = req.body
     if (json_body.code.length > 35) {
         return input_e(resp, 400, "coupon is long")
+    }
+    if (json_body.pay_method === 2) {
+        return input_e(resp, 400, "coupon not available for Zalupa Pay")
     }
     try {
         function response_call(data, cache = false) {

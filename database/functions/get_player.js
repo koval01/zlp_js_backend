@@ -1,6 +1,7 @@
 const {sql_request} = require("../mysql")
 const {getTextureID} = require("../../helpers/skins")
 const {token} = require("mysql/lib/protocol/Auth");
+const {generateHexID} = require("../../helpers/methods")
 
 const check_telegram = (callback, telegram_id, nickname=null) => {
     sql_request(function (data) {
@@ -56,6 +57,29 @@ const get_private_server_license = (callback, uuid) => {
     )
 }
 
+const add_private_server_license = (callback, uuid, nickname) => {
+    sql_request(function (data) {
+            console.log(`Add player to Vanilla whitelist : ${JSON.stringify(data)}`)
+            callback(data.serverStatus === 2)
+        },
+        "WhitelistVanilla",
+        "INSERT INTO whitelist (`user`, `UUID`) VALUES (?, ?)",
+        [nickname, uuid]
+    )
+}
+
+const add_token_transaction = (callback, uuid, nickname, operation, value) => {
+    const hex_ = generateHexID()
+    sql_request(function (data) {
+            console.log(`Add tokens transaction : ${JSON.stringify(data)}`)
+            callback(data.serverStatus === 2 ? hex_ : null)
+        },
+        "ZalupaPay",
+        "INSERT INTO pay_history (`nickname`, `uuid`, `tnum`, `item`, `value`) VALUES (?, ?, ?, ?, ?)",
+        [nickname, uuid, hex_, operation, value]
+    )
+}
+
 const get_player_tokens = (callback, nickname, uuid) => {
     sql_request(function (data) {
             console.log(`Get player tokens : ${JSON.stringify(data)}`)
@@ -64,6 +88,17 @@ const get_player_tokens = (callback, nickname, uuid) => {
         "xconomy",
         "SELECT UID, player, balance FROM `xconomy` WHERE `player` = ? AND `UID` = ?",
         [nickname, uuid]
+    )
+}
+
+const take_player_tokens = (callback, nickname, uuid, transaction_value) => {
+    sql_request(function (data) {
+            console.log(`Take player tokens : ${JSON.stringify(data)}`)
+            callback(data.serverStatus === 2)
+        },
+        "xconomy",
+        "UPDATE `xconomy` SET `balance` = `balance` - ? WHERE `balance` >= ? AND `player` = ? AND `UID` = ?",
+        [transaction_value, transaction_value, nickname, uuid]
     )
 }
 
@@ -111,5 +146,8 @@ module.exports = {
     get_player_auth,
     check_telegram,
     get_private_server_license,
-    get_player_tokens
+    get_player_tokens,
+    take_player_tokens,
+    add_private_server_license,
+    add_token_transaction
 }
