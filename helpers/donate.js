@@ -111,7 +111,7 @@ const payment_create = async (req, resp) => {
                                     } else {
                                         return input_e(resp, 500, "database error")
                                     }
-                                }, player_data["NICKNAME"], player_data["UUID"], products[i].price)
+                                }, player_data["UUID"], products[i].price)
                             }
                         }
                     }

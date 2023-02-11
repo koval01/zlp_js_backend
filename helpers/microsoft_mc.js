@@ -106,13 +106,13 @@ const responseMicrosoft = async (req, resp) => {
                                 siphash: generateSiphash(profile.name),
                                 telegram_id: social_data.length ? social_data[0]["TELEGRAM_ID"] : null,
                                 whitelistVanilla: !!whitelistVanilla.length,
-                                balance: xconomy.length ? xconomy[0].balance : 0
+                                balance: xconomy.length ? xconomy[0].points : 0
                             }
                         }
 
                         redis.set(redis_token, JSON.stringify(result_response), "ex", 30)
                         return response_call(result_response, true)
-                    }, profile.name, UUID)
+                    }, UUID)
                 }, UUID)
             }, null, profile.name)
         }

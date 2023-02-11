@@ -80,25 +80,25 @@ const add_token_transaction = (callback, uuid, nickname, operation, value) => {
     )
 }
 
-const get_player_tokens = (callback, nickname, uuid) => {
+const get_player_tokens = (callback, uuid) => {
     sql_request(function (data) {
             console.log(`Get player tokens : ${JSON.stringify(data)}`)
             callback(data)
         },
-        "xconomy",
-        "SELECT UID, player, balance FROM `xconomy` WHERE `player` = ? AND `UID` = ?",
-        [nickname, uuid]
+        "Tokens",
+        "SELECT uuid, points FROM `playerpoints_points` WHERE `uuid` = ?",
+        [uuid]
     )
 }
 
-const take_player_tokens = (callback, nickname, uuid, transaction_value) => {
+const take_player_tokens = (callback, uuid, transaction_value) => {
     sql_request(function (data) {
             console.log(`Take player tokens : ${JSON.stringify(data)}`)
             callback(data.serverStatus === 2)
         },
-        "xconomy",
-        "UPDATE `xconomy` SET `balance` = `balance` - ? WHERE `balance` >= ? AND `player` = ? AND `UID` = ?",
-        [transaction_value, transaction_value, nickname, uuid]
+        "Tokens",
+        "UPDATE `playerpoints_points` SET `points` = `points` - ? WHERE `points` >= ? AND `uuid` = ?",
+        [transaction_value, transaction_value, uuid]
     )
 }
 
@@ -127,12 +127,12 @@ const get_player_auth = (callback, telegram_id) => {
                         )
                         get_player_tokens(function (tokens_balance) {
                             try {
-                                player["BALANCE"] = tokens_balance ? parseInt(tokens_balance[0]["balance"]) : 0
+                                player["BALANCE"] = tokens_balance ? parseInt(tokens_balance[0]["points"]) : 0
                             } catch (_) {
                                 player["BALANCE"] = 0
                             }
                             callback(player)
-                        }, player["NICKNAME"], player["UUID"])
+                        }, player["UUID"])
                     }, player["NICKNAME"])
                 }, lower_nick)
             }, lower_nick)
