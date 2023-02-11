@@ -74,7 +74,7 @@ const payment_create = async (req, resp) => {
 
                 donate_services_internal(function (products) {
                     for (let i = 0; i < products.length; i++) {
-                        if (/проходка/.test(products[i].name.toLowerCase())) {
+                        if (products[i].name.toLowerCase() === "проходка") {
                             const cond_ = products[i].price > player_data["BALANCE"]
                             console.log(
                                 `${player_data["NICKNAME"]} / PRICE: ${products[i].price} > BALANCE: ${player_data["BALANCE"]} = ${cond_}`
