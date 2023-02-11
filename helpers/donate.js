@@ -1,9 +1,10 @@
 const {input_e, main_e} = require("./errors")
-const {url_builder_, censorEmail} = require("./methods")
+const {url_builder_, censorEmail, getNoun} = require("./methods")
 const {encryptor, decrypt} = require("./crypto")
 const {private_chat_data} = require("../database/functions/private_chat")
 const {createInviteLinkPrivateChat, getVerifiedTelegramData} = require("./telegram/base")
 const request = require("request")
+const axios = require("axios")
 const Redis = require("ioredis")
 const {
     get_player_auth, get_private_server_license,
@@ -12,6 +13,20 @@ const {
 } = require("../database/functions/get_player");
 
 const redis = new Redis(process.env.REDIS_URL)
+
+const sendReceiptTelegram = async (tg_user, tnum, value, product) => {
+    return await axios.get(
+        `https://api.telegram.org/bot${process.env.NOTIFY_BOT_TOKEN}/sendMessage`,
+        {params:{
+                chat_id: tg_user, text: `Спасибо за покупку на Zalupa.Online. Вы приобрели "${
+                    product}" за ${value} ${
+                    getNoun(value, "токен", "токена", "токенов")
+                }\n\nID: <code>${tnum}</code>`,
+                parse_mode: "HTML"
+            }
+        }
+    )
+}
 
 const donate_services_internal = (callback) => {
     redis.get("services_internal_get", (error, result) => {
@@ -89,6 +104,10 @@ const payment_create = async (req, resp) => {
                                             console.log(add_result)
                                             add_token_transaction(function (transaction_id) {
                                                 if (transaction_id) {
+                                                    sendReceiptTelegram(
+                                                        authData.id, transaction_id,
+                                                        products[i].price, products[i].name
+                                                    )
                                                     return resp.send({
                                                         success: true,
                                                         payment: {
