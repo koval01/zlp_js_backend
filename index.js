@@ -91,19 +91,19 @@ app.post('/donate/payment/create', rateLimit({
     message: rateLimitMessage
 }), re_check, catchAsync(payment_create))
 
-app.get('/zcoin/current', rateLimit({
-    windowMs: 60 * 1000,
-    max: 120,
-    standardHeaders: true,
-    message: rateLimitMessage
-}), catchAsync(getCurrentPrice))
-
-app.get('/zcoin/history', rateLimit({
-    windowMs: 60 * 1000,
-    max: 45,
-    standardHeaders: true,
-    message: rateLimitMessage
-}), catchAsync(getHistoryPrice))
+// app.get('/zcoin/current', rateLimit({
+//     windowMs: 60 * 1000,
+//     max: 120,
+//     standardHeaders: true,
+//     message: rateLimitMessage
+// }), catchAsync(getCurrentPrice))
+//
+// app.get('/zcoin/history', rateLimit({
+//     windowMs: 60 * 1000,
+//     max: 45,
+//     standardHeaders: true,
+//     message: rateLimitMessage
+// }), catchAsync(getHistoryPrice))
 
 app.post('/crypto', rateLimit({
     windowMs: 60 * 1000,
