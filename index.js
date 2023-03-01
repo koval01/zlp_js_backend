@@ -19,6 +19,8 @@ const {global_error} = require("./middleware/other_middle")
 const {re_check, tg_check} = require("./middleware/security_middle")
 const {main_e} = require("./helpers/errors")
 
+const {getCurrentPrice, getHistoryPrice} = require("./helpers/zcoin")
+
 const {crypto_view_, crypto_check, crypto_check_get} = require("./helpers/crypto")
 const {mc_status_view} = require("./helpers/server_status")
 const {payment_create, payment_get, coupon_get, donate_services, payment_history_get} = require("./helpers/donate")
@@ -88,6 +90,20 @@ app.post('/donate/payment/create', rateLimit({
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, catchAsync(payment_create))
+
+app.get('/zcoin/current', rateLimit({
+    windowMs: 60 * 1000,
+    max: 120,
+    standardHeaders: true,
+    message: rateLimitMessage
+}), catchAsync(getCurrentPrice))
+
+app.get('/zcoin/history', rateLimit({
+    windowMs: 60 * 1000,
+    max: 45,
+    standardHeaders: true,
+    message: rateLimitMessage
+}), catchAsync(getHistoryPrice))
 
 app.post('/crypto', rateLimit({
     windowMs: 60 * 1000,
