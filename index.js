@@ -19,12 +19,11 @@ const {global_error} = require("./middleware/other_middle")
 const {re_check, tg_check} = require("./middleware/security_middle")
 const {main_e} = require("./helpers/errors")
 
-const {getCurrentPrice, getHistoryPrice} = require("./helpers/zcoin")
-
 const {crypto_view_, crypto_check, crypto_check_get} = require("./helpers/crypto")
 const {mc_status_view} = require("./helpers/server_status")
 const {payment_create, payment_get, coupon_get, donate_services, payment_history_get} = require("./helpers/donate")
 const {events_view, channel_raw} = require("./helpers/telegram/channel")
+const {getSkinsData} = require("./helpers/skins");
 
 const app = express()
 
@@ -91,20 +90,6 @@ app.post('/donate/payment/create', rateLimit({
     message: rateLimitMessage
 }), re_check, catchAsync(payment_create))
 
-// app.get('/zcoin/current', rateLimit({
-//     windowMs: 60 * 1000,
-//     max: 120,
-//     standardHeaders: true,
-//     message: rateLimitMessage
-// }), catchAsync(getCurrentPrice))
-//
-// app.get('/zcoin/history', rateLimit({
-//     windowMs: 60 * 1000,
-//     max: 45,
-//     standardHeaders: true,
-//     message: rateLimitMessage
-// }), catchAsync(getHistoryPrice))
-
 app.post('/crypto', rateLimit({
     windowMs: 60 * 1000,
     max: 160,
@@ -141,6 +126,13 @@ app.get('/profile/head', rateLimit({
     standardHeaders: true,
     message: rateLimitMessage
 }), crypto_check_get, catchAsync(get3dHead))
+
+app.post('/profile/skins/get', rateLimit({
+    windowMs: 60 * 1000,
+    max: 15,
+    standardHeaders: true,
+    message: rateLimitMessage
+}), re_check, catchAsync(getSkinsData))
 
 app.post('/server', rateLimit({
     windowMs: 60 * 1000,

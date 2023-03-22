@@ -117,7 +117,7 @@ const buildSkinsResponse = async (json_body, callback) => {
                 redis.set(
                     "skins_data",
                     JSON.stringify(body_data),
-                    "ex", 15)
+                    "ex", 600)
                 callback({data: body_data, cache: false})
             }, json_body.players)
         }
