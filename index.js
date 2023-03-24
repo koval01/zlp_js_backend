@@ -57,7 +57,7 @@ app.post('/events', rateLimit({
 
 app.post('/donate/services', rateLimit({
     windowMs: 60 * 1000,
-    max: 60,
+    max: 50,
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, catchAsync(donate_services))
@@ -78,14 +78,14 @@ app.post('/donate/payment_get', rateLimit({
 
 app.post('/donate/payment_history', rateLimit({
     windowMs: 60 * 1000,
-    max: 60,
+    max: 30,
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, catchAsync(payment_history_get))
 
 app.post('/donate/payment/create', rateLimit({
     windowMs: 120 * 1000,
-    max: 45,
+    max: 35,
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, catchAsync(payment_create))
@@ -104,35 +104,35 @@ app.post('/telegram/auth/check', rateLimit({
     message: rateLimitMessage
 }), re_check, tg_check, catchAsync(tg_check_view))
 
-app.post('/launcher/microsoft/auth/check', rateLimit({
-    windowMs: 60 * 1000,
-    max: 10,
-    standardHeaders: true,
-    message: rateLimitMessage
-}), catchAsync(responseMicrosoft))
+// app.post('/launcher/microsoft/auth/check', rateLimit({
+//     windowMs: 60 * 1000,
+//     max: 5,
+//     standardHeaders: true,
+//     message: rateLimitMessage
+// }), catchAsync(responseMicrosoft))
 
 app.get('/ip', catchAsync(ip_get_view))
 
 app.get('/profile/avatar', rateLimit({
     windowMs: 60 * 1000,
-    max: 60,
+    max: 50,
     standardHeaders: true,
     message: rateLimitMessage
 }), crypto_check_get, catchAsync(getHead))
 
 app.get('/profile/head', rateLimit({
     windowMs: 60 * 1000,
-    max: 12,
+    max: 8,
     standardHeaders: true,
     message: rateLimitMessage
 }), crypto_check_get, catchAsync(get3dHead))
 
-app.post('/profile/skins/get', rateLimit({
-    windowMs: 60 * 1000,
-    max: 15,
-    standardHeaders: true,
-    message: rateLimitMessage
-}), re_check, catchAsync(getSkinsData))
+// app.post('/profile/skins/get', rateLimit({
+//     windowMs: 60 * 1000,
+//     max: 15,
+//     standardHeaders: true,
+//     message: rateLimitMessage
+// }), re_check, catchAsync(getSkinsData))
 
 app.post('/server', rateLimit({
     windowMs: 60 * 1000,
