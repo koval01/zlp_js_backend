@@ -74,7 +74,7 @@ const events_view = async (req, resp) => {
                                 }
                             }
                             if (result.length) {
-                                redis.set("game_events", JSON.stringify(result), "ex", 120)
+                                redis.set("game_events", JSON.stringify(result), "ex", 15)
                                 return response_call(result)
                             } else {
                                 return input_e(resp, 200, "result array is void")
