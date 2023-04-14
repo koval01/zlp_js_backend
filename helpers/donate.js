@@ -174,9 +174,9 @@ const payment_create = async (req, resp) => {
                 }
             }, data["UUID"])
 
-            if (json_body.pay_method === 2) {
-                return zalupa_pay_processing(data)
-            }
+            // if (json_body.pay_method === 2) {
+            //     return zalupa_pay_processing(data)
+            // }
             let url = url_builder_(
                 'https://easydonate.ru/api/v3/shop/payment/create',
                 [
