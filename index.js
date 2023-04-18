@@ -35,18 +35,10 @@ app.use(express.urlencoded())
 app.use(compression())
 app.use(cors())
 
-// app.use(log.logRequest)
 app.use(log.logError)
 
 app.use(apiLimiter)
 app.use(global_error)
-
-app.post('/channel_parse', rateLimit({
-    windowMs: 60 * 1000,
-    max: 60,
-    standardHeaders: true,
-    message: rateLimitMessage
-}), re_check, catchAsync(channel_raw))
 
 app.post('/events', rateLimit({
     windowMs: 60 * 1000,
@@ -104,36 +96,6 @@ app.post('/telegram/auth/check', rateLimit({
     message: rateLimitMessage
 }), re_check, tg_check, catchAsync(tg_check_view))
 
-// app.post('/launcher/microsoft/auth/check', rateLimit({
-//     windowMs: 60 * 1000,
-//     max: 5,
-//     standardHeaders: true,
-//     message: rateLimitMessage
-// }), catchAsync(responseMicrosoft))
-
-app.get('/ip', catchAsync(ip_get_view))
-
-app.get('/profile/avatar', rateLimit({
-    windowMs: 60 * 1000,
-    max: 50,
-    standardHeaders: true,
-    message: rateLimitMessage
-}), crypto_check_get, catchAsync(getHead))
-
-app.get('/profile/head', rateLimit({
-    windowMs: 60 * 1000,
-    max: 8,
-    standardHeaders: true,
-    message: rateLimitMessage
-}), crypto_check_get, catchAsync(get3dHead))
-
-// app.post('/profile/skins/get', rateLimit({
-//     windowMs: 60 * 1000,
-//     max: 15,
-//     standardHeaders: true,
-//     message: rateLimitMessage
-// }), re_check, catchAsync(getSkinsData))
-
 app.post('/server', rateLimit({
     windowMs: 60 * 1000,
     max: 160,
@@ -141,7 +103,7 @@ app.post('/server', rateLimit({
     message: rateLimitMessage
 }), crypto_check, catchAsync(mc_status_view))
 
-app.get('*', async (_, resp) => {
+app.all('*', async (_, resp) => {
     return main_e(resp, "error route", "This route cannot be found")
 })
 
