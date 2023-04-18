@@ -42,28 +42,28 @@ app.use(global_error)
 
 app.post('/events', rateLimit({
     windowMs: 60 * 1000,
-    max: 60,
+    max: 40,
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, catchAsync(events_view))
 
 app.post('/donate/services', rateLimit({
     windowMs: 60 * 1000,
-    max: 50,
+    max: 40,
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, catchAsync(donate_services))
 
 app.post('/donate/coupon', rateLimit({
     windowMs: 60 * 1000,
-    max: 30,
+    max: 20,
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, catchAsync(coupon_get))
 
 app.post('/donate/payment_get', rateLimit({
     windowMs: 60 * 1000,
-    max: 30,
+    max: 18,
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, catchAsync(payment_get))
@@ -77,28 +77,28 @@ app.post('/donate/payment_history', rateLimit({
 
 app.post('/donate/payment/create', rateLimit({
     windowMs: 120 * 1000,
-    max: 35,
+    max: 30,
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, catchAsync(payment_create))
 
 app.post('/crypto', rateLimit({
     windowMs: 60 * 1000,
-    max: 160,
+    max: 140,
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, catchAsync(crypto_view_))
 
 app.post('/telegram/auth/check', rateLimit({
     windowMs: 60 * 1000,
-    max: 150,
+    max: 80,
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, tg_check, catchAsync(tg_check_view))
 
 app.post('/server', rateLimit({
     windowMs: 60 * 1000,
-    max: 160,
+    max: 45,
     standardHeaders: true,
     message: rateLimitMessage
 }), crypto_check, catchAsync(mc_status_view))
