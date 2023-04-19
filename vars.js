@@ -1,16 +1,5 @@
 const crypto = require('crypto')
 
-const monitoring_list = [
-    {
-        name: "minecraftrating.ru",
-        permission: "monitoring_1",
-
-    },
-    {
-        name: "monitoringminecraft.ru",
-        permission: "monitoring_2",
-    }
-]
 const secrets = JSON.parse(process.env.MONITORING_SECRETS)
 
 const crypto_keys = {
@@ -19,7 +8,6 @@ const crypto_keys = {
 }
 
 module.exports = {
-    monitoring_list,
     secrets,
     crypto_keys
 }
