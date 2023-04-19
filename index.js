@@ -51,7 +51,7 @@ app.post('/donate/services', rateLimit({
 
 app.post('/donate/coupon', rateLimit({
     windowMs: 60 * 1000,
-    max: 20,
+    max: 10,
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, catchAsync(coupon_get))
@@ -72,21 +72,21 @@ app.post('/donate/payment_history', rateLimit({
 
 app.post('/donate/payment/create', rateLimit({
     windowMs: 120 * 1000,
-    max: 25,
+    max: 15,
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, catchAsync(payment_create))
 
 app.post('/crypto', rateLimit({
     windowMs: 60 * 1000,
-    max: 100,
+    max: 90,
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, catchAsync(crypto_view_))
 
 app.post('/telegram/auth/check', rateLimit({
     windowMs: 60 * 1000,
-    max: 65,
+    max: 55,
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, tg_check, catchAsync(tg_check_view))
