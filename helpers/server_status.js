@@ -2,7 +2,7 @@ const mc_status = require("minecraft-server-util")
 
 const get_status = (callback, only_online=true) => {
     mc_status.status('zalupa.online', 25565, {
-        timeout: 1000
+        timeout: 150
     })
         .then((result) => callback({
                 success: true, body: only_online ? {
