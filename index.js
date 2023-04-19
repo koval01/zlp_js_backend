@@ -6,11 +6,8 @@ const express = require('express')
 const rateLimit = require('express-rate-limit')
 
 const log = require("./helpers/log")
-const {ip_get_view} = require("./helpers/methods")
 
 const catchAsync = require("./helpers/catchAsync")
-const {getHead} = require("./skin_renderer/controller/head")
-const {get3dHead} = require("./skin_renderer/controller/render")
 
 const {tg_check_view} = require("./helpers/telegram/base")
 const {apiLimiter, rateLimitMessage} = require("./helpers/limiters")
@@ -21,7 +18,7 @@ const {main_e} = require("./helpers/errors")
 const {crypto_view_, crypto_check, crypto_check_get} = require("./helpers/crypto")
 const {mc_status_view} = require("./helpers/server_status")
 const {payment_create, payment_get, coupon_get, donate_services, payment_history_get} = require("./helpers/donate")
-const {events_view, channel_raw} = require("./helpers/telegram/channel")
+const {events_view} = require("./helpers/telegram/channel")
 
 const app = express()
 
