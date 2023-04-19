@@ -1,7 +1,6 @@
 const crypto = require('crypto')
 const request = require("request");
-const qs = require("querystring");
-const {input_e, main_e} = require("../errors");
+const {input_e} = require("../errors");
 const {get_player_auth} = require("../../database/functions/get_player");
 
 const getTelegramValidateHash = (authData) => {

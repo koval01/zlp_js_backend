@@ -13,7 +13,6 @@ const {getHead} = require("./skin_renderer/controller/head")
 const {get3dHead} = require("./skin_renderer/controller/render")
 
 const {tg_check_view} = require("./helpers/telegram/base")
-const {responseMicrosoft} = require("./helpers/microsoft_mc")
 const {apiLimiter, rateLimitMessage} = require("./helpers/limiters")
 const {global_error} = require("./middleware/other_middle")
 const {re_check, tg_check} = require("./middleware/security_middle")
@@ -23,7 +22,6 @@ const {crypto_view_, crypto_check, crypto_check_get} = require("./helpers/crypto
 const {mc_status_view} = require("./helpers/server_status")
 const {payment_create, payment_get, coupon_get, donate_services, payment_history_get} = require("./helpers/donate")
 const {events_view, channel_raw} = require("./helpers/telegram/channel")
-const {getSkinsData} = require("./helpers/skins");
 
 const app = express()
 
@@ -42,14 +40,14 @@ app.use(global_error)
 
 app.post('/events', rateLimit({
     windowMs: 60 * 1000,
-    max: 40,
+    max: 30,
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, catchAsync(events_view))
 
 app.post('/donate/services', rateLimit({
     windowMs: 60 * 1000,
-    max: 40,
+    max: 30,
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, catchAsync(donate_services))
@@ -63,42 +61,42 @@ app.post('/donate/coupon', rateLimit({
 
 app.post('/donate/payment_get', rateLimit({
     windowMs: 60 * 1000,
-    max: 18,
+    max: 15,
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, catchAsync(payment_get))
 
 app.post('/donate/payment_history', rateLimit({
     windowMs: 60 * 1000,
-    max: 30,
+    max: 25,
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, catchAsync(payment_history_get))
 
 app.post('/donate/payment/create', rateLimit({
     windowMs: 120 * 1000,
-    max: 30,
+    max: 25,
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, catchAsync(payment_create))
 
 app.post('/crypto', rateLimit({
     windowMs: 60 * 1000,
-    max: 140,
+    max: 100,
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, catchAsync(crypto_view_))
 
 app.post('/telegram/auth/check', rateLimit({
     windowMs: 60 * 1000,
-    max: 80,
+    max: 65,
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, tg_check, catchAsync(tg_check_view))
 
 app.post('/server', rateLimit({
     windowMs: 60 * 1000,
-    max: 45,
+    max: 30,
     standardHeaders: true,
     message: rateLimitMessage
 }), crypto_check, catchAsync(mc_status_view))

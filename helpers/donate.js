@@ -1,7 +1,6 @@
 const {input_e, main_e} = require("./errors")
 const {url_builder_, censorEmail, getNoun} = require("./methods")
 const {encryptor, decrypt} = require("./crypto")
-const {private_chat_data} = require("../database/functions/private_chat")
 const {createInviteLinkPrivateChat, getVerifiedTelegramData} = require("./telegram/base")
 const request = require("request")
 const axios = require("axios")
@@ -274,31 +273,6 @@ const getPaymentData = (json_body, callback) => {
         }
     }
 
-    function getInvite(callback, payment) {
-        private_chat_data(function (db_resp) {
-            if (payment.private_invite) {
-                if (db_resp) {
-                    console.log(`db_resp in payment_get : ${db_resp}`)
-                    callback(`https://t.me/+${db_resp[0]["invite_id"]}`)
-                } else {
-                    createInviteLinkPrivateChat(function (invite_data) {
-                        let inv_link = invite_data.invite_link
-                        console.log(`invite_data(createInviteLinkPrivateChat) in payment_get : ${
-                            inv_link}`)
-                        private_chat_data(
-                            function (_) {
-                            },
-                            payment.customer, inv_link.toString().match(/\/\+(.*)/)[1]
-                        )
-                        callback(inv_link)
-                    })
-                }
-            } else {
-                callback(null)
-            }
-        }, payment.customer)
-    }
-
     redis.get(`payment_${json_body.payment_id}`, (error, result) => {
         if (error) {
             callback(null)
@@ -319,15 +293,11 @@ const getPaymentData = (json_body, callback) => {
                         body = JSON.parse(body)
                         if (body.success) {
                             let body_data = response_(body.response)
-                            getInvite(function (inv_resp) {
-                                console.log(`getInvite date : ${inv_resp}`)
-                                body_data.private_invite = inv_resp
-                                redis.set(
-                                    `payment_${json_body.payment_id}`,
-                                    JSON.stringify(body_data), "ex", 900
-                                )
-                                callback({data: body_data, cache: false})
-                            }, body_data)
+                            redis.set(
+                                `payment_${json_body.payment_id}`,
+                                JSON.stringify(body_data), "ex", 900
+                            )
+                            callback({data: body_data, cache: false})
                         } else {
                             callback(null)
                         }
