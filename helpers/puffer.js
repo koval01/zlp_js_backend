@@ -8,7 +8,7 @@ const getAuthToken = async () => {
 }
 
 const sendCommandToConsole = async (command) => {
-    const token = await getAuthToken().data.session
+    const token = await getAuthToken().data
     console.log(token)
     try {
         return await axios.post(
