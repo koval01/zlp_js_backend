@@ -1,14 +1,14 @@
 const {input_e, main_e} = require("./errors")
 const {url_builder_, censorEmail, getNoun} = require("./methods")
 const {encryptor, decrypt} = require("./crypto")
-const {createInviteLinkPrivateChat, getVerifiedTelegramData} = require("./telegram/base")
+const {getVerifiedTelegramData} = require("./telegram/base")
+const {sendCommandToConsole} = require("./puffer")
 const request = require("request")
 const axios = require("axios")
 const Redis = require("ioredis")
 const {
     get_player_auth, get_private_server_license,
-    add_private_server_license, take_player_tokens,
-    add_token_transaction
+    add_private_server_license, add_token_transaction
 } = require("../database/functions/get_player");
 
 const redis = new Redis(process.env.REDIS_URL)
@@ -28,6 +28,14 @@ const sendReceiptTelegram = async (tg_user, tnum, value, product) => {
             }
         }
     )
+}
+
+const take_player_tokens = async (nickname, sum_) => {
+    try {
+        return await sendCommandToConsole(`points take ${nickname} ${sum_}`)
+    } catch (_) {
+        return false
+    }
 }
 
 const donate_services_internal = (callback) => {
@@ -100,40 +108,39 @@ const payment_create = async (req, resp) => {
                             if (cond_) {
                                 return input_e(resp, 400, "balance is low")
                             } else {
-                                take_player_tokens(function (tokens_take_status) {
-                                    if (tokens_take_status) {
-                                        add_private_server_license(function (add_result) {
-                                            console.log(add_result)
-                                            add_token_transaction(function (transaction_id) {
-                                                if (transaction_id) {
-                                                    sendReceiptTelegram(
-                                                        authData.id, transaction_id,
-                                                        products[i].price, products[i].name
+                                const take_status = take_player_tokens(player_data["NICKNAME"], products[i].price)
+                                if (take_status) {
+                                    add_private_server_license(function (add_result) {
+                                        console.log(add_result)
+                                        add_token_transaction(function (transaction_id) {
+                                            if (transaction_id) {
+                                                sendReceiptTelegram(
+                                                    authData.id, transaction_id,
+                                                    products[i].price, products[i].name
                                                     )
-                                                    return resp.send({
-                                                        success: true,
-                                                        payment: {
-                                                            zalupa_pay: true,
-                                                            callbacks: {
-                                                                tokens_take: tokens_take_status,
-                                                                add_result: add_result,
-                                                                transaction_id: transaction_id
-                                                            }
+                                                return resp.send({
+                                                    success: true,
+                                                    payment: {
+                                                        zalupa_pay: true,
+                                                        callbacks: {
+                                                            tokens_take: take_status,
+                                                            add_result: add_result,
+                                                            transaction_id: transaction_id
                                                         }
-                                                    })
-                                                } else {
-                                                    return input_e(resp, 500, "transaction_id error")
-                                                }
-                                            },
-                                                player_data["UUID"], player_data["NICKNAME"],
-                                                "Purchase of the \"Prokhodka\" product",
-                                                products[i].price
-                                            )
-                                        }, player_data["UUID"], player_data["NICKNAME"])
-                                    } else {
-                                        return input_e(resp, 500, "database error")
-                                    }
-                                }, player_data["UUID"], products[i].price)
+                                                    }
+                                                })
+                                            } else {
+                                                return input_e(resp, 500, "transaction_id error")
+                                            }
+                                        },
+                                                              player_data["UUID"], player_data["NICKNAME"],
+                                                              "Purchase of the \"Prokhodka\" product",
+                                                              products[i].price
+                                                              )
+                                    }, player_data["UUID"], player_data["NICKNAME"])
+                                } else {
+                                    return input_e(resp, 500, "database error")
+                                }
                             }
                         }
                     }
@@ -173,9 +180,9 @@ const payment_create = async (req, resp) => {
                 }
             }, data["UUID"])
 
-            // if (json_body.pay_method === 2) {
-            //     return zalupa_pay_processing(data)
-            // }
+             if (json_body.pay_method === 2) {
+                 return zalupa_pay_processing(data)
+             }
             let url = url_builder_(
                 'https://easydonate.ru/api/v3/shop/payment/create',
                 [
