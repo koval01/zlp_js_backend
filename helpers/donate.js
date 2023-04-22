@@ -205,6 +205,7 @@ const payment_create = async (req, resp) => {
                 (error, response, body) => {
                     if (!error && response.statusCode === 200) {
                         body = JSON.parse(body)
+                        console.log(body)
                         if (body.success && body.response) {
                             const resp_api = body.response
                             return resp.send({
