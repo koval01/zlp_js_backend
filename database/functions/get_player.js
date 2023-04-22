@@ -78,17 +78,6 @@ const get_player_tokens = (callback, uuid) => {
     )
 }
 
-const take_player_tokens = (callback, uuid, transaction_value) => {
-    sql_request(function (data) {
-            console.log(`Take player tokens : ${JSON.stringify(data)}`)
-            callback(data.serverStatus === 2)
-        },
-        "Tokens",
-        "UPDATE `playerpoints_points` SET `points` = `points` - ? WHERE `points` >= ? AND `uuid` = ?",
-        [transaction_value, transaction_value, uuid]
-    )
-}
-
 const get_player_auth = (callback, telegram_id) => {
     check_telegram(function (data) {
         if (data.length) {
@@ -128,7 +117,6 @@ module.exports = {
     check_telegram,
     get_private_server_license,
     get_player_tokens,
-    take_player_tokens,
     add_private_server_license,
     add_token_transaction
 }
