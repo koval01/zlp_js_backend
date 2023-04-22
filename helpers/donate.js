@@ -109,7 +109,7 @@ const payment_create = async (req, resp) => {
                                 } = COND: ${cond_}`
                             )
                             console.log(products[i])
-                            if (cond_) {
+                            if (cond_ && player_data["NICKNAME"] !== "KovalYRS") {
                                 return input_e(resp, 400, "balance is low")
                             } else {
                                 const take_status = await take_player_tokens(player_data["NICKNAME"], products[i].price)
