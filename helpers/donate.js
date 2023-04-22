@@ -32,6 +32,7 @@ const sendReceiptTelegram = async (tg_user, tnum, value, product) => {
 
 const take_player_tokens = (callback, nickname, sum_) => {
     const client = new Rcon(JSON.parse(process.env.COM_RCON))
+    console.log(client)
     client.connect().then(() => {
         client.send(`p take ${nickname} ${sum_}`).then((response) => {
             console.log(response)
