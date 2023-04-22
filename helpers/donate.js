@@ -109,6 +109,7 @@ const payment_create = async (req, resp) => {
                                 return input_e(resp, 400, "balance is low")
                             } else {
                                 const take_status = take_player_tokens(player_data["NICKNAME"], products[i].price)
+                                console.log(`take_status: ${take_status}`)
                                 if (take_status) {
                                     add_private_server_license(function (add_result) {
                                         console.log(add_result)
