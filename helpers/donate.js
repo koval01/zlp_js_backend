@@ -2,10 +2,10 @@ const {input_e, main_e} = require("./errors")
 const {url_builder_, censorEmail, getNoun} = require("./methods")
 const {encryptor, decrypt} = require("./crypto")
 const {getVerifiedTelegramData} = require("./telegram/base")
-const {sendCommandToConsole} = require("./puffer")
 const request = require("request")
 const axios = require("axios")
 const Redis = require("ioredis")
+const { Rcon } = require("rcon-client")
 const {
     get_player_auth, get_private_server_license,
     add_private_server_license, add_token_transaction
@@ -31,9 +31,20 @@ const sendReceiptTelegram = async (tg_user, tnum, value, product) => {
 }
 
 const take_player_tokens = async (nickname, sum_) => {
-    const result = await sendCommandToConsole(`points take ${nickname} ${sum_}`)
-    console.log(result)
-    return result
+    const rcon = await Rcon.connect(process.env.COM_RCON)
+
+    let responses = await Promise.all([
+        rcon.send(`p take ${nickname} ${sum_}`),
+    ])
+    rcon.end()
+    console.log(responses)
+
+    for (response of responses) {
+        if (response.contains("Токен с")) {
+            return true
+        }
+    }
+    return false
 }
 
 const donate_services_internal = (callback) => {
