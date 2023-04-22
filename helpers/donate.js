@@ -40,7 +40,7 @@ const take_player_tokens = async (nickname, sum_) => {
     console.log(responses)
 
     for (response of responses) {
-        if (response.contains("Токен с")) {
+        if (response.toLowerCase().includes("взял")) {
             return true
         }
     }
