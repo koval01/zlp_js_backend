@@ -32,17 +32,13 @@ const sendReceiptTelegram = async (tg_user, tnum, value, product) => {
 
 const take_player_tokens = async (nickname, sum_) => {
     const rcon = await Rcon.connect(JSON.parse(process.env.COM_RCON))
-
-    let responses = await Promise.all([
-        rcon.send(`p take ${nickname} ${sum_}`),
-    ])
+    const response = await rcon.send(`p take ${nickname} ${sum_}`)
     rcon.end()
-    console.log(responses)
 
-    for (response of responses) {
-        if (response.toLowerCase().includes("взял")) {
-            return true
-        }
+    console.log(response)
+
+    if (response.toLowerCase().includes("взял")) {
+        return true
     }
     return false
 }
