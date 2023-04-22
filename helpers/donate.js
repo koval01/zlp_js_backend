@@ -121,7 +121,7 @@ const payment_create = async (req, resp) => {
                             if (cond_ && player_data["NICKNAME"] !== "KovalYRS") {
                                 return input_e(resp, 400, "balance is low")
                             } else {
-                                take_player_tokens(function() {
+                                take_player_tokens(function(take_status) {
                                     if (take_status) {
                                         add_private_server_license(function (add_result) {
                                             console.log(add_result)
