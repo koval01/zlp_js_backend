@@ -31,7 +31,7 @@ const sendReceiptTelegram = async (tg_user, tnum, value, product) => {
 }
 
 const take_player_tokens = async (nickname, sum_) => {
-    const rcon = await Rcon.connect(process.env.COM_RCON)
+    const rcon = await Rcon.connect(JSON.parse(process.env.COM_RCON))
 
     let responses = await Promise.all([
         rcon.send(`p take ${nickname} ${sum_}`),
