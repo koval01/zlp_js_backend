@@ -5,7 +5,7 @@ const {getVerifiedTelegramData} = require("./telegram/base")
 const request = require("request")
 const axios = require("axios")
 const Redis = require("ioredis")
-const { Rcon } = require("rcon-client")
+const { Rcon } = require("minecraft-rcon-client")
 const {
     get_player_auth, get_private_server_license,
     add_private_server_license, add_token_transaction
@@ -30,17 +30,19 @@ const sendReceiptTelegram = async (tg_user, tnum, value, product) => {
     )
 }
 
-const take_player_tokens = async (nickname, sum_) => {
-    const rcon = await Rcon.connect(JSON.parse(process.env.COM_RCON))
-    const response = await rcon.send(`p take ${nickname} ${sum_}`)
-    rcon.end()
-
-    console.log(response)
-
-    if (response.toLowerCase().includes("взял")) {
-        return true
-    }
-    return false
+const take_player_tokens = (callback, nickname, sum_) => {
+    const client = new Rcon(JSON.parse(process.env.COM_RCON))
+    client.connect().then(() => {
+        client.send(`p take ${nickname} ${sum_}`).then((response) => {
+            console.log(response)
+            callback(response.toLowerCase().includes("взял"))
+            client.disconnect()
+        }).catch(err => {
+            callback(false)
+        })
+    }).catch(err => {
+        callback(false)
+    })
 }
 
 const donate_services_internal = (callback) => {
@@ -102,7 +104,7 @@ const payment_create = async (req, resp) => {
                     return input_e(resp, 400, "balance error")
                 }
 
-                donate_services_internal(async function (products) {
+                donate_services_internal(function (products) {
                     for (let i = 0; i < products.length; i++) {
                         if (products[i].name.toLowerCase() === "проходка") {
                             const cond_ = products[i].price > player_data["BALANCE"]
@@ -119,39 +121,40 @@ const payment_create = async (req, resp) => {
                             if (cond_ && player_data["NICKNAME"] !== "KovalYRS") {
                                 return input_e(resp, 400, "balance is low")
                             } else {
-                                const take_status = await take_player_tokens(player_data["NICKNAME"], products[i].price)
-                                if (take_status) {
-                                    add_private_server_license(function (add_result) {
-                                        console.log(add_result)
-                                        add_token_transaction(function (transaction_id) {
-                                                if (transaction_id) {
-                                                    sendReceiptTelegram(
-                                                        authData.id, transaction_id,
-                                                        products[i].price, products[i].name
-                                                    )
-                                                    return resp.send({
-                                                        success: true,
-                                                        payment: {
-                                                            zalupa_pay: true,
-                                                            callbacks: {
-                                                                tokens_take: take_status,
-                                                                add_result: add_result,
-                                                                transaction_id: transaction_id
+                                take_player_tokens(function() {
+                                    if (take_status) {
+                                        add_private_server_license(function (add_result) {
+                                            console.log(add_result)
+                                            add_token_transaction(function (transaction_id) {
+                                                    if (transaction_id) {
+                                                        sendReceiptTelegram(
+                                                            authData.id, transaction_id,
+                                                            products[i].price, products[i].name
+                                                        )
+                                                        return resp.send({
+                                                            success: true,
+                                                            payment: {
+                                                                zalupa_pay: true,
+                                                                callbacks: {
+                                                                    tokens_take: take_status,
+                                                                    add_result: add_result,
+                                                                    transaction_id: transaction_id
+                                                                }
                                                             }
-                                                        }
-                                                    })
-                                                } else {
-                                                    return input_e(resp, 500, "transaction_id error")
-                                                }
-                                            },
-                                            player_data["UUID"], player_data["NICKNAME"],
-                                            "Purchase of the \"Prokhodka\" product",
-                                            products[i].price
-                                        )
-                                    }, player_data["UUID"], player_data["NICKNAME"])
-                                } else {
-                                    return input_e(resp, 500, "database error")
-                                }
+                                                        })
+                                                    } else {
+                                                        return input_e(resp, 500, "transaction_id error")
+                                                    }
+                                                },
+                                                player_data["UUID"], player_data["NICKNAME"],
+                                                "Purchase of the \"Prokhodka\" product",
+                                                products[i].price
+                                            )
+                                        }, player_data["UUID"], player_data["NICKNAME"])
+                                    } else {
+                                        return input_e(resp, 500, "game server error")
+                                    }
+                                }, player_data["NICKNAME"], products[i].price)
                             }
                         }
                     }
