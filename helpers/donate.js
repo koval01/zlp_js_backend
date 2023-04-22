@@ -97,7 +97,7 @@ const payment_create = async (req, resp) => {
                     return input_e(resp, 400, "balance error")
                 }
 
-                donate_services_internal(function (products) {
+                donate_services_internal(async function (products) {
                     for (let i = 0; i < products.length; i++) {
                         if (products[i].name.toLowerCase() === "проходка") {
                             const cond_ = products[i].price > player_data["BALANCE"]
@@ -108,36 +108,35 @@ const payment_create = async (req, resp) => {
                             if (cond_) {
                                 return input_e(resp, 400, "balance is low")
                             } else {
-                                const take_status = take_player_tokens(player_data["NICKNAME"], products[i].price)
-                                console.log(`take_status: ${take_status}`)
+                                const take_status = await take_player_tokens(player_data["NICKNAME"], products[i].price)
                                 if (take_status) {
                                     add_private_server_license(function (add_result) {
                                         console.log(add_result)
                                         add_token_transaction(function (transaction_id) {
-                                            if (transaction_id) {
-                                                sendReceiptTelegram(
-                                                    authData.id, transaction_id,
-                                                    products[i].price, products[i].name
+                                                if (transaction_id) {
+                                                    sendReceiptTelegram(
+                                                        authData.id, transaction_id,
+                                                        products[i].price, products[i].name
                                                     )
-                                                return resp.send({
-                                                    success: true,
-                                                    payment: {
-                                                        zalupa_pay: true,
-                                                        callbacks: {
-                                                            tokens_take: take_status,
-                                                            add_result: add_result,
-                                                            transaction_id: transaction_id
+                                                    return resp.send({
+                                                        success: true,
+                                                        payment: {
+                                                            zalupa_pay: true,
+                                                            callbacks: {
+                                                                tokens_take: take_status,
+                                                                add_result: add_result,
+                                                                transaction_id: transaction_id
+                                                            }
                                                         }
-                                                    }
-                                                })
-                                            } else {
-                                                return input_e(resp, 500, "transaction_id error")
-                                            }
-                                        },
-                                                              player_data["UUID"], player_data["NICKNAME"],
-                                                              "Purchase of the \"Prokhodka\" product",
-                                                              products[i].price
-                                                              )
+                                                    })
+                                                } else {
+                                                    return input_e(resp, 500, "transaction_id error")
+                                                }
+                                            },
+                                            player_data["UUID"], player_data["NICKNAME"],
+                                            "Purchase of the \"Prokhodka\" product",
+                                            products[i].price
+                                        )
                                     }, player_data["UUID"], player_data["NICKNAME"])
                                 } else {
                                     return input_e(resp, 500, "database error")
