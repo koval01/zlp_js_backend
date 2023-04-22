@@ -31,11 +31,9 @@ const sendReceiptTelegram = async (tg_user, tnum, value, product) => {
 }
 
 const take_player_tokens = async (nickname, sum_) => {
-    try {
-        return await sendCommandToConsole(`points take ${nickname} ${sum_}`)
-    } catch (_) {
-        return false
-    }
+    const result = await sendCommandToConsole(`points take ${nickname} ${sum_}`)
+    console.log(result)
+    return result
 }
 
 const donate_services_internal = (callback) => {
@@ -102,7 +100,13 @@ const payment_create = async (req, resp) => {
                         if (products[i].name.toLowerCase() === "проходка") {
                             const cond_ = products[i].price > player_data["BALANCE"]
                             console.log(
-                                `${player_data["NICKNAME"]} / PRICE: ${products[i].price} > BALANCE: ${player_data["BALANCE"]} = ${cond_}`
+                                `${
+                                    player_data["NICKNAME"]
+                                } / PRICE: ${
+                                    products[i].price
+                                } > BALANCE: ${
+                                    player_data["BALANCE"]
+                                } = COND: ${cond_}`
                             )
                             console.log(products[i])
                             if (cond_) {
