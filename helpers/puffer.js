@@ -9,6 +9,7 @@ const getAuthToken = async () => {
 
 const sendCommandToConsole = async (command) => {
     const token = await getAuthToken().data.session
+    console.log(token)
     try {
         return await axios.post(
             `https://panel.zalupa.online/proxy/daemon/server/${process.env.PUFFER_SERVER}/console`,
