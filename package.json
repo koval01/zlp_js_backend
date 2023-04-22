@@ -21,7 +21,8 @@
     "memory-cache-node": "^1.4.0",
     "canvas": "^2.11.2",
     "jimp": "^0.22.7",
-    "rotating-file-stream": "^3.1.0"
+    "rotating-file-stream": "^3.1.0",
+    "rcon-client": "^4.2.3"
   },
   "engines": {
     "node": "18.16.0"
