@@ -117,12 +117,12 @@ const payment_create = async (req, resp) => {
                                 } = COND: ${cond_}`
                             )
                             console.log(products[i])
-                            if (cond_ && player_data["NICKNAME"] !== "KovalYRS") {
+                            if (cond_) {
                                 return input_e(resp, 400, "balance is low")
                             } else {
                                 take_player_tokens(function(take_status) {
                                     if (take_status) {
-                                        setInterval(function () {
+                                        const tokens_waiter = setInterval(function () {
                                             get_player_tokens(function (tokens_l) {
                                                 tokens_l = parseInt(tokens_l[0]["points"])
                                                 console.log(
@@ -167,6 +167,11 @@ const payment_create = async (req, resp) => {
                                                 }
                                             }, player_data["UUID"])
                                         }, 500)
+                                        try {
+                                            setTimeout(function () {
+                                                clearInterval(tokens_waiter)
+                                            }, 10*1000)
+                                        } catch (_) {}
                                     } else {
                                         return input_e(resp, 500, "game server error")
                                     }
