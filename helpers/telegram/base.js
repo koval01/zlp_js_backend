@@ -63,6 +63,7 @@ const getVerifiedTelegramData = (json_body, custom_var = false) => {
 
 const tg_check_view = async (req, res) => {
     const authData = getVerifiedTelegramData(req.body)
+
     function response_call(result, cache = false) {
         return res.send({
             success: true,
