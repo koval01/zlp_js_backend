@@ -349,90 +349,6 @@ const getPaymentData = (json_body, callback) => {
     })
 }
 
-const getPaymentHistoryData = (json_body, callback) => {
-    function response_(data) {
-        if (data) {
-            let result = [];
-            // console.log(`payment_history array length : ${data.length}`)
-            data = data.reverse();
-            for (let i = 0; i < data.length; i++) {
-                let p = data[i];
-                let pi = p.products[0];
-                if (p.status === 2 && result.length <= 30) {
-                    result.push({
-                        customer: p.customer,
-                        created_at: p.created_at,
-                        updated_at: p.updated_at,
-                        product: {
-                            name: pi.name,
-                            image: pi.image
-                        }
-                    })
-                }
-            }
-            return result;
-        } else {
-            return null
-        }
-    }
-
-    redis.get(`payment_history`, (error, result) => {
-        if (error) {
-            callback(null)
-        }
-        if (result !== null) {
-            callback({data: JSON.parse(result), cache: true})
-        } else {
-            request(
-                {
-                    uri: `https://easydonate.ru/api/v3/shop/payments`,
-                    method: 'GET',
-                    headers: {
-                        'Shop-Key': process.env.DONATE_API_KEY
-                    }
-                },
-                (error, response, body) => {
-                    if (!error && response.statusCode === 200) {
-                        body = JSON.parse(body)
-                        if (body.success) {
-                            const body_data = response_(body.response)
-                            redis.set(
-                                `payment_history`,
-                                JSON.stringify(body_data),
-                                "ex", 15)
-                            callback({data: body_data, cache: false})
-                        } else {
-                            callback(null)
-                        }
-                    } else {
-                        callback(null)
-                    }
-                }
-            )
-        }
-    })
-}
-
-const payment_history_get = async (req, resp) => {
-    try {
-        function response_call(result, cache = false) {
-            return resp.send({
-                success: true,
-                cache: cache,
-                payment: result
-            })
-        }
-
-        getPaymentHistoryData(req.body, function (data) {
-            if (data) {
-                return response_call(data.data, data.cache)
-            }
-        })
-    } catch (_) {
-        return main_e(resp)
-    }
-}
-
 const payment_get = async (req, resp) => {
     try {
         function response_call(result, cache = false) {
@@ -614,6 +530,5 @@ module.exports = {
     payment_get,
     coupon_get,
     donate_services,
-    payment_history_get,
     getPaymentData
 }
