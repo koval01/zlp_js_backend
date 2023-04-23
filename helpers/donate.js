@@ -124,6 +124,14 @@ const payment_create = async (req, resp) => {
                                     if (take_status) {
                                         get_player_tokens(function (tokens_l) {
                                             tokens_l = parseInt(tokens_l[0]["points"])
+                                            console.log(
+                                                   `tokens_l=${
+                                                    tokens_l
+                                                } / player_data["BALANCE"]=${
+                                                    player_data["BALANCE"]
+                                                } / products[i].price=${
+                                                    products[i].price
+                                                }`)
                                             if ((player_data["BALANCE"] - products[i].price) === tokens_l) {
                                                 add_private_server_license(function (add_result) {
                                                     console.log(add_result)
