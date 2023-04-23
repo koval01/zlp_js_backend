@@ -122,7 +122,7 @@ const payment_create = async (req, resp) => {
                             } else {
                                 take_player_tokens(function(take_status) {
                                     if (take_status) {
-                                        setTimeout(function () {
+                                        setInterval(function () {
                                             get_player_tokens(function (tokens_l) {
                                                 tokens_l = parseInt(tokens_l[0]["points"])
                                                 console.log(
@@ -154,7 +154,7 @@ const payment_create = async (req, resp) => {
                                                                         }
                                                                     })
                                                                 } else {
-                                                                    return input_e(resp, 500, "transaction_id error")
+                                                                    return 0
                                                                 }
                                                             },
                                                             player_data["UUID"], player_data["NICKNAME"],
@@ -166,7 +166,7 @@ const payment_create = async (req, resp) => {
                                                     return input_e(resp, 500, "db server error")
                                                 }
                                             }, player_data["UUID"])
-                                        }, 3000)
+                                        }, 500)
                                     } else {
                                         return input_e(resp, 500, "game server error")
                                     }
