@@ -17,7 +17,7 @@ const {main_e} = require("./helpers/errors")
 
 const {crypto_view_, crypto_check, crypto_check_get} = require("./helpers/crypto")
 const {mc_status_view} = require("./helpers/server_status")
-const {payment_create, payment_get, coupon_get, donate_services, payment_history_get} = require("./helpers/donate")
+const {payment_create, payment_get, coupon_get, donate_services} = require("./helpers/donate")
 const {events_view} = require("./helpers/telegram/channel")
 
 const app = express()
@@ -56,19 +56,12 @@ app.post('/donate/coupon', rateLimit({
     message: rateLimitMessage
 }), re_check, catchAsync(coupon_get))
 
-app.post('/donate/payment_get', rateLimit({
+app.post('/donate/payment/get', rateLimit({
     windowMs: 60 * 1000,
     max: 15,
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, catchAsync(payment_get))
-
-app.post('/donate/payment_history', rateLimit({
-    windowMs: 60 * 1000,
-    max: 30,
-    standardHeaders: true,
-    message: rateLimitMessage
-}), re_check, catchAsync(payment_history_get))
 
 app.post('/donate/payment/create', rateLimit({
     windowMs: 120 * 1000,
