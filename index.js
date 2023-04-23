@@ -37,14 +37,14 @@ app.use(global_error)
 
 app.post('/events', rateLimit({
     windowMs: 60 * 1000,
-    max: 25,
+    max: 30,
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, catchAsync(events_view))
 
 app.post('/donate/services', rateLimit({
     windowMs: 60 * 1000,
-    max: 25,
+    max: 30,
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, catchAsync(donate_services))
@@ -65,14 +65,14 @@ app.post('/donate/payment_get', rateLimit({
 
 app.post('/donate/payment_history', rateLimit({
     windowMs: 60 * 1000,
-    max: 25,
+    max: 30,
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, catchAsync(payment_history_get))
 
 app.post('/donate/payment/create', rateLimit({
     windowMs: 120 * 1000,
-    max: 15,
+    max: 16,
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, catchAsync(payment_create))
