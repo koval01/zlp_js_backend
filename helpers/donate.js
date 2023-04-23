@@ -122,7 +122,7 @@ const payment_create = async (req, resp) => {
                             } else {
                                 take_player_tokens(function(take_status) {
                                     if (take_status) {
-                                        const tokens_waiter = setInterval(function () {
+                                        setTimeout(function () {
                                             get_player_tokens(function (tokens_l) {
                                                 tokens_l = parseInt(tokens_l[0]["points"])
                                                 console.log(
@@ -134,7 +134,6 @@ const payment_create = async (req, resp) => {
                                                         products[i].price
                                                     }`)
                                                 if ((player_data["BALANCE"] - products[i].price) === tokens_l) {
-                                                    clearInterval(tokens_waiter)
                                                     add_private_server_license(function (add_result) {
                                                         console.log(add_result)
                                                         add_token_transaction(function (transaction_id) {
@@ -168,11 +167,6 @@ const payment_create = async (req, resp) => {
                                                 }
                                             }, player_data["UUID"])
                                         }, 1000)
-                                        try {
-                                            setTimeout(function () {
-                                                clearInterval(tokens_waiter)
-                                            }, 10*1000)
-                                        } catch (_) {}
                                     } else {
                                         return input_e(resp, 500, "game server error")
                                     }
