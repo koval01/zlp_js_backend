@@ -7,7 +7,7 @@ const axios = require("axios")
 const Redis = require("ioredis")
 const { Rcon } = require("minecraft-rcon-client")
 const {
-    get_player_auth, get_private_server_license,
+    get_player_auth, get_private_server_license, get_player_tokens,
     add_private_server_license, add_token_transaction
 } = require("../database/functions/get_player");
 
@@ -32,17 +32,16 @@ const sendReceiptTelegram = async (tg_user, tnum, value, product) => {
 
 const take_player_tokens = (callback, nickname, sum_) => {
     const client = new Rcon(JSON.parse(process.env.COM_RCON))
-    console.log(client)
     client.connect().then(() => {
         client.send(`p take ${nickname} ${sum_}`).then((response) => {
-            console.log(response)
-            callback(response.toLowerCase().includes("взял"))
+            console.log(`take_player_tokens: ${response}`)
+            callback(response)
             client.disconnect()
         }).catch(err => {
-            callback(false)
+            callback(null)
         })
     }).catch(err => {
-        callback(false)
+        callback(null)
     })
 }
 
@@ -124,34 +123,41 @@ const payment_create = async (req, resp) => {
                             } else {
                                 take_player_tokens(function(take_status) {
                                     if (take_status) {
-                                        add_private_server_license(function (add_result) {
-                                            console.log(add_result)
-                                            add_token_transaction(function (transaction_id) {
-                                                    if (transaction_id) {
-                                                        sendReceiptTelegram(
-                                                            authData.id, transaction_id,
-                                                            products[i].price, products[i].name
-                                                        )
-                                                        return resp.send({
-                                                            success: true,
-                                                            payment: {
-                                                                zalupa_pay: true,
-                                                                callbacks: {
-                                                                    tokens_take: take_status,
-                                                                    add_result: add_result,
-                                                                    transaction_id: transaction_id
-                                                                }
+                                        get_player_tokens(function (tokens_l) {
+                                            tokens_l = parseInt(tokens_l[0]["points"])
+                                            if ((player_data["BALANCE"] - products[i].price) === tokens_l) {
+                                                add_private_server_license(function (add_result) {
+                                                    console.log(add_result)
+                                                    add_token_transaction(function (transaction_id) {
+                                                            if (transaction_id) {
+                                                                sendReceiptTelegram(
+                                                                    authData.id, transaction_id,
+                                                                    products[i].price, products[i].name
+                                                                )
+                                                                return resp.send({
+                                                                    success: true,
+                                                                    payment: {
+                                                                        zalupa_pay: true,
+                                                                        callbacks: {
+                                                                            tokens_take: take_status,
+                                                                            add_result: add_result,
+                                                                            transaction_id: transaction_id
+                                                                        }
+                                                                    }
+                                                                })
+                                                            } else {
+                                                                return input_e(resp, 500, "transaction_id error")
                                                             }
-                                                        })
-                                                    } else {
-                                                        return input_e(resp, 500, "transaction_id error")
-                                                    }
-                                                },
-                                                player_data["UUID"], player_data["NICKNAME"],
-                                                "Purchase of the \"Prokhodka\" product",
-                                                products[i].price
-                                            )
-                                        }, player_data["UUID"], player_data["NICKNAME"])
+                                                        },
+                                                        player_data["UUID"], player_data["NICKNAME"],
+                                                        "Purchase of the \"Prokhodka\" product",
+                                                        products[i].price
+                                                    )
+                                                }, player_data["UUID"], player_data["NICKNAME"])
+                                            } else {
+                                                return input_e(resp, 500, "db server error")
+                                            }
+                                        }, player_data["UUID"])
                                     } else {
                                         return input_e(resp, 500, "game server error")
                                     }
