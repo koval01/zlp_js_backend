@@ -134,6 +134,7 @@ const payment_create = async (req, resp) => {
                                                         products[i].price
                                                     }`)
                                                 if ((player_data["BALANCE"] - products[i].price) === tokens_l) {
+                                                    clearInterval(tokens_waiter)
                                                     add_private_server_license(function (add_result) {
                                                         console.log(add_result)
                                                         add_token_transaction(function (transaction_id) {
@@ -166,7 +167,7 @@ const payment_create = async (req, resp) => {
                                                     return input_e(resp, 500, "db server error")
                                                 }
                                             }, player_data["UUID"])
-                                        }, 500)
+                                        }, 1000)
                                         try {
                                             setTimeout(function () {
                                                 clearInterval(tokens_waiter)
