@@ -5,7 +5,7 @@ const {getVerifiedTelegramData} = require("./telegram/base")
 const request = require("request")
 const axios = require("axios")
 const Redis = require("ioredis")
-const { Rcon } = require("minecraft-rcon-client")
+const {Rcon} = require("minecraft-rcon-client")
 const {
     get_player_auth, get_private_server_license, get_player_tokens,
     add_private_server_license, add_token_transaction
@@ -16,12 +16,13 @@ const redis = new Redis(process.env.REDIS_URL)
 const sendReceiptTelegram = async (tg_user, tnum, value, product) => {
     return await axios.get(
         `https://api.telegram.org/bot${process.env.NOTIFY_BOT_TOKEN}/sendMessage`,
-        {params:{
+        {
+            params: {
                 chat_id: tg_user, text: `Спасибо за покупку на Zalupa.Online. Вы приобрели "${
                     product}" за ${value} ${
                     getNoun(value, "токен", "токена", "токенов")
                 }\n\nID: <code>${tnum}</code>\n\n<i>${
-                    "(Вы можете использовать это сообщение чтобы подтвердить оплату. "+
+                    "(Вы можете использовать это сообщение чтобы подтвердить оплату. " +
                     "Для этого переотправьте это сообщение администратору не скрывая источник.)"
                 }</i>`,
                 parse_mode: "HTML"
@@ -95,7 +96,7 @@ const payment_create = async (req, resp) => {
         const pay_methods = 2
 
         const zalupa_pay_processing = (player_data) => {
-            get_private_server_license(function(whitelist_info) {
+            get_private_server_license(function (whitelist_info) {
                 if (whitelist_info.length) {
                     return input_e(resp, 400, "player already in list")
                 }
@@ -120,7 +121,7 @@ const payment_create = async (req, resp) => {
                             if (cond_) {
                                 return input_e(resp, 400, "balance is low")
                             } else {
-                                take_player_tokens(function(take_status) {
+                                take_player_tokens(function (take_status) {
                                     if (take_status) {
                                         setTimeout(function () {
                                             get_player_tokens(function (tokens_l) {

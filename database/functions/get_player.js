@@ -1,7 +1,7 @@
 const {sql_request} = require("../mysql")
 const {generateHexID} = require("../../helpers/methods")
 
-const check_telegram = (callback, telegram_id, nickname=null) => {
+const check_telegram = (callback, telegram_id, nickname = null) => {
     sql_request(function (data) {
             console.log(`Get Telegram player : ${JSON.stringify(data)}`)
             callback(data)

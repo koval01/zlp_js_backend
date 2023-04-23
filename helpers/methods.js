@@ -1,4 +1,4 @@
-const { MemoryCache } = require('memory-cache-node')
+const {MemoryCache} = require('memory-cache-node')
 
 const memoryCache = new MemoryCache(600, 1000000)
 
@@ -55,23 +55,29 @@ const getNoun = (number, one = "объект", two = "объекта", five = "�
     let n = Math.abs(number)
 
     n %= 100
-    if (n >= 5 && n <= 20) { return five }
+    if (n >= 5 && n <= 20) {
+        return five
+    }
 
     n %= 10
-    if (n === 1) { return one }
-    if (n >= 2 && n <= 4) { return two }
+    if (n === 1) {
+        return one
+    }
+    if (n >= 2 && n <= 4) {
+        return two
+    }
     return five
 }
 
 const generateHexID = () => {
     return parseInt(`${
-        rand_int(99999999,10000000)
+        rand_int(99999999, 10000000)
     }${Date.now()}${
-        rand_int(99999999,10000000)
-    }`).toString(16).slice(0,16)
+        rand_int(99999999, 10000000)
+    }`).toString(16).slice(0, 16)
 }
 
-const rand_int = (max=4, min=1) => {
+const rand_int = (max = 4, min = 1) => {
     return Math.floor(Math.random() * max) + min
 }
 
@@ -89,7 +95,8 @@ const rand_move = (val) => {
 const removeItemOnce = (arr, value) => {
     let index = arr.indexOf(value)
     if (index > -1) {
-        arr.splice(index, 1) }
+        arr.splice(index, 1)
+    }
 }
 
 const months_list = {
