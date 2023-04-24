@@ -2,8 +2,8 @@ const crypto = require("crypto")
 const {crypto_keys} = require("../vars")
 const {get_current_server_time, get_user_ip} = require("./methods")
 const req = require("express/lib/request");
-req.body.crypto_token = String;
-req.body.service_token = String;
+req.body.crypto_token = undefined;
+req.body.service_token = undefined;
 
 const decrypt = (data) => {
     try {
