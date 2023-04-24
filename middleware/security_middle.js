@@ -1,7 +1,7 @@
 const request = require("request")
 const {checkTelegramAuthorization} = require("../helpers/telegram/base")
 const req = require("express/lib/request");
-req.body.tg_auth_data = undefined;
+req.body.tg_auth_data = "";
 
 function re_check(req, resp, next) {
     request(
