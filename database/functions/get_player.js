@@ -79,34 +79,49 @@ const get_player_tokens = (callback, uuid) => {
 }
 
 const get_player_auth = (callback, telegram_id) => {
+    const _get_player_tokens = (player) => {
+        get_player_tokens(function (tokens_balance) {
+                try {
+                    player["BALANCE"] = tokens_balance ? parseInt(tokens_balance[0]["points"]) : 0
+                } catch (_) {
+                    player["BALANCE"] = 0
+                }
+                callback(player)
+            },
+            player["UUID"])
+    }
+
+    const _get_private_server = (player) => {
+        get_private_server(function (private_) {
+                player["PRIVATE_SERVER"] = !!(
+                    typeof private_ !== 'undefined' && private_.length
+                )
+                _get_player_tokens(player)
+            },
+            player["NICKNAME"])
+    }
+
+    const _get_player = (lower_nick, data) => {
+        get_player(function (data_0) {
+            if (!data || !data_0.length) {
+                callback(null)
+                return;
+            }
+            let player = data_0[0]
+            player["PREMIUM"] = !!(
+                typeof player["PREMIUMUUID"] !== 'undefined'
+                && player["PREMIUMUUID"].length
+            )
+            delete player["PREMIUMUUID"]
+            delete player["LOWERCASENICKNAME"]
+
+            _get_private_server(player)
+        }, lower_nick)
+    }
+
     check_telegram(function (data) {
         if (data.length) {
-            const lower_nick = data[0]["LOWERCASENICKNAME"]
-            get_player(function (data_0) {
-                if (!data || !data_0.length) {
-                    callback(null)
-                    return;
-                }
-                let player = data_0[0]
-                player["PREMIUM"] = !!(typeof player["PREMIUMUUID"] !== 'undefined' && player["PREMIUMUUID"].length)
-                delete player["PREMIUMUUID"]
-                delete player["LOWERCASENICKNAME"]
-
-                get_private_server(function (private_) {
-                    player["PRIVATE_SERVER"] = !!(
-                        typeof private_ !== 'undefined' && private_.length
-                    )
-                    get_player_tokens(function (tokens_balance) {
-                            try {
-                                player["BALANCE"] = tokens_balance ? parseInt(tokens_balance[0]["points"]) : 0
-                            } catch (_) {
-                                player["BALANCE"] = 0
-                            }
-                            callback(player)
-                        },
-                        player["UUID"])
-                }, player["NICKNAME"])
-            }, lower_nick)
+            _get_player(data[0]["LOWERCASENICKNAME"], data)
         } else {
             callback(null)
         }
