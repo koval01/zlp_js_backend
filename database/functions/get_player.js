@@ -79,16 +79,6 @@ const get_player_tokens = (callback, uuid) => {
 }
 
 const get_player_auth = (callback, telegram_id) => {
-    const get_pt = get_player_tokens(function (tokens_balance) {
-            try {
-                player["BALANCE"] = tokens_balance ? parseInt(tokens_balance[0]["points"]) : 0
-            } catch (_) {
-                player["BALANCE"] = 0
-            }
-            callback(player)
-        },
-        player["UUID"])
-
     check_telegram(function (data) {
         if (data.length) {
             const lower_nick = data[0]["LOWERCASENICKNAME"]
@@ -106,7 +96,15 @@ const get_player_auth = (callback, telegram_id) => {
                     player["PRIVATE_SERVER"] = !!(
                         typeof private_ !== 'undefined' && private_.length
                     )
-                    get_pt()
+                    get_player_tokens(function (tokens_balance) {
+                            try {
+                                player["BALANCE"] = tokens_balance ? parseInt(tokens_balance[0]["points"]) : 0
+                            } catch (_) {
+                                player["BALANCE"] = 0
+                            }
+                            callback(player)
+                        },
+                        player["UUID"])
                 }, player["NICKNAME"])
             }, lower_nick)
         } else {
