@@ -6,7 +6,7 @@ const rateLimitMessage = {
 }
 
 const apiLimiter = rateLimit({
-    windowMs: 60 * 1000, // 1 minute
+    windowMs: 60 * 1000,
     max: 250,
     standardHeaders: true,
     message: rateLimitMessage

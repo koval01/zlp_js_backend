@@ -99,21 +99,6 @@ const removeItemOnce = (arr, value) => {
     }
 }
 
-const months_list = {
-    1: "января",
-    2: "февраля",
-    3: "марта",
-    4: "апреля",
-    5: "мая",
-    6: "июня",
-    7: "июля",
-    8: "августа",
-    9: "сентября",
-    10: "октября",
-    11: "ноября",
-    12: "декабря"
-}
-
 module.exports = {
     get_user_ip,
     get_current_server_time,
@@ -124,7 +109,6 @@ module.exports = {
     rand_int,
     rand_bool,
     rand_move,
-    months_list,
     removeItemOnce,
     memWrite,
     memGetValue,

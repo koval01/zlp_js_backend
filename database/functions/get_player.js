@@ -28,7 +28,7 @@ const get_private_server = (callback, nickname) => {
             callback(data)
         },
         "WhitelistVanilla",
-        "SELECT * FROM `whitelist` WHERE `user` = ?", // OLD: "SELECT * FROM `whitelist` WHERE `user` = ? and `UUID` = ?"
+        "SELECT * FROM `whitelist` WHERE `user` = ?",
         [nickname]
     )
 }

@@ -1,6 +1,9 @@
 const crypto = require("crypto")
 const {crypto_keys} = require("../vars")
 const {get_current_server_time, get_user_ip} = require("./methods")
+const req = require("express/lib/request");
+req.body.crypto_token = String;
+req.body.service_token = String;
 
 const decrypt = (data) => {
     try {
@@ -29,7 +32,7 @@ const crypto_check_logic = (token, req) => {
 
         if (decryptedData) {
             let body = JSON.parse(decryptedData)
-            if (body.ip === get_user_ip(req) && (get_current_server_time() - body.timestamp) < 120) {
+            if (body.ip === get_user_ip(req) && (get_current_server_time() - body.timestamp) < 60) {
                 return true
             }
         }
