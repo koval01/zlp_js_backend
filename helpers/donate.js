@@ -123,51 +123,49 @@ const payment_create = async (req, resp) => {
                             } else {
                                 take_player_tokens(function (take_status) {
                                     if (take_status) {
-                                        setTimeout(function () {
-                                            get_player_tokens(function (tokens_l) {
-                                                tokens_l = parseInt(tokens_l[0]["points"])
-                                                console.log(
-                                                    `tokens_l=${
-                                                        tokens_l
-                                                    } / player_data["BALANCE"]=${
-                                                        player_data["BALANCE"]
-                                                    } / products[i].price=${
-                                                        products[i].price
-                                                    }`)
-                                                if ((player_data["BALANCE"] - products[i].price) === tokens_l) {
-                                                    add_private_server_license(function (add_result) {
-                                                        console.log(add_result)
-                                                        add_token_transaction(function (transaction_id) {
-                                                                if (transaction_id) {
-                                                                    sendReceiptTelegram(
-                                                                        authData.id, transaction_id,
-                                                                        products[i].price, products[i].name
-                                                                    )
-                                                                    return resp.send({
-                                                                        success: true,
-                                                                        payment: {
-                                                                            zalupa_pay: true,
-                                                                            callbacks: {
-                                                                                tokens_take: take_status,
-                                                                                add_result: add_result,
-                                                                                transaction_id: transaction_id
-                                                                            }
+                                        const gptokens_call = get_player_tokens(function (tokens_l) {
+                                            tokens_l = parseInt(tokens_l[0]["points"])
+                                            console.log(
+                                                `tokens_l=${
+                                                    tokens_l
+                                                } / player_data["BALANCE"]=${
+                                                    player_data["BALANCE"]
+                                                } / products[i].price=${
+                                                    products[i].price
+                                                }`)
+                                            if ((player_data["BALANCE"] - products[i].price) === tokens_l) {
+                                                add_private_server_license(function (add_result) {
+                                                    console.log(add_result)
+                                                    add_token_transaction(function (transaction_id) {
+                                                            if (transaction_id) {
+                                                                sendReceiptTelegram(
+                                                                    authData.id, transaction_id,
+                                                                    products[i].price, products[i].name
+                                                                )
+                                                                return resp.send({
+                                                                    success: true,
+                                                                    payment: {
+                                                                        zalupa_pay: true,
+                                                                        callbacks: {
+                                                                            tokens_take: take_status,
+                                                                            add_result: add_result,
+                                                                            transaction_id: transaction_id
                                                                         }
-                                                                    })
-                                                                } else {
-                                                                    return 0
-                                                                }
-                                                            },
-                                                            player_data["UUID"], player_data["NICKNAME"],
-                                                            "Purchase of the \"Prokhodka\" product",
-                                                            products[i].price
-                                                        )
-                                                    }, player_data["UUID"], player_data["NICKNAME"])
-                                                } else {
-                                                    return input_e(resp, 500, "db server error")
-                                                }
-                                            }, player_data["UUID"])
-                                        }, 1000)
+                                                                    }
+                                                                })
+                                                            } else {
+                                                                return 0
+                                                            }
+                                                        },
+                                                        player_data["UUID"], player_data["NICKNAME"],
+                                                        "Purchase of the \"Prokhodka\" product",
+                                                        products[i].price
+                                                    )
+                                                }, player_data["UUID"], player_data["NICKNAME"])
+                                            } else {
+                                                return input_e(resp, 500, "db server error")
+                                            }
+                                        }, player_data["UUID"])
                                     } else {
                                         return input_e(resp, 500, "game server error")
                                     }

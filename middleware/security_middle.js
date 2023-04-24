@@ -1,5 +1,7 @@
 const request = require("request")
 const {checkTelegramAuthorization} = require("../helpers/telegram/base")
+const req = require("express/lib/request");
+req.body.tg_auth_data = String;
 
 function re_check(req, resp, next) {
     request(
@@ -29,21 +31,22 @@ function re_check(req, resp, next) {
 
 function tg_check(req, resp, next) {
     let auth_data = req.body.tg_auth_data
-    let errro_msg = 'Telegram auth verification error'
+    let error_msg = 'Telegram auth verification error'
+
     if (!auth_data) {
         return resp.status(400).json({
             success: false,
-            message: errro_msg,
+            message: error_msg,
             exception: 'need field tg_auth_data'
         })
     }
 
     try {
-        auth_data = JSON.parse(Buffer.from(auth_data, 'base64'))
+        auth_data = JSON.parse(Buffer.from(auth_data, 'base64').toString())
     } catch (_) {
         return resp.status(503).json({
             success: false,
-            message: errro_msg,
+            message: error_msg,
             exception: 'field tg_auth_data not valid'
         })
     }
@@ -51,6 +54,7 @@ function tg_check(req, resp, next) {
     if (checkTelegramAuthorization(auth_data)) {
         return next()
     }
+
     return resp.status(403).json({
         success: false,
         message: 'Security error',

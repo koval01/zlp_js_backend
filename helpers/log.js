@@ -1,4 +1,4 @@
-function logError(err, req, res, next) {
+const logError = (err, req, res, next) => {
     console.error(err)
     next()
 }
