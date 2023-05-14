@@ -56,10 +56,9 @@ const {input_e, main_e} = require("./errors"), {
             return input_e(resp, 400, "server_id error")
         }
 
-        console.log(`paymentCreate: server_id=${server_id}`)
+        console.debug(`paymentCreate: server_id=${server_id}`)
         try {
             const authData = getVerifiedTelegramData(json_body)
-            const pay_methods = 2
 
             get_player_auth(function (data) {
                 if (!data) {
@@ -79,9 +78,6 @@ const {input_e, main_e} = require("./errors"), {
                 if (json_body.email.length < 3 && json_body.email.length > 50) {
                     return input_e(resp, 400, "email field error")
                 }
-                if (json_body.pay_method < 1 || json_body.pay_method > pay_methods) {
-                    return input_e(resp, 400, "payment method error")
-                }
 
                 donate_services_internal(function (products) {
                     let lock_whitelist = true
@@ -91,10 +87,6 @@ const {input_e, main_e} = require("./errors"), {
                         }
                     }
                 }, data["UUID"])
-
-                if (json_body.pay_method === 2) {
-                    return input_e(resp, 400, "method disabled")
-                }
 
                 let url = url_builder_(
                     'https://easydonate.ru/api/v3/shop/payment/create',
