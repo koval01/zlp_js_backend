@@ -1,5 +1,5 @@
 const {input_e, main_e} = require("./errors")
-const {url_builder_, censorEmail, getNoun} = require("./methods")
+const {url_builder_, censorEmail, getNoun, CFGeoGet} = require("./methods")
 const {encryptor, decrypt} = require("./crypto")
 const {getVerifiedTelegramData} = require("./telegram/base")
 const request = require("request")
@@ -9,7 +9,7 @@ const {Rcon} = require("minecraft-rcon-client")
 const {
     get_player_auth, get_private_server_license, get_player_tokens,
     add_private_server_license, add_token_transaction
-} = require("../database/functions/get_player");
+} = require("../database/functions/get_player")
 
 const redis = new Redis(process.env.REDIS_URL)
 
@@ -210,7 +210,6 @@ const payment_create = async (req, resp) => {
             }, data["UUID"])
 
             if (json_body.pay_method === 2) {
-                // return zalupa_pay_processing(data)
                 return input_e(resp, 400, "method disabled")
             }
 
@@ -369,6 +368,8 @@ const payment_get = async (req, resp) => {
 }
 
 const donate_services = async (req, resp) => {
+    const geo = CFGeoGet(req)
+    console.log(`GEO: ${geo}`)
     try {
         function response_call(data, cache = false) {
             return resp.send({

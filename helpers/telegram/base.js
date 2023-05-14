@@ -1,7 +1,6 @@
 const crypto = require('crypto')
-const request = require("request");
-const {input_e} = require("../errors");
-const {get_player_auth} = require("../../database/functions/get_player");
+const {input_e} = require("../errors")
+const {get_player_auth} = require("../../database/functions/get_player")
 
 const getTelegramValidateHash = (authData) => {
     const tgBotToken = process.env.BOT_TOKEN
@@ -21,27 +20,6 @@ const getTelegramValidateHash = (authData) => {
 
 const checkTelegramAuthorization = (authData) => {
     return authData.hash === getTelegramValidateHash(authData)
-}
-
-const createInviteLinkPrivateChat = (callback) => {
-    request(
-        {
-            uri: `https://api.telegram.org/bot${
-                process.env.BOT_TOKEN
-            }/createChatInviteLink?chat_id=${
-                process.env.PRIVATE_CHAT_ID
-            }&member_limit=1`,
-            method: 'GET'
-        },
-        (error, response, body) => {
-            if (!error && response.statusCode === 200) {
-                body = JSON.parse(body)
-                if (body.ok) {
-                    callback(body.result)
-                }
-            }
-        }
-    )
 }
 
 const getVerifiedTelegramData = (json_body, custom_var = false) => {
@@ -88,7 +66,6 @@ const tg_check_view = async (req, res) => {
 module.exports = {
     getTelegramValidateHash,
     checkTelegramAuthorization,
-    createInviteLinkPrivateChat,
     getVerifiedTelegramData,
     tg_check_view
 }

@@ -14,6 +14,10 @@ const memRemoveKey = (key_name) => {
     return memoryCache.removeItem(key_name)
 }
 
+const CFGeoGet = (req) => {
+    return JSON.stringify(req.headers)["CF-IPCountry"]
+}
+
 const utf8_to_b64 = (str) => {
     return Buffer.from(str, "utf8").toString("base64")
 }
@@ -101,6 +105,7 @@ const removeItemOnce = (arr, value) => {
 
 module.exports = {
     get_user_ip,
+    CFGeoGet,
     get_current_server_time,
     censorEmail,
     url_builder_,

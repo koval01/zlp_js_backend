@@ -105,7 +105,7 @@ const get_player_auth = (callback, telegram_id) => {
         get_player(function (data_0) {
             if (!data || !data_0.length) {
                 callback(null)
-                return;
+                return
             }
             let player = data_0[0]
             player["PREMIUM"] = !!(
