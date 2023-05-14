@@ -1,5 +1,5 @@
 const {input_e, main_e} = require("./errors")
-const {url_builder_, censorEmail, getNoun, CFGeoGet} = require("./methods")
+const {url_builder_, censorEmail, getNoun, get_user_country_code, get_user_ip} = require("./methods")
 const {encryptor, decrypt} = require("./crypto")
 const {getVerifiedTelegramData} = require("./telegram/base")
 const request = require("request")
@@ -368,8 +368,9 @@ const payment_get = async (req, resp) => {
 }
 
 const donate_services = async (req, resp) => {
-    const geo = CFGeoGet(req)
-    console.log(`Get donate services for geo: ${geo}`)
+    const geo = get_user_country_code(req)
+    const ip = get_user_ip(req)
+    console.log(`Get donate services for geo: ${geo} (IP: ${ip})`)
     try {
         function response_call(data, cache = false) {
             return resp.send({

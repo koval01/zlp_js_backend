@@ -14,10 +14,6 @@ const memRemoveKey = (key_name) => {
     return memoryCache.removeItem(key_name)
 }
 
-const CFGeoGet = (req) => {
-    return JSON.stringify(req.headers)["cf-ipcountry"]
-}
-
 const utf8_to_b64 = (str) => {
     return Buffer.from(str, "utf8").toString("base64")
 }
@@ -27,7 +23,11 @@ const b64_to_utf8 = (str) => {
 }
 
 const get_user_ip = (req) => {
-    return req.headers['x-forwarded-for'].split(",\x20")[0].trim() || req.socket.remoteAddress
+    return req.headers['cf-connecting-ip'].trim() || req.socket.remoteAddress
+}
+
+const get_user_country_code = (req) => {
+    return req.headers["cf-ipcountry"].trim()
 }
 
 const get_current_server_time = () => {
@@ -105,7 +105,7 @@ const removeItemOnce = (arr, value) => {
 
 module.exports = {
     get_user_ip,
-    CFGeoGet,
+    get_user_country_code,
     get_current_server_time,
     censorEmail,
     url_builder_,
