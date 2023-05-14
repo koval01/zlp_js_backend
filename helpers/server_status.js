@@ -1,6 +1,6 @@
-const mc_status = require("minecraft-server-util")
-
-const get_status = (callback, only_online = true) => {
+const mc_status = require("minecraft-server-util"),
+    // start context
+get_status = (callback, only_online = true) => {
     mc_status.status('zalupa.online', 25565, {
         timeout: 400
     })
@@ -20,19 +20,16 @@ const get_status = (callback, only_online = true) => {
             })
         )
         .catch((error) => callback({success: false, error: error}))
-}
-
-const mc_status_view = async (req, resp) => {
+}, mc_status_view = async (req, resp) => {
     get_status(function (status_) {
         return resp.send(status_)
     })
-}
-
-const mc_status_view_full = async (req, resp) => {
+}, mc_status_view_full = async (req, resp) => {
     get_status(function (status_) {
         return resp.send(status_)
     }, false)
 }
+
 
 module.exports = {
     mc_status_view,
