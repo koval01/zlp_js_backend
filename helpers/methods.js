@@ -15,7 +15,7 @@ const memRemoveKey = (key_name) => {
 }
 
 const CFGeoGet = (req) => {
-    return JSON.stringify(req.headers)["http_cf_ipcountry"]
+    return JSON.stringify(req.headers)
 }
 
 const utf8_to_b64 = (str) => {
