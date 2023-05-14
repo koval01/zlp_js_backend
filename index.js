@@ -37,14 +37,14 @@ app.use(global_error)
 
 app.post('/events', rateLimit({
     windowMs: 60 * 1000,
-    max: 30,
+    max: 32,
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, catchAsync(events_view))
 
 app.post('/donate/services', rateLimit({
     windowMs: 60 * 1000,
-    max: 30,
+    max: 32,
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, catchAsync(donate_services))
@@ -58,7 +58,7 @@ app.post('/donate/coupon', rateLimit({
 
 app.post('/donate/payment/get', rateLimit({
     windowMs: 60 * 1000,
-    max: 15,
+    max: 14,
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, catchAsync(payment_get))
@@ -72,21 +72,21 @@ app.post('/donate/payment/create', rateLimit({
 
 app.post('/crypto', rateLimit({
     windowMs: 60 * 1000,
-    max: 75,
+    max: 72,
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, catchAsync(crypto_view_))
 
 app.post('/telegram/auth/check', rateLimit({
     windowMs: 60 * 1000,
-    max: 50,
+    max: 48,
     standardHeaders: true,
     message: rateLimitMessage
 }), re_check, tg_check, catchAsync(tg_check_view))
 
 app.post('/server', rateLimit({
     windowMs: 60 * 1000,
-    max: 25,
+    max: 24,
     standardHeaders: true,
     message: rateLimitMessage
 }), crypto_check, catchAsync(mc_status_view))

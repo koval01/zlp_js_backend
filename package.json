@@ -18,8 +18,7 @@
     "dotenv": "^16.0.3",
     "mysql": "^2.18.1",
     "ioredis": "^5.3.2",
-    "memory-cache-node": "^1.4.0",
-    "minecraft-rcon-client": "^2.1.2"
+    "memory-cache-node": "^1.4.0"
   },
   "engines": {
     "node": "18.16.0"
