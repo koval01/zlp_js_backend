@@ -44,7 +44,7 @@ const crypto_check_raw = (req, resp, next, mode = "POST") => {
     if (mode === "GET") {
         token = req.query.crypto_token
     }
-    // console.log(`crypto_check_raw ${mode} : ${token}`)
+
     const check = crypto_check_logic(token, req)
     if (check) {
         return next()
@@ -62,7 +62,7 @@ const check_service_token = (req, resp, next) => {
     {
         success: false,
         message: 'Security error',
-        exception: 'error verify service token'});
+        exception: 'error verify service token'})
 }
 
 const crypto_check = (req, resp, next) => {
