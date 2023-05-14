@@ -27,7 +27,7 @@ const b64_to_utf8 = (str) => {
 }
 
 const get_user_ip = (req) => {
-    return req.headers['x-forwarded-for'].split(",\x20")[0].trim() || req.socket.remoteAddress
+    return req.headers['cf-connecting-ip'].trim() || req.socket.remoteAddress
 }
 
 const get_current_server_time = () => {
