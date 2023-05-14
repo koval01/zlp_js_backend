@@ -1,6 +1,4 @@
-const mysql = require('mysql')
-
-const mysql_ = function (database_name) {
+const mysql = require('mysql'), mysql_ = function (database_name) {
     if (typeof process.env.TEST_NODE !== 'undefined') {
         database_name = process.env.DB_DATABASE
     }
@@ -14,8 +12,9 @@ const mysql_ = function (database_name) {
     })
 }
 
-function sql_request(callback, database_name, query, values = []) {
-    const error = (e) => console.error(`Database error: ${e}`)
+const sql_request = (callback, database_name, query, values = []) => {
+    let error
+    error = (e) => console.error(`Database error: ${e}`)
     let con = mysql_(database_name)
     con.query(query, values,
         function (err, result, _) {
@@ -26,6 +25,5 @@ function sql_request(callback, database_name, query, values = []) {
 }
 
 module.exports = {
-    mysql_,
-    sql_request
+    mysql_, sql_request
 }
