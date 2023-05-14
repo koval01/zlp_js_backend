@@ -369,7 +369,7 @@ const payment_get = async (req, resp) => {
 
 const donate_services = async (req, resp) => {
     const geo = CFGeoGet(req)
-    console.log(`GEO: ${geo}`)
+    console.log(`Get donate services for geo: ${geo}`)
     try {
         function response_call(data, cache = false) {
             return resp.send({
